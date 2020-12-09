@@ -7,14 +7,26 @@ class App extends Component {
     constructor() {
         super();
         this.state = {
-            isLoggedIn: false
+            student: false
         }
     }
+    componentDidMount() {
+        this.authorize();
+    }
+    authorize = async () => {
+        const response = await fetch('/auth');
+        const body = await response.json();
+        if (!body) return console.log('server error');
+        if (!body.student) return console.log('no token');
+        this.setState({
+            student: body.student
+        });
+    }
     render() {
-        const { isLoggedIn } = this.state;
+        const { student } = this.state;
         return (
             <div className="App">
-                {isLoggedIn ? <Dashboard /> : <Guest />}
+                {student ? <Dashboard student={student} /> : <Guest />}
             </div>
         )
     }

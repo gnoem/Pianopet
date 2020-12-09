@@ -21,31 +21,86 @@ html, body {
     padding: 2rem;
     background: linear-gradient(90deg, rgb(255, 255, 255), #9299f0);
 }
+p, h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+}
 input, select, textarea, button {
     font-family: inherit;
     font-size: inherit;
+    outline: none;
+}
+input[type=text], input[type=password] {
+    border: 0;
+    padding: 0 0.5rem;
+    line-height: 3rem;
+    margin-bottom: 1rem;
+    overflow: visible;
 }
 input[type=submit], button {
     border: 0;
     background: var(--deep-theme-color);
-    padding: 0.5rem 1rem;
+    font-weight: bold;
+    color: #fff;
+    padding: 0.7rem 1.5rem;
     border-radius: 999px;
     cursor: pointer;
+}
+button.stealth {
+    background: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+button.link {
+    font-weight: bold;
+    color: var(--deep-theme-color);
+}
+button.link:hover {
+    color: var(--med-theme-color);
 }
 .App {
     width: 100%;
     height: 100%;
-    padding: 2rem;
     background: #fff;
     border-radius: 1.5rem;
+    overflow: hidden;
 }
 .Guest {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 350px;
+    padding: 4rem;
 }
-.Guest input {
+.Guest label {
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
     display: block;
+    text-align: left;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+.Guest input:not([type=submit]) {
+    display: block;
+    width: 100%;
     border-bottom: 2px solid var(--deep-theme-color);
+}
+.Guest input[type=submit] {
+    margin-bottom: 1rem;
+}
+.Dashboard {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.Sidebar {
+    background: var(--deep-theme-color);
+    padding: 2rem;
+    overflow: hidden;
+}
+.Window {
+    padding: 2rem;
 }
