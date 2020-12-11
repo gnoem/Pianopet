@@ -1,0 +1,199 @@
+const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('../config/secret');
+const Student = require('../models/student');
+const Teacher = require('../models/teacher');
+const Homework = require('../models/homework');
+
+module.exports = {
+    auth: (req, res) => {
+        const accessToken = req.cookies.auth;
+        if (!accessToken) return res.send({ student: false, teacher: false });
+        const decoded = jwt.verify(accessToken, config.secret);
+        Student.findOne({ _id: decoded.id }, (err, student) => {
+            if (err) {
+                console.error('error', err);
+                res.send({ success: false });
+                return;
+            }
+            if (!student) {
+                Teacher.findOne({ _id: decoded.id }, (err, teacher) => {
+                    if (err) {
+                        console.error('error finding teacher', err);
+                        res.send({ success: false });
+                        return;
+                    }
+                    if (!teacher) {
+                        console.error('no student OR teacher w that ID', err);
+                        res.send({ success: false });
+                        return;
+                    } // LOGOUT!!!!!
+                    return res.send({ success: true, teacher: teacher });
+                });
+            }
+            else return res.send({ success: true, student: student });
+        });
+    },
+    logout: (req, res) => {
+        res.clearCookie('auth');
+        res.redirect('/');
+    },
+    studentLogin: (req, res) => {
+        const { username, password } = req.body;
+        Student.findOne({ username: username }, (err, user) => {
+            if (err) return console.error('error signing in', err);
+            if (!user) return console.log('User does not exist');
+            const passwordIsValid = () => {
+                bcrypt.compareSync(password, user.password);
+            }
+            if (!passwordIsValid) return console.log('invalid password');
+            const accessToken = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: 86400 // 24 hours
+            });
+            res.cookie('auth', accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 3600000 // 1,000 hours
+            });
+            res.send({
+                success: true,
+                accessToken: accessToken
+            });
+        });
+    },
+    studentSignup: (req, res) => {
+        const { firstName, lastName, username, password, teacherCode } = req.body;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return console.log('errors found...', errors);
+        const newStudent = new Student({
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            password: bcrypt.hashSync(password, 8),
+            teacherCode: teacherCode,
+            coins: 0
+        });
+        newStudent.save(err => {
+            if (err) return console.error('error saving student...', err);
+            Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
+                if (err) return console.error('error finding teacher...', err);
+                if (!teacher) return console.log('teacher code is invalid');
+                teacher.students.push(newStudent._id);
+                teacher.save(err => {
+                    if (err) return console.error('error saving teacher...', err);
+                    const accessToken = jwt.sign({ id: newStudent.id }, config.secret, {
+                        expiresIn: 86400 // 24 hours
+                    });
+                    res.cookie('auth', accessToken, {
+                        httpOnly: true,
+                        secure: false,
+                        maxAge: 3600000 // 1,000 hours
+                    });
+                    res.send({
+                        success: true,
+                        accessToken: accessToken
+                    });
+                });
+            });
+        });
+    },
+    teacherLogin: (req, res) => {
+        const { username, password } = req.body;
+        Teacher.findOne({ username: username }, (err, user) => {
+            if (err) {
+                console.error('error signing in...', err);
+                res.send({ success: false });
+                return;
+            }
+            if (!user) {
+                console.error('user does not exist');
+                res.send({ success: false });
+                return;
+            }
+            const passwordIsValid = () => {
+                bcrypt.compareSync(password, user.password);
+            }
+            if (!passwordIsValid) {
+                console.error('invalid password');
+                res.send({ success: false });
+                return;
+            }
+            const accessToken = jwt.sign({ id: user.id }, config.secret, {
+                expiresIn: 86400 // 24 hours
+            });
+            res.cookie('auth', accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 3600000 // 1,000 hours
+            });
+            res.send({
+                success: true,
+                accessToken: accessToken
+            });
+        });
+    },
+    teacherSignup: (req, res) => {
+        const { username, password } = req.body;
+        const errors = validationResult(req);
+        if (!errors.isEmpty) {
+            console.log('errors found...', errors);
+            res.send({ success: false });
+            return;
+        }
+        const newTeacher = new Teacher({
+            username: username,
+            password: bcrypt.hashSync(password, 8),
+            students: []
+        });
+        newTeacher.save(err => {
+            if (err) {
+                console.error('error saving...', err);
+                res.send({ success: false });
+                return;
+            }
+            const accessToken = jwt.sign({ id: newTeacher.id }, config.secret, {
+                expiresIn: 86400 // 24 hours
+            });
+            res.cookie('auth', accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 3600000 // 1,000 hours
+            });
+            res.send({
+                success: true,
+                accessToken: accessToken
+            });
+        });
+    },
+    getStudents: (req, res) => {
+        const { id } = req.params;
+        Student.find({ teacherCode: id }, (err, students) => {
+            if (err) return console.error('error finding students', err);
+            if (!students) return console.log('this teacher has no students');
+            res.send({
+                students: students
+            });
+        })
+    },
+    addHomework: (req, res) => {
+        const newHomework = new Homework(req.body);
+        newHomework.save(err => {
+            if (err) return console.error('error saving homework', err);
+            res.send({ success: true });
+        }); // */
+    },
+    updateCoins: (req, res) => {
+        console.dir(req.body);
+        const { studentId, coins } = req.body;
+        Student.findOne({ _id: studentId }, (err, student) => {
+            if (err) return console.error('error finding student', err);
+            if (!student) return console.log('no student with that ID');
+            student.coins = coins;
+            student.save(err => {
+                if (err) return console.error('error saving student', err);
+                res.send({ success: true });
+            });
+        });
+    }
+}

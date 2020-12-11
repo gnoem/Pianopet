@@ -6,9 +6,7 @@ const Teacher = mongoose.model(
     new Schema({
         username: String,
         password: String,
-        students: [{
-            studentId: String // schematype.objectId
-        }]
+        students: [String] // string of student IDs
     }),
     'teachers'
 );

@@ -4,12 +4,18 @@ const Schema = mongoose.Schema;
 const Homework = mongoose.model(
     'Homework',
     new Schema({
-        studentId: String, // schematype.objectid
-        date: Date,
+        studentId: String,
+        date: {
+            type: Date,
+            default: Date.now()
+        },
         headline: String,
         assignments: [{
-            title: String,
-            progress: Number
+            label: String,
+            progress: {
+                type: Number,
+                default: 0
+            }
         }]
     }),
     'homework'

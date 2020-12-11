@@ -1,18 +1,35 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-class Dashboard extends Component {
-    logout = async () => {
-        fetch('/logout').then(() => window.location.assign('/'));
-    }
-    render() {
-        console.dir(this.props);
-        return (
-            <div className="Dashboard">
-                <div className="Sidebar"></div>
-                <div className="Window"><button className="stealth link" onClick={this.logout}>Log out</button></div>
-            </div>
-        )
-    }
+function Dashboard(props) {
+    return (
+        <div className={`${(props.teacher) ? 'Teacher' : 'Student'} Dashboard`}>
+            {props.children}
+        </div>
+    )
 }
 
-export default Dashboard;
+function Window(props) {
+    return (
+        <div className="Window">
+            {props.children}
+        </div>
+    )
+}
+
+function Sidebar(props) {
+    return (
+        <div className="Sidebar">
+            {props.children}
+        </div>
+    )
+}
+
+function Topbar(props) {
+    return (
+        <div className="Topbar">
+            {props.children}
+        </div>
+    )
+}
+
+export { Dashboard, Window, Sidebar, Topbar };
