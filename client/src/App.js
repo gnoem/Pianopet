@@ -30,6 +30,7 @@ class App extends Component {
     }
     render() {
         const { isLoaded, student, teacher } = this.state;
+        console.dir(this.state);
         const app = () => {
             if (!student && !teacher) return <Guest />
             if (student) return <Student student={student} logout={this.logout} />

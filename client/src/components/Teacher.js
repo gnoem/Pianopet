@@ -6,15 +6,22 @@ function Teacher(props) {
     const { teacher } = props;
     const [view, updateView] = useState({ type: 'home' });
     const [students, updateStudents] = useState([]);
+    const [studentId, updateStudentId] = useState(false);
     useEffect(() => {
         getStudents();
     }, []);
-    const getStudents = () => {
+    useEffect(() => {
+        let index = teacher.students.indexOf(studentId);
+        updateView({ ...view, data: students[index] });
+    }, [studentId]);
+    const getStudents = (studentId = false) => {
         const path = `/get/students/${teacher._id}`;
         fetch(path)
             .then(response => response.json())
-            .then(result => updateStudents(result.students))
-            .catch(err => updateStudents([])); // needs to also update view?
+            .then(result => {
+                updateStudents(result.students);
+                updateStudentId(studentId);
+            });
     }
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
@@ -29,7 +36,6 @@ function Teacher(props) {
     return (
         <AppContext.Provider value={getStudents}>
             <Dashboard teacher={true}>
-                <div id="demo" onClick={() => console.dir(students)}></div>
                 <Sidebar>
                     <h2>Students</h2>
                     {generateStudentList()}
@@ -102,11 +108,12 @@ function ViewStudent(props) {
 
 function StudentCoins(props) {
     const { student } = props;
-    console.dir('hi');
-    console.dir(props);
     const [coinsCount, updateCoinsCount] = useState(student.coins);
     const [makingChanges, updateMakingChanges] = useState(false);
-    const handleUpdateCoins = async () => {
+    useEffect(() => {
+        updateCoinsCount(student.coins);
+    }, [student.coins]);
+    const handleUpdateCoins = async (id) => {
         const response = await fetch('/update/coins', {
             method: 'POST',
             headers: {
@@ -121,7 +128,7 @@ function StudentCoins(props) {
         if (!body) return console.log('server error');
         if (!body.success) return console.log('no success=true message from server');
         updateMakingChanges(false);
-        props.refreshData();
+        props.refreshData(id);
     }
     const editCoinsButtons = () => {
         return (
@@ -142,7 +149,7 @@ function StudentCoins(props) {
                 {makingChanges ? editCoinsButtons() : <button className="stealth link" onClick={() => updateMakingChanges(true)}>Edit</button>}
             </div>
             {makingChanges && <div className="confirmChangesButton">
-                <button className="secondary" onClick={handleUpdateCoins}>Save</button>
+                <button className="secondary" onClick={() => handleUpdateCoins(student._id)}>Save</button>
                 <button className="secondary greyed" onClick={() => {
                     updateMakingChanges(false);
                     updateCoinsCount(student.coins);
@@ -161,7 +168,6 @@ function AddHomeworkForm(props) {
     });
     const handleAddHomework = async (e) => {
         e.preventDefault();
-        console.dir(formData);
         const response = await fetch('/add/homework', {
             method: 'POST',
             headers: {
