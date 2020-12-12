@@ -183,8 +183,22 @@ module.exports = {
             res.send({ success: true });
         }); // */
     },
+    getHomework: (req, res) => {
+        const { studentId } = req.body;
+        Homework.find({ studentId }).sort({ date: 'desc' }).exec((err, homework) => {
+            if (err) return console.error('error finding homework', err);
+            if (!homework) {
+                console.log('no homework exists for this student');
+                res.send({ success: false });
+                return;
+            }
+            res.send({
+                success: true,
+                homework: homework
+            });
+        });
+    },
     updateCoins: (req, res) => {
-        console.dir(req.body);
         const { studentId, coins } = req.body;
         Student.findOne({ _id: studentId }, (err, student) => {
             if (err) return console.error('error finding student', err);

@@ -1,11 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 
+#demo {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: 2rem;
+    height: 2rem;
+    background: #fff;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 999px;
+}
 * {
     box-sizing: border-box;
 }
 :root {
-    --med-theme-color: #9299f0;
-    --deep-theme-color: #7279e4;
+    --light-theme-color: #9299f0;
+    --med-theme-color: #7279e4;
+    --deep-theme-color: #585fc7;
 }
 html, body {
     font-family: 'Questrial';
@@ -30,7 +42,9 @@ label {
     text-transform: uppercase;
     display: block;
     text-align: left;
-    padding-bottom: 0.5rem;
+    line-height: 0.7rem;
+    margin-bottom: 0.5rem;
+    user-select: none;
 }
 input, select, textarea, button {
     font-family: inherit;
@@ -38,6 +52,19 @@ input, select, textarea, button {
     outline: none;
 }
 input[type=text], input[type=password], input[type=number], input[type=date] {
+    border: 1px solid #ddd;
+    padding: 0 0.5rem;
+    overflow: visible;
+}
+input:not([type=submit]) {
+    display: block;
+    width: 100%;
+    height: 3rem;
+}
+input:not([type=submit]):focus {
+    border-color: var(--med-theme-color);
+}
+/* input[type=text], input[type=password], input[type=number], input[type=date] {
     border: 0;
     padding: 0 0.5rem;
     line-height: 3rem;
@@ -47,23 +74,38 @@ input:not([type=submit]) {
     display: block;
     width: 100%;
     border-top: 1px solid #ddd;
-    border-bottom: 2px solid var(--deep-theme-color);
-}
+    border-bottom: 2px solid var(--med-theme-color);
+} */
 form li {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
     list-style: none;
     place-items: center;
     padding: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+li .numBubble {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #666;
+}
+.padme {
+    padding: 2rem;
+}
+input[type=submit], button {
+    cursor: pointer;
 }
 input[type=submit], button {
     border: 0;
-    background: var(--deep-theme-color);
+    background: var(--med-theme-color);
     font-weight: bold;
     color: #fff;
     padding: 0.7rem 1.5rem;
     border-radius: 999px;
-    cursor: pointer;
 }
 button.secondary {
     font-size: 0.8rem;
@@ -74,18 +116,24 @@ button.greyed {
     background: #aaa;
 }
 button.stealth {
+    color: inherit;
     background: 0;
     border: 0;
     padding: 0;
     margin: 0;
+    border-radius: 0;
+}
+button, a {
+    transition: 0.2s;
 }
 a, a:visited, button.link {
     font-weight: bold;
-    color: var(--deep-theme-color);
+    color: var(--med-theme-color);
     text-decoration: none;
+    border-radius: 0;
 }
 a:hover, button.link:hover {
-    color: var(--med-theme-color);
+    color: var(--light-theme-color);
 }
 .App {
     position: relative;
@@ -129,7 +177,7 @@ a:hover, button.link:hover {
 .Sidebar {
     grid-row: 1 / -1;
     grid-column: 1 / 2;
-    background: var(--deep-theme-color);
+    background: var(--med-theme-color);
     padding: 2rem;
     overflow: hidden;
     color: #fff;
@@ -160,8 +208,22 @@ a:hover, button.link:hover {
     padding: 2rem;
 }
 .viewStudentHeader {
+    display: flex;
+    justify-content: space-between;
     grid-row: 1 / 2;
     grid-column: 1 / 2;
+}
+.viewStudentHeader h1 {
+    margin-bottom: 0;
+}
+.viewStudentHeader button {
+    font-size: 1.5rem;
+    color: var(--deep-theme-color);
+    transition: color 0.2s;
+    margin-left: 1rem;
+}
+.viewStudentHeader button:hover {
+    color: var(--light-theme-color);
 }
 .viewStudentSidebar {
     grid-row: 1 / -1;
@@ -171,6 +233,8 @@ a:hover, button.link:hover {
 .viewStudentHomework {
     grid-row: 2 / -1;
     grid-column: 1 / 2;
+    border-top: 1px solid #ddd;
+    overflow: auto;
 }
 .studentAvatar {
     width: 150px;
@@ -227,14 +291,184 @@ a:hover, button.link:hover {
     text-align: center;
     margin-top: 2rem;
 }
-#demo {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    width: 2rem;
-    height: 2rem;
-    background: #fff;
-    border: 1px solid #ccc;
+.Exp .ExpHeader {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    user-select: none;
     cursor: pointer;
-    border-radius: 999px;
+}
+.Exp .ExpHeader::before {
+    content: '\f055';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: inherit;
+    color: var(--deep-theme-color);
+    padding-right: 0.5rem;
+}
+.Exp .ExpMain {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.2s;
+}
+.Exp.anded .ExpHeader::before {
+    content: '\f056';
+}
+.addHomeworkForm {
+    text-align: center;
+    margin-top: 2rem;
+}
+.addHomeworkFform label {
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #ccc;
+}
+.addHomework {
+    display: grid;
+    column-gap: 0.5rem;
+    row-gap: 1rem;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        'date headline'
+        'assignments assignments';
+    margin-bottom: 0.5rem;
+}
+.addHomework .addHomeworkDate {
+    grid-area: date;
+}
+.addHomework .addHomeworkHeadline {
+    grid-area: headline;
+}
+.addHomework .addHomeworkAssignments {
+    grid-area: assignments;
+}
+.Homework {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+        'header'
+        'body';
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.Homework + .Homework {
+    margin-top: 2rem;
+}
+.Homework .Header {
+    background: #f7f7f7;
+    padding: 0.5rem 1rem;
+    padding-right: 1.5rem;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}
+.Homework .Body {
+    padding: 1.5rem;
+}
+.Homework h3 {
+    margin-bottom: 0;
+}
+.Homework span.date {
+    font-size: 0.8rem;
+}
+.Homework .Header div.options {
+    position: relative;
+    display: flex;
+    align-content: center;
+}
+.Homework .Header div.options > button {
+    font-size: 1.5rem;
+    color: #aaa;
+}
+.Homework .Header div.options > button:hover {
+    color: #666;
+}
+.Homework ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.Loading {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+}
+.Modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999999;
+}
+.modalContainer {
+    display: grid;
+    height: 100%;
+    padding: 2rem 0;
+}
+.modalContent {
+    width: 55%;
+    min-width: 300px;
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    position: relative;
+    margin: auto;
+}
+.Modal button.exit {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    color: #666;
+}
+.MiniMenu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    display: inline-block;
+    white-space: pre;
+    padding: 0 0.5rem;
+}
+.MiniMenu button {
+    display: block;
+    width: 100%;
+    text-align: right;
+    font-size: 0.9em;
+    padding: 0.5rem;
+    padding-left: 1.5rem;
+    color: #666;
+    font-weight: 600;
+}
+.MiniMenu button:hover {
+    color: #aaa;
+}
+.MiniMenu button + button {
+    border-top: 1px solid #eee;
+}
+.MiniMenu button span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.MiniMenu button::after {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 0.75em;
+    padding-left: 0.5rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+.MiniMenu button.edit::after {
+    content: '\f304';
+}
+.MiniMenu button.delete::after {
+    content: '\f1f8';
+}
+.Homework .MiniMenu {
+    top: 0;
+    right: calc(100% + 0.5rem);
 }

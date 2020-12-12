@@ -10,6 +10,7 @@ module.exports = (app) => {
     app.post('/teacher/signup', validate.teacherSignup, controller.teacherSignup);
     app.get('/get/students/:id', controller.getStudents);
     app.post('/add/homework', controller.addHomework);
+    app.post('/get/homework', controller.getHomework);
     app.post('/update/coins', controller.updateCoins);
     // ADMIN POWERS:
     // create badges
