@@ -15,6 +15,10 @@ const Homework = mongoose.model(
             progress: {
                 type: Number,
                 default: 0
+            },
+            recorded: {
+                type: Boolean,
+                default: false
             }
         }]
     }),

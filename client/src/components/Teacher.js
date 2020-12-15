@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import AppContext from '../AppContext';
 import { prettifyDate } from '../utils';
 import dayjs from 'dayjs';
@@ -93,11 +93,12 @@ function ViewStudent(props) {
     const { data: student } = props;
     const [modal, updateModal] = useState(false);
     const [addedHomework, updateAddedHomework] = useState(false);
-    const refreshData = useContext(AppContext);
-    const closeForm = () => {
+    const refetchStudentData = useContext(AppContext); // when this is called, getStudents() function in Teacher() refetches student data and updates props
+    const refetchHomeworkData = () => {
         updateModal(false);
         updateAddedHomework(Date.now());
     }
+    if (!student) return null;
     return (
         <div className="Window">
             <div className="ViewStudent">
@@ -107,17 +108,17 @@ function ViewStudent(props) {
                     {modal &&
                         <Modal exit={() => updateModal(false)}>
                             <h2>{`Add homework for ${student.firstName}`}</h2>
-                            <AddHomeworkForm studentId={student._id} closeForm={closeForm} />
+                            <AddHomeworkForm studentId={student._id} refetchHomeworkData={refetchHomeworkData} />
                         </Modal>
                     }
                 </div>
                 <div className="viewStudentSidebar">
                     <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
-                    <StudentCoins student={student} restoreToDefault={[student._id]} refreshData={refreshData} />
+                    <StudentCoins student={student} restoreToDefault={[student._id]} refetchStudentData={refetchStudentData} />
                     {/*<b>Badges:</b> {student.badges.length}<br /><br />/**/}
                 </div>
                 <div className="viewStudentHomework">
-                    <ViewHomework refreshData={[addedHomework]} studentId={student._id} />
+                    <ViewHomework refetchDataOnChange={[addedHomework]} refetchStudentData={refetchStudentData} refetchHomeworkData={refetchHomeworkData} student={student} />
                 </div>
             </div>
         </div>
@@ -125,6 +126,7 @@ function ViewStudent(props) {
 }
 
 function StudentCoins(props) {
+    console.dir(props);
     const { student, restoreToDefault } = props;
     const [coinsCount, updateCoinsCount] = useState(student.coins);
     const [makingChanges, updateMakingChanges] = useState(false);
@@ -149,7 +151,7 @@ function StudentCoins(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success=true message from server');
         updateMakingChanges(false);
-        props.refreshData(id);
+        props.refetchStudentData(id);
     }
     const editCoinsButtons = () => {
         return (
@@ -181,38 +183,49 @@ function StudentCoins(props) {
 }
 
 function ViewHomework(props) {
-    const { refreshData, studentId } = props;
+    const { refetchDataOnChange, student } = props;
     const [isLoaded, updateIsLoaded] = useState(false);
     const [homework, updateHomework] = useState([]);
+    let isMounted;
     useEffect(() => {
-        fetchData();
-    }, [refreshData])
+        isMounted = true;
+        return () => isMounted = false;
+    });
     useEffect(() => {
+        if (!isMounted) return;
+        fetchData().then(homework => {
+            updateHomework(homework);
+            updateIsLoaded(true);
+        });
+    }, [refetchDataOnChange]);
+    useEffect(() => { // memory leak
+        if (!isMounted) return;
         updateIsLoaded(false);
-        fetchData();
-    }, [studentId]);
+        fetchData().then(homework => {
+            updateHomework(homework);
+            updateIsLoaded(true);
+        });
+    }, [student._id]);
     async function fetchData() {
         const response = await fetch('/get/homework', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ studentId })
+            body: JSON.stringify({ studentId: student._id })
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        updateHomework(body.homework);
-        updateIsLoaded(true);
+        return body.homework;
     }
     const viewHomework = () => {
         if (!isLoaded) return <Loading />
         if (!homework.length) return 'No homework exists for this student';
         const homeworkModules = [];
         for (let i = 0; i < homework.length; i++) {
-            homeworkModules.push(<Homework key={homework[i]._id} {...homework[i]} />)
+            homeworkModules.push(<Homework key={homework[i]._id} student={student} {...homework[i]} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} />)
         }
-        console.dir(homeworkModules);
         return homeworkModules;
     }
     return (
@@ -223,7 +236,7 @@ function ViewHomework(props) {
 }
 
 function Homework(props) {
-    const { studentId, date, headline, assignments } = props;
+    const { student, _id, date, headline, assignments } = props;
     const [showingMenu, updateShowingMenu] = useState(false);
     const [showingModal, updateShowingModal] = useState(false);
     const toggleMenu = () => {
@@ -233,26 +246,49 @@ function Homework(props) {
         return (
             <MiniMenu exit={() => updateShowingMenu(false)}>
                 <button className="stealth link edit" onClick={launchEditHomework}>Edit</button>
-                <button className="stealth link delete">Delete</button>
+                <button className="stealth link delete" onClick={confirmDeletion}>Delete</button>
             </MiniMenu>
         );
     }
     const launchEditHomework = () => {
         updateShowingMenu(false);
-        updateShowingModal(true);
+        updateShowingModal(<EditHomeworkForm {...props} closeModal={() => updateShowingModal(false)} />);
     }
-    const showModal = () => {
+    const confirmDeletion = () => {
+        updateShowingMenu(false);
+        let content = <div>
+            <h2>Are you sure you want to proceed?</h2>
+            This cannot be undone.
+            <button onClick={handleDeleteHomework}>Yes, I'm sure</button>
+            <button className="greyed" onClick={() => updateShowingModal(false)}>Cancel</button>
+        </div>;
+        updateShowingModal(content);
+    }
+    const handleDeleteHomework = async () => {
+        const response = await fetch('/delete/homework', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ _id })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        updateShowingModal(false);
+        props.refetchHomeworkData();
+    }
+    const showModal = (content) => {
         return (
             <Modal exit={() => updateShowingModal(false)}>
-                <h2>Edit homework for {prettifyDate(date)}</h2>
-                <EditHomeworkForm studentId={studentId} closeForm={() => updateShowingModal(false)} />
+                {content}
             </Modal>
         )
     }
     const homeworkAssignments = () => {
         const assignmentsList = [];
         for (let i = 0; i < assignments.length; i++) {
-            assignmentsList.push(<li key={assignments[i]._id}>{assignments[i].label} – {assignments[i].progress.toString()}% completed</li>);
+            assignmentsList.push(<Assignment student={student} homeworkId={_id} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} key={assignments[i]._id} index={i} {...assignments[i]} />);
         }
         return assignmentsList;
     }
@@ -266,15 +302,89 @@ function Homework(props) {
                 <div className="options">
                     <button className="stealth" onClick={toggleMenu}><i className="fas fa-bars"></i></button>
                     {showingMenu && showMenu()}
-                    {showingModal && showModal()}
+                    {showingModal && showModal(showingModal)}
                 </div>
             </div>
             <div className="Body">
                 <ul>
-                    {homeworkAssignments()}
+                    <li className="smol">
+                        <div className="label">Assignments</div>
+                        <div className="progress">Progress</div>
+                    </li>
                 </ul>
+                <ol>
+                    {homeworkAssignments()}
+                </ol>
             </div>
         </div>
+    )
+}
+
+function Assignment(props) {
+    const { student, homeworkId } = props;
+    const coinsNumber = useRef(null);
+    const addCoins = async (index, recorded = true) => {
+        if (props.recorded) return;
+        const response = await fetch('/update/recorded', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ _id: homeworkId, index, recorded })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        const updateCoins = async () => {
+            let coinsCount = parseInt(coinsNumber.current.innerHTML);
+            coinsCount += student.coins;
+            const response = await fetch('/update/coins', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    studentId: student._id,
+                    coins: coinsCount
+                })
+            });
+            const body = await response.json();
+            if (!body) return console.log('no response from server');
+            if (!body.success) return console.log('no { success: true } message from server');
+            console.log('success!!!!!');
+            props.refetchStudentData();
+        }
+        updateCoins();
+    }
+    const updateHomeworkProgress = async (index, value) => {
+        const response = await fetch('/update/progress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ _id: homeworkId, index, value })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        props.refetchHomeworkData();
+    }
+    return (
+        <li>
+            <div className="label">{props.label}</div>
+            <div className="progress">
+                <input type="range"
+                    min="0" max="4"
+                    defaultValue={props.progress.toString()}
+                    onChange={(e) => updateHomeworkProgress(props.index, e.target.value)}
+                    disabled={props.recorded ? true : false} />
+                {(props.progress > 0) &&
+                    <div className={`coinsEarned${props.recorded ? ' coinsAdded' : ''}`} onClick={() => addCoins(props.index)}>
+                        <img className="coinIcon" alt="coin icon" src="assets/Coin_ico.png" />
+                        <span ref={coinsNumber}>{`${props.progress * 20}`}</span>
+                    </div>}
+            </div>
+        </li>
     )
 }
 
@@ -282,7 +392,7 @@ function AddHomeworkForm(props) {
     const [formData, updateFormData] = useState({
         studentId: props.studentId,
         date: dayjs().format('YYYY-MM-DD'),
-        headline: 'Pls enter a headline',
+        headline: '',
         assignments: [{}, {}, {}, {}]
     });
     const handleAddHomework = async (e) => {
@@ -297,8 +407,7 @@ function AddHomeworkForm(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        // re dowjload data from server
-        props.closeForm();
+        props.refetchHomeworkData();
         console.log('successfully added homework!'); // */
     }
     const handleAddAssignment = (index, label) => {
@@ -306,7 +415,7 @@ function AddHomeworkForm(props) {
         let item = assignments[index];
         item = { label: label, progress: 0 }
         assignments[index] = item;
-        updateFormData({ ...formData, assignments }); // currently setting  all formdata  to assignments
+        updateFormData({ ...formData, assignments });
     }
     const today = () => {
         return dayjs().format('YYYY-MM-DD');
@@ -336,18 +445,51 @@ function AddHomeworkForm(props) {
 }
 
 function EditHomeworkForm(props) {
-    const [formData, updateFormData] = useState({
-        // existing homework object
-    });
+    const { _id, date, headline, assignments } = props;
+    const [formData, updateFormData] = useState({ _id, date, headline, assignments });
     const handleEditHomework = async (e) => {
         e.preventDefault();
-        console.dir(formData);
+        const response = await fetch('/edit/homework', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        props.closeModal();
+        props.refetchHomeworkData();
     }
+    const handleEditAssignment = (index, label) => {
+        let item = assignments[index];
+        item.label = label;
+        assignments[index] = item;
+        updateFormData({ ...formData, assignments });
+    }
+    console.log(date);
     return (
-        <form className="editHomeworkForm" onSubmit={handleEditHomework} autoComplete="off">
-            <div className="editHomework">
-                editing homework...
+        <form className="addHomeworkForm" onSubmit={handleEditHomework} autoComplete="off">
+            <h2>Edit homework for {prettifyDate(date)}</h2>
+            <div className="addHomework">
+                <div className="addHomeworkDate">
+                    <label htmlFor="date">Date:</label>
+                    <input type="date" defaultValue={date.split('T')[0]} onChange={(e) => updateFormData({ ...formData, date: e.target.value })} />
+                </div>
+                <div className="addHomeworkHeadline">
+                    <label htmlFor="headline">Headline:</label>
+                    <input type="text" defaultValue={headline} onChange={(e) => updateFormData({ ...formData, headline: e.target.value })} />
+                </div>
+                <div className="addHomeworkAssignments">
+                    <label htmlFor="assignments">Assignments:</label>
+                    <li><span className="numBubble">1.</span><input type="text" defaultValue={assignments[0].label} onChange={(e) => handleEditAssignment(0, e.target.value)} /></li>
+                    <li><span className="numBubble">2.</span><input type="text" defaultValue={assignments[1].label} onChange={(e) => handleEditAssignment(1, e.target.value)} /></li>
+                    <li><span className="numBubble">3.</span><input type="text" defaultValue={assignments[2].label} onChange={(e) => handleEditAssignment(2, e.target.value)} /></li>
+                    <li><span className="numBubble">4.</span><input type="text" defaultValue={assignments[3].label} onChange={(e) => handleEditAssignment(3, e.target.value)} /></li>
+                </div>
             </div>
+            <input type="Submit" />
         </form>
     )
 }

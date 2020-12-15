@@ -46,17 +46,28 @@ label {
     margin-bottom: 0.5rem;
     user-select: none;
 }
+.smol {
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
 input, select, textarea, button {
     font-family: inherit;
     font-size: inherit;
     outline: none;
+}
+input[type=submit], button, input[type=range] {
+    cursor: pointer;
 }
 input[type=text], input[type=password], input[type=number], input[type=date] {
     border: 1px solid #ddd;
     padding: 0 0.5rem;
     overflow: visible;
 }
-input:not([type=submit]) {
+input:disabled {
+    cursor: not-allowed;
+}
+input:not([type=submit]):not([type=range]) {
     display: block;
     width: 100%;
     height: 3rem;
@@ -95,9 +106,6 @@ li .numBubble {
 }
 .padme {
     padding: 2rem;
-}
-input[type=submit], button {
-    cursor: pointer;
 }
 input[type=submit], button {
     border: 0;
@@ -316,7 +324,10 @@ a:hover, button.link:hover {
 }
 .addHomeworkForm {
     text-align: center;
-    margin-top: 2rem;
+}
+.addHomeworkForm h2 {
+    text-align: left;
+    margin-bottom: 2rem;
 }
 .addHomeworkFform label {
     padding-bottom: 0.4rem;
@@ -364,7 +375,7 @@ a:hover, button.link:hover {
     justify-content: space-between;
 }
 .Homework .Body {
-    padding: 1.5rem;
+    padding: 1rem;
 }
 .Homework h3 {
     margin-bottom: 0;
@@ -384,10 +395,53 @@ a:hover, button.link:hover {
 .Homework .Header div.options > button:hover {
     color: #666;
 }
+.Homework ol {
+    margin: 0;
+}
 .Homework ul {
     list-style: none;
+    display: flex;
     margin: 0;
     padding: 0;
+}
+.Homework li {
+    width: 100%;
+}
+.Homework li > div {
+    display: inline-block;
+    width: 50%;
+    padding: 0.2rem;
+}
+.Homework ul div.label {
+    margin-right: -40px;
+}
+.Homework ul div.progress {
+    margin-left: 40px;
+}
+.Homework input[type=range] {
+    display: inline-block;
+    vertical-align: middle;
+}
+.Homework .coinsEarned {
+    display: inline-flex;
+    vertical-align: middle;
+    place-items: center;
+    margin-left: 0.5rem;
+    color: #aaa;
+    cursor: pointer;
+}
+.Homework .coinsEarned .coinIcon {
+    height: 1rem;
+    margin-right: 0.2rem;
+    margin-left: 0.5rem;
+    filter: grayscale(100%);
+}
+.Homework .coinsEarned.coinsAdded {
+    color: inherit;
+    cursor: default;
+}
+.Homework .coinsEarned.coinsAdded .coinIcon {
+    filter: none;
 }
 .Loading {
     display: grid;

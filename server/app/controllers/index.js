@@ -183,6 +183,14 @@ module.exports = {
             res.send({ success: true });
         }); // */
     },
+    deleteHomework: (req, res) => {
+        const { _id } = req.body;
+        Homework.findOneAndDelete({ _id }, (err, homework) => {
+            if (err) return console.error('error deleting homework', err);
+            if (!homework) return console.log(`homework ${_id} not found`);
+            res.send({ success: true });
+        });
+    },
     getHomework: (req, res) => {
         const { studentId } = req.body;
         Homework.find({ studentId }).sort({ date: 'desc' }).exec((err, homework) => {
@@ -198,6 +206,47 @@ module.exports = {
             });
         });
     },
+    editHomework: (req, res) => {
+        const { _id, date, headline, assignments } = req.body;
+        Homework.findOne({ _id }, (err, homework) => {
+            if (err) return console.error('error finding homework', err);
+            if (!homework) return console.log(`homework ${_id} not found!`);
+            homework.date = date;
+            homework.headline = headline;
+            homework.assignments = assignments;
+            homework.save(err => {
+                if (err) return console.error('error saving homework', err);
+                res.send({ success: true });
+                return;
+            });
+        });
+    },
+    updateProgress: (req, res) => {
+        const { _id, index, value } = req.body;
+        Homework.findOne({ _id }, (err, homework) => {
+            if (err) return console.error('error finding homework', err);
+            if (!homework) return console.log(`homework ${_id} not found`);
+            homework.assignments[index].progress = value;
+            homework.save(err => {
+                if (err) return console.error('error saving homework', err);
+                res.send({ success: true });
+                return;
+            });
+        });
+    },
+    updateRecorded: (req, res) => {
+        const { _id, index, recorded } = req.body;
+        Homework.findOne({ _id }, (err, homework) => {
+            if (err) return console.error('error finding homework', err);
+            if (!homework) return console.log(`homework ${_id} not found`);
+            homework.assignments[index].recorded = recorded;
+            homework.save(err => {
+                if (err) return console.error('error saving homework', err);
+                res.send({ success: true });
+                return;
+            });
+        });
+    },
     updateCoins: (req, res) => {
         const { studentId, coins } = req.body;
         Student.findOne({ _id: studentId }, (err, student) => {
@@ -207,6 +256,7 @@ module.exports = {
             student.save(err => {
                 if (err) return console.error('error saving student', err);
                 res.send({ success: true });
+                console.log(`success; student coins is ${student.coins}`);
             });
         });
     }
