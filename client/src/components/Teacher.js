@@ -98,7 +98,6 @@ function ViewStudent(props) {
         updateModal(false);
         updateAddedHomework(Date.now());
     }
-    if (!student) return null;
     return (
         <div className="Window">
             <div className="ViewStudent">
@@ -115,7 +114,6 @@ function ViewStudent(props) {
                 <div className="viewStudentSidebar">
                     <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
                     <StudentCoins student={student} restoreToDefault={[student._id]} refetchStudentData={refetchStudentData} />
-                    {/*<b>Badges:</b> {student.badges.length}<br /><br />/**/}
                 </div>
                 <div className="viewStudentHomework">
                     <ViewHomework refetchDataOnChange={[addedHomework]} refetchStudentData={refetchStudentData} refetchHomeworkData={refetchHomeworkData} student={student} />
@@ -186,20 +184,13 @@ function ViewHomework(props) {
     const { refetchDataOnChange, student } = props;
     const [isLoaded, updateIsLoaded] = useState(false);
     const [homework, updateHomework] = useState([]);
-    let isMounted;
     useEffect(() => {
-        isMounted = true;
-        return () => isMounted = false;
-    });
-    useEffect(() => {
-        if (!isMounted) return;
         fetchData().then(homework => {
             updateHomework(homework);
             updateIsLoaded(true);
         });
-    }, [refetchDataOnChange]);
+    }, refetchDataOnChange);
     useEffect(() => { // memory leak
-        if (!isMounted) return;
         updateIsLoaded(false);
         fetchData().then(homework => {
             updateHomework(homework);
@@ -352,7 +343,8 @@ function Assignment(props) {
             if (!body) return console.log('no response from server');
             if (!body.success) return console.log('no { success: true } message from server');
             console.log('success!!!!!');
-            props.refetchStudentData();
+            props.refetchStudentData(student._id);
+            props.refetchHomeworkData();
         }
         updateCoins();
     }
