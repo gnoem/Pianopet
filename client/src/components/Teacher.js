@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import AppContext from '../AppContext';
 import { prettifyDate } from '../utils';
 import dayjs from 'dayjs';
@@ -12,13 +12,6 @@ function Teacher(props) {
     const [view, updateView] = useState({ type: 'home' });
     const [students, updateStudents] = useState([]);
     const [lastUpdatedData, updateLastUpdatedData] = useState(false);
-    useEffect(() => {
-        getStudents();
-    }, []);
-    useEffect(() => {
-        let index = teacher.students.indexOf(lastUpdatedData.studentId);
-        updateView(prevView => ({ ...prevView, data: students[index] }));
-    }, [lastUpdatedData.studentId, lastUpdatedData.timestamp, teacher.students, students]);
     const getStudents = (studentId = false) => {
         const path = `/get/students/${teacher._id}`;
         fetch(path)
@@ -28,6 +21,11 @@ function Teacher(props) {
                 updateStudents(result.students);
             });
     }
+    useEffect(getStudents, [teacher._id]);
+    useEffect(() => {
+        let index = teacher.students.indexOf(lastUpdatedData.studentId);
+        updateView(prevView => ({ ...prevView, data: students[index] }));
+    }, [lastUpdatedData.studentId, lastUpdatedData.timestamp, teacher.students, students]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const studentList = [];
@@ -130,7 +128,8 @@ function StudentCoins(props) {
     const [makingChanges, updateMakingChanges] = useState(false);
     useEffect(() => {
         updateMakingChanges(false);
-    }, [restoreToDefault]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, restoreToDefault);
     useEffect(() => {
         updateCoinsCount(student.coins);
     }, [student.coins]);
@@ -184,20 +183,7 @@ function ViewHomework(props) {
     const { refetchDataOnChange, student } = props;
     const [isLoaded, updateIsLoaded] = useState(false);
     const [homework, updateHomework] = useState([]);
-    useEffect(() => {
-        fetchData().then(homework => {
-            updateHomework(homework);
-            updateIsLoaded(true);
-        });
-    }, refetchDataOnChange);
-    useEffect(() => { // memory leak
-        updateIsLoaded(false);
-        fetchData().then(homework => {
-            updateHomework(homework);
-            updateIsLoaded(true);
-        });
-    }, [student._id]);
-    async function fetchData() {
+    const fetchData = useCallback(async () => {
         const response = await fetch('/get/homework', {
             method: 'POST',
             headers: {
@@ -209,7 +195,21 @@ function ViewHomework(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
         return body.homework;
-    }
+    }, [student._id]);
+    useEffect(() => {
+        fetchData().then(homework => {
+            updateHomework(homework);
+            updateIsLoaded(true);
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, refetchDataOnChange);
+    useEffect(() => {
+        updateIsLoaded(false);
+        fetchData().then(homework => {
+            updateHomework(homework);
+            updateIsLoaded(true);
+        });
+    }, [fetchData, student._id]);
     const viewHomework = () => {
         if (!isLoaded) return <Loading />
         if (!homework.length) return 'No homework exists for this student';
