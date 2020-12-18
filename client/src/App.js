@@ -31,7 +31,7 @@ class App extends Component {
         const { isLoaded, student, teacher } = this.state;
         const app = () => {
             if (!student && !teacher) return <Guest />
-            if (student) return <Student student={student} logout={this.logout} />
+            if (student) return <Student logout={this.logout} />
             if (teacher) return <Teacher teacher={teacher} logout={this.logout} />
         }
         console.log('app loaded');
