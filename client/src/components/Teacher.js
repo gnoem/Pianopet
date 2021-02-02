@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import Loading from './Loading';
 import Modal from './Modal';
 import MiniMenu from './MiniMenu';
-import { Dashboard, Sidebar, Topbar } from './Dashboard';
+import { Dashboard, Sidebar } from './Dashboard';
 
 function Teacher(props) {
     const { teacher } = props;
@@ -46,10 +46,6 @@ function Teacher(props) {
                         Teacher code: <b>{props.teacher._id}</b>
                     </div>
                 </Sidebar>
-                <Topbar>
-                    <button className="stealth link" onClick={() => updateView({ type: 'home' })}>Home</button>
-                    <button className="stealth link" onClick={props.logout}>Log out</button>
-                </Topbar>
                 <Window view={view} />
             </Dashboard>
         </AppContext.Provider>

@@ -8,11 +8,19 @@ function Dashboard(props) {
     )
 }
 
-function Window(props) {
+function Header(props) {
     return (
-        <div className="Window">
-            {props.children}
-        </div>
+        <>
+            <div className="Logo">
+                pianopet
+            </div>
+            <div className="Header">
+                <h1>My Dashboard</h1>
+            </div>
+            <div className="User">
+                {props.children}
+            </div>
+        </>
     )
 }
 
@@ -24,12 +32,12 @@ function Sidebar(props) {
     )
 }
 
-function Topbar(props) {
+function Nav(props) {
     return (
-        <div className="Topbar">
+        <div className="Nav">
             {props.children}
         </div>
     )
 }
 
-export { Dashboard, Window, Sidebar, Topbar };
+export { Dashboard, Header, Sidebar, Nav };
