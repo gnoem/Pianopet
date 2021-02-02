@@ -12,7 +12,7 @@ function Header(props) {
     return (
         <>
             <div className="Logo">
-                pianopet
+                <img src="assets/logo.svg" alt="pianopet logo" />
             </div>
             <div className="Header">
                 <h1>My Dashboard</h1>

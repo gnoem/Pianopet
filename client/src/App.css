@@ -199,7 +199,11 @@ a:hover, button.link:hover {
     font-family: var(--display-font);
     font-size: 1.5rem;
     text-shadow: -0.1rem 0.1rem 0 #fff;
-    padding-left: 3rem;
+    padding: 1rem 2rem 1rem 3rem;
+}
+.Logo img {
+    width: auto;
+    height: 3.5rem;
 }
 .Header {
     grid-area: header;
@@ -313,7 +317,7 @@ a:hover, button.link:hover {
     content: '';
     display: block;
     width: 0.5rem;
-    height: 4rem;
+    height: 2rem;
     background: inherit;
     position: absolute;
     bottom: 100%;
