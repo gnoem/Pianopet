@@ -23,6 +23,7 @@
     --med-theme-color: #7279e4;
     --deep-theme-color: #585fc7;
     --dark-theme-color: #09172F;
+    --light-accent-color: #eeeeee;
     --med-accent-color: #FF8772;
 }
 html, body {
@@ -214,7 +215,6 @@ a:hover, button.link:hover {
 .User {
     grid-area: user;
     text-align: right;
-    display: flex;
 }
 .Sidebar, .Main, .Nav {
     padding: 2rem;
@@ -447,10 +447,9 @@ a:hover, button.link:hover {
     margin-top: 2rem;
 }
 .Homework .Header {
-    background: #f7f7f7;
-    padding: 0.5rem 1rem;
+    background: var(--light-accent-color);
+    padding: 1rem 1.5rem;
     padding-right: 1.5rem;
-    border-bottom: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
 }
