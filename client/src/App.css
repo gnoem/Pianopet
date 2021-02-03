@@ -213,6 +213,8 @@ a:hover, button.link:hover {
 }
 .User {
     grid-area: user;
+    text-align: right;
+    display: flex;
 }
 .Sidebar, .Main, .Nav {
     padding: 2rem;
