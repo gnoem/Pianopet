@@ -498,6 +498,17 @@ function EditHomeworkForm(props) {
 }
 
 function TeacherMarketplace() {
+    const [formData, setFormData] = useState({});
+    const updateFormData = (key, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    }
+    const handleAddWearable = (e) => {
+        e.preventDefault();
+        console.table(formData);
+    }
     return (
         <div className="Main">
             marketplace!
@@ -510,6 +521,15 @@ function TeacherMarketplace() {
                 <li>add new wearables</li>
                 <li>edit/delete existing wearables</li>
             </ul>
+            <form className="pad" onSubmit={handleAddWearable}>
+                <label htmlFor="name">Wearable name:</label>
+                <input type="text" onChange={(e) => updateFormData('name', e.target.value)} />
+                <label htmlFor="src">Image link:</label>
+                <input type="text" onChange={(e) => updateFormData('src', e.target.value)} />
+                <label htmlFor="value">Wearable value:</label>
+                <input type="text" onChange={(e) => updateFormData('value', e.target.value)} />
+                <input type="submit" />
+            </form>
         </div>
     )
 }

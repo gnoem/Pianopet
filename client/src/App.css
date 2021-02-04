@@ -182,7 +182,7 @@ a:hover, button.link:hover {
     grid-template-columns: 1fr 350px;
     padding: 4rem;
 }
-.Guest input {
+.Guest input, form.pad input {
     margin-bottom: 1rem;
 }
 .Signup input:not([type=submit]) {
