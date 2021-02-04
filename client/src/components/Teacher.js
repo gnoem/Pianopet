@@ -68,8 +68,8 @@ function Main(props) {
     switch (view.type) {
         case 'home': return <Home />;
         case 'student': return <ViewStudent data={view.data} />;
-        case 'marketplace': return <Marketplace />;
-        case 'badges': return <Badges />;
+        case 'marketplace': return <TeacherMarketplace />;
+        case 'badges': return <TeacherBadges />;
         default: return <Home />;
     }
 }
@@ -497,18 +497,31 @@ function EditHomeworkForm(props) {
     )
 }
 
-function Marketplace() {
+function TeacherMarketplace() {
     return (
         <div className="Main">
             marketplace!
+            <div className="marketplace">
+                marketplace component: view = category;<br />
+                generate list of clothing items based on view<br />
+                clothing item onclick = preview
+            </div>
+            <ul>
+                <li>add new wearables</li>
+                <li>edit/delete existing wearables</li>
+            </ul>
         </div>
     )
 }
 
-function Badges() {
+function TeacherBadges() {
     return (
         <div className="Main">
             badges!
+            <ul>
+                <li>add new badges</li>
+                <li>edit/delete badges</li>
+            </ul>
         </div>
     )
 }
