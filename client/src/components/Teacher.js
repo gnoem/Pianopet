@@ -5,65 +5,78 @@ import dayjs from 'dayjs';
 import Loading from './Loading';
 import Modal from './Modal';
 import MiniMenu from './MiniMenu';
-import { Dashboard, Sidebar } from './Dashboard';
+import { Dashboard, Header, Sidebar } from './Dashboard';
 
 function Teacher(props) {
     const { teacher } = props;
-    const [view, updateView] = useState({ type: 'home' });
-    const [students, updateStudents] = useState([]);
-    const [lastUpdatedData, updateLastUpdatedData] = useState(false);
+    const [view, setView] = useState({ type: 'home' });
+    const [students, setStudents] = useState([]);
+    const [lastUpdatedData, setLastUpdatedData] = useState(false);
     const getStudents = (studentId = false) => {
         const path = `/get/students/${teacher._id}`;
         fetch(path)
             .then(response => response.json())
             .then(result => {
-                if (studentId) updateLastUpdatedData({ studentId, timestamp: Date.now() });
-                updateStudents(result.students);
+                if (studentId) setLastUpdatedData({ studentId, timestamp: Date.now() });
+                setStudents(result.students);
             });
     }
     useEffect(getStudents, [teacher._id]);
     useEffect(() => {
         let index = teacher.students.indexOf(lastUpdatedData.studentId);
-        updateView(prevView => ({ ...prevView, data: students[index] }));
+        setView(prevView => ({ ...prevView, data: students[index] }));
     }, [lastUpdatedData.studentId, lastUpdatedData.timestamp, teacher.students, students]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const studentList = [];
         for (let i = 0; i < students.length; i++) {
             studentList.push(
-                <li key={students[i]._id}><button onClick={() => updateView({ type: 'student', data: students[i] })}>{students[i].firstName} {students[i].lastName}</button></li>
+                <li key={students[i]._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: students[i] })}>{students[i].firstName} {students[i].lastName}</button></li>
             );
         }
-        return <ul>{studentList}</ul>;
+        return <ul className="stealth">{studentList}</ul>;
     }
     return (
         <AppContext.Provider value={getStudents}>
             <Dashboard teacher={true}>
+                <Header>
+                    {teacher.username}
+                </Header>
                 <Sidebar>
                     <h2>Students</h2>
                     {generateStudentList()}
+                    <hr />
+                    <h2>Control Panel</h2>
+                    <ul className="stealth">
+                        <li><button onClick={() => setView({ type: 'marketplace' })} className="stealth link">Marketplace</button></li>
+                        <li><button onClick={() => setView({ type: 'badges' })} className="stealth link">Badges</button></li>
+                    </ul>
+                    <hr />
                     <div className="teacherCode">
-                        Teacher code: <b>{props.teacher._id}</b>
+                        Teacher code:<br />
+                        <b style={{ fontSize: '0.8rem' }}>{teacher._id}</b>
                     </div>
                 </Sidebar>
-                <Window view={view} />
+                <Main view={view} />
             </Dashboard>
         </AppContext.Provider>
     )
 }
 
-function Window(props) {
+function Main(props) {
     const { view } = props;
     switch (view.type) {
         case 'home': return <Home />;
         case 'student': return <ViewStudent data={view.data} />;
+        case 'marketplace': return <Marketplace />;
+        case 'badges': return <Badges />;
         default: return <Home />;
     }
 }
 
 function Home() {
     return (
-        <div className="Window padme">
+        <div className="Main padme">
             <h1>Dashboard</h1>
             <ul>
                 <li>View student dashboard</li>
@@ -92,8 +105,9 @@ function ViewStudent(props) {
         updateModal(false);
         updateAddedHomework(Date.now());
     }
+    if (!student) return;
     return (
-        <div className="Window">
+        <div className="Main">
             <div className="ViewStudent">
                 <div className="viewStudentHeader">
                     <h1>{student.firstName}'s Homework Progress</h1>
@@ -106,7 +120,9 @@ function ViewStudent(props) {
                     }
                 </div>
                 <div className="viewStudentSidebar">
-                    <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
+                    <div className="avatarContainer">
+                        <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
+                    </div>
                     <StudentCoins student={student} restoreToDefault={[student._id]} refetchStudentData={refetchStudentData} />
                 </div>
                 <div className="viewStudentHomework">
@@ -118,7 +134,6 @@ function ViewStudent(props) {
 }
 
 function StudentCoins(props) {
-    console.dir(props);
     const { student, restoreToDefault } = props;
     const [coinsCount, updateCoinsCount] = useState(student.coins);
     const [makingChanges, updateMakingChanges] = useState(false);
@@ -479,6 +494,22 @@ function EditHomeworkForm(props) {
             </div>
             <input type="Submit" />
         </form>
+    )
+}
+
+function Marketplace() {
+    return (
+        <div className="Main">
+            marketplace!
+        </div>
+    )
+}
+
+function Badges() {
+    return (
+        <div className="Main">
+            badges!
+        </div>
     )
 }
 

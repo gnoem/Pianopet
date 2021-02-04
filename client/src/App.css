@@ -41,6 +41,17 @@ html, body {
 p, h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
 }
+hr {
+    border: 0;
+    background: rgba(255, 255, 255, 0.5);
+    width: 60%;
+    height: 1px;
+    margin: 2rem auto;
+}
+ul.stealth {
+    list-style: none;
+    padding: 0;
+}
 label {
     font-weight: bold;
     font-size: 0.7rem;
@@ -226,6 +237,11 @@ a:hover, button.link:hover {
 }
 .Main {
     grid-area: main;
+    color: #fff;
+}
+.Teacher.Dashboard .Main {
+    grid-column: 2 / -1;
+    margin-right: 3rem;
 }
 .Nav {
     grid-area: nav;
@@ -272,18 +288,17 @@ a:hover, button.link:hover {
     height: 100%;
     display: grid;
     grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr 250px;
-}
-.ViewStudent > div {
-    padding: 2rem;
+    grid-template-columns: 1fr auto;
 }
 .viewStudentHeader {
     display: flex;
     justify-content: space-between;
     grid-row: 1 / 2;
     grid-column: 1 / 2;
+    padding-bottom: 2rem;
 }
 .viewStudentHeader h1 {
+    color: #fff;
     margin-bottom: 0;
 }
 .viewStudentHeader button {
@@ -298,12 +313,11 @@ a:hover, button.link:hover {
 .viewStudentSidebar {
     grid-row: 1 / -1;
     grid-column: 2 / -1;
-    border-left: 1px solid #ddd;
+    margin-left: 3rem;
 }
 .viewStudentHomework {
     grid-row: 2 / -1;
     grid-column: 1 / 2;
-    border-top: 1px solid #ddd;
     overflow: auto;
 }
 .avatarContainer {
@@ -334,6 +348,10 @@ a:hover, button.link:hover {
     border: 3px solid var(--dark-theme-color);
     border-radius: 999px;
 }
+.Teacher.Dashboard .studentAvatar {
+    width: 12rem;
+    height: 12rem;
+}
 .StudentCoins, .studentCoins {
     display: grid;
     column-gap: 0.5rem;
@@ -358,6 +376,7 @@ a:hover, button.link:hover {
     grid-row: 1 / 2;
     grid-column: 2 / 3;
     font-weight: bold;
+    color: #fff;
 }
 .editCoinsButton {
     display: flex;
@@ -377,7 +396,6 @@ a:hover, button.link:hover {
 }
 .teacherCode {
     text-align: center;
-    margin-top: 2rem;
 }
 .Exp .ExpHeader {
     font-size: 1.3rem;
@@ -440,6 +458,7 @@ a:hover, button.link:hover {
         'header'
         'body';
     background: #fff;
+    color: #000;
     border-radius: 1rem;
     overflow: hidden;
 }
