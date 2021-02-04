@@ -150,6 +150,19 @@ button.stealth {
 button, a {
     transition: 0.2s;
 }
+select {
+    border: 1px solid #ddd;
+}
+.buttons {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+.buttons button + button {
+    margin-left: 1rem;
+}
+.buttons svg {
+    height: 2.65rem;
+}
 a, a:visited, button.link {
     font-weight: bold;
     color: var(--med-theme-color);
@@ -182,7 +195,7 @@ a:hover, button.link:hover {
     grid-template-columns: 1fr 350px;
     padding: 4rem;
 }
-.Guest input, form.pad input {
+.Guest input, form.pad input:not([type=submit]) {
     margin-bottom: 1rem;
 }
 .Signup input:not([type=submit]) {

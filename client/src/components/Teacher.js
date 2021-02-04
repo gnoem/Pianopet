@@ -12,6 +12,7 @@ function Teacher(props) {
     const [view, setView] = useState({ type: 'home' });
     const [students, setStudents] = useState([]);
     const [lastUpdatedData, setLastUpdatedData] = useState(false);
+    const [modal, setModal] = useState(false);
     const getStudents = (studentId = false) => {
         const path = `/get/students/${teacher._id}`;
         fetch(path)
@@ -38,6 +39,7 @@ function Teacher(props) {
     }
     return (
         <AppContext.Provider value={getStudents}>
+            {modal && <Modal exit={() => setModal(false)} children={modal} />}
             <Dashboard teacher={true}>
                 <Header>
                     {teacher.username}
@@ -57,7 +59,7 @@ function Teacher(props) {
                         <b style={{ fontSize: '0.8rem' }}>{teacher._id}</b>
                     </div>
                 </Sidebar>
-                <Main view={view} />
+                <Main view={view} modal={modal} updateModal={setModal} />
             </Dashboard>
         </AppContext.Provider>
     )
@@ -66,11 +68,11 @@ function Teacher(props) {
 function Main(props) {
     const { view } = props;
     switch (view.type) {
-        case 'home': return <Home />;
-        case 'student': return <ViewStudent data={view.data} />;
-        case 'marketplace': return <TeacherMarketplace />;
-        case 'badges': return <TeacherBadges />;
-        default: return <Home />;
+        case 'home': return <Home {...props} />;
+        case 'student': return <ViewStudent {...props} data={view.data} />;
+        case 'marketplace': return <TeacherMarketplace {...props} />;
+        case 'badges': return <TeacherBadges {...props} />;
+        default: return <Home {...props} />;
     }
 }
 
@@ -98,12 +100,20 @@ function Home() {
 
 function ViewStudent(props) {
     const { data: student } = props;
-    const [modal, updateModal] = useState(false);
-    const [addedHomework, updateAddedHomework] = useState(false);
+    const [addedHomework, setAddedHomework] = useState(false);
     const refetchStudentData = useContext(AppContext); // when this is called, getStudents() function in Teacher() refetches student data and updates props
     const refetchHomeworkData = () => {
-        updateModal(false);
-        updateAddedHomework(Date.now());
+        props.updateModal(false);
+        setAddedHomework(Date.now());
+    }
+    const addNewHomework = () => {
+        let content = (
+            <div className="modalBox">
+                <h2>{`Add homework for ${student.firstName}`}</h2>
+                <AddHomeworkForm studentId={student._id} refetchHomeworkData={refetchHomeworkData} />
+            </div>
+        )
+        props.updateModal(content);
     }
     if (!student) return;
     return (
@@ -111,13 +121,7 @@ function ViewStudent(props) {
             <div className="ViewStudent">
                 <div className="viewStudentHeader">
                     <h1>{student.firstName}'s Homework Progress</h1>
-                    <button className="stealth" onClick={() => updateModal(true)}><i className="fas fa-plus-circle"></i></button>
-                    {modal &&
-                        <Modal exit={() => updateModal(false)}>
-                            <h2>{`Add homework for ${student.firstName}`}</h2>
-                            <AddHomeworkForm studentId={student._id} refetchHomeworkData={refetchHomeworkData} />
-                        </Modal>
-                    }
+                    <button className="stealth" onClick={addNewHomework}><i className="fas fa-plus-circle"></i></button>
                 </div>
                 <div className="viewStudentSidebar">
                     <div className="avatarContainer">
@@ -126,7 +130,7 @@ function ViewStudent(props) {
                     <StudentCoins student={student} restoreToDefault={[student._id]} refetchStudentData={refetchStudentData} />
                 </div>
                 <div className="viewStudentHomework">
-                    <ViewHomework refetchDataOnChange={[addedHomework]} refetchStudentData={refetchStudentData} refetchHomeworkData={refetchHomeworkData} student={student} />
+                    <ViewHomework {...props} refetchDataOnChange={[addedHomework]} refetchStudentData={refetchStudentData} refetchHomeworkData={refetchHomeworkData} student={student} />
                 </div>
             </div>
         </div>
@@ -226,7 +230,7 @@ function ViewHomework(props) {
         if (!homework.length) return 'No homework exists for this student';
         const homeworkModules = [];
         for (let i = 0; i < homework.length; i++) {
-            homeworkModules.push(<Homework key={homework[i]._id} student={student} {...homework[i]} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} />)
+            homeworkModules.push(<Homework {...props} key={homework[i]._id} student={student} {...homework[i]} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} />)
         }
         return homeworkModules;
     }
@@ -240,7 +244,6 @@ function ViewHomework(props) {
 function Homework(props) {
     const { student, _id, date, headline, assignments } = props;
     const [showingMenu, updateShowingMenu] = useState(false);
-    const [showingModal, updateShowingModal] = useState(false);
     const toggleMenu = () => {
         updateShowingMenu(prevState => !prevState);
     }
@@ -254,17 +257,21 @@ function Homework(props) {
     }
     const launchEditHomework = () => {
         updateShowingMenu(false);
-        updateShowingModal(<EditHomeworkForm {...props} closeModal={() => updateShowingModal(false)} />);
+        props.updateModal(<EditHomeworkForm {...props} />);
     }
     const confirmDeletion = () => {
         updateShowingMenu(false);
-        let content = <div>
-            <h2>Are you sure you want to proceed?</h2>
-            This cannot be undone.
-            <button onClick={handleDeleteHomework}>Yes, I'm sure</button>
-            <button className="greyed" onClick={() => updateShowingModal(false)}>Cancel</button>
-        </div>;
-        updateShowingModal(content);
+        let content = (
+            <div className="modalBox">
+                <h2>Are you sure you want to proceed?</h2>
+                This cannot be undone.
+                <div className="buttons">
+                    <button onClick={handleDeleteHomework}>Yes, I'm sure</button>
+                    <button className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                </div>
+            </div>
+        );
+        props.updateModal(content);
     }
     const handleDeleteHomework = async () => {
         const response = await fetch('/delete/homework', {
@@ -277,15 +284,8 @@ function Homework(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        updateShowingModal(false);
+        props.updateModal(false);
         props.refetchHomeworkData();
-    }
-    const showModal = (content) => {
-        return (
-            <Modal exit={() => updateShowingModal(false)}>
-                {content}
-            </Modal>
-        )
     }
     const homeworkAssignments = () => {
         const assignmentsList = [];
@@ -304,7 +304,6 @@ function Homework(props) {
                 <div className="options">
                     <button className="stealth" onClick={toggleMenu}><i className="fas fa-bars"></i></button>
                     {showingMenu && showMenu()}
-                    {showingModal && showModal(showingModal)}
                 </div>
             </div>
             <div className="Body">
@@ -497,17 +496,9 @@ function EditHomeworkForm(props) {
     )
 }
 
-function TeacherMarketplace() {
-    const [formData, setFormData] = useState({});
-    const updateFormData = (key, value) => {
-        setFormData(prevState => ({
-            ...prevState,
-            [key]: value
-        }));
-    }
-    const handleAddWearable = (e) => {
-        e.preventDefault();
-        console.table(formData);
+function TeacherMarketplace(props) {
+    const addNewWearable = () => {
+        props.updateModal(<AddNewWearable {...props} />)
     }
     return (
         <div className="Main">
@@ -521,14 +512,64 @@ function TeacherMarketplace() {
                 <li>add new wearables</li>
                 <li>edit/delete existing wearables</li>
             </ul>
+            <button onClick={addNewWearable}>Add new wearable</button>
+        </div>
+    )
+}
+
+function AddNewWearable(props) {
+    const [loadingIcon, setLoadingIcon] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        category: 'head',
+        src: '',
+        value: ''
+    });
+    const updateFormData = (key, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    }
+    const handleAddWearable = async (e) => {
+        e.preventDefault();
+        setLoadingIcon(true);
+        console.table(formData);
+        /* const response = await fetch('/add/wearable', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: formData
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        console.table(formData);
+        props.updateModal(false); // */
+    }
+    return (
+        <div className="modalBox">
             <form className="pad" onSubmit={handleAddWearable}>
+                <h2>Add new wearable</h2>
                 <label htmlFor="name">Wearable name:</label>
                 <input type="text" onChange={(e) => updateFormData('name', e.target.value)} />
+                <label htmlFor="value">Category:</label>
+                <select style={{ marginBottom: '1rem', padding: '0.5rem' }} onChange={(e) => updateFormData('category', e.target.value)} value={formData.category}>
+                    <option value="head">Head</option>
+                    <option value="face">Face</option>
+                    <option value="body">Body</option>
+                </select>
                 <label htmlFor="src">Image link:</label>
                 <input type="text" onChange={(e) => updateFormData('src', e.target.value)} />
                 <label htmlFor="value">Wearable value:</label>
                 <input type="text" onChange={(e) => updateFormData('value', e.target.value)} />
-                <input type="submit" />
+                <div className="buttons">
+                    {loadingIcon
+                        ? <Loading />
+                        : <input type="submit" />
+                    }
+                </div>
             </form>
         </div>
     )

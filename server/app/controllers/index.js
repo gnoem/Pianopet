@@ -5,6 +5,7 @@ const config = require('../config/secret');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const Homework = require('../models/homework');
+const Wearable = require('../models/wearable');
 
 module.exports = {
     auth: (req, res) => {
@@ -258,6 +259,14 @@ module.exports = {
                 res.send({ success: true });
                 console.log(`success; student coins is ${student.coins}`);
             });
+        });
+    },
+    addWearable: (req, res) => {
+        const { wearable } = req.body;
+        const newWearable = new Wearable(wearable);
+        newWearable.save(err => {
+            if (err) return console.error('error saving wearable', err);
+            res.send({ success: true });
         });
     }
 }
