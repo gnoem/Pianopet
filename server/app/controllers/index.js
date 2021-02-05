@@ -262,11 +262,13 @@ module.exports = {
         });
     },
     addWearable: (req, res) => {
-        const { wearable } = req.body;
-        const newWearable = new Wearable(wearable);
+        // todo validate name
+        const { name, category, src, value } = req.body;
+        const newWearable = new Wearable({ name, category, src, value });
         newWearable.save(err => {
             if (err) return console.error('error saving wearable', err);
             res.send({ success: true });
-        });
+            console.log(`successfully added ${newWearable}`);
+        }); // */
     }
 }

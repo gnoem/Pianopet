@@ -535,12 +535,12 @@ function AddNewWearable(props) {
         e.preventDefault();
         setLoadingIcon(true);
         console.table(formData);
-        /* const response = await fetch('/add/wearable', {
+        const response = await fetch('/add/wearable', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: formData
+            body: JSON.stringify(formData)
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
