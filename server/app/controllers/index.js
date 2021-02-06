@@ -167,6 +167,22 @@ module.exports = {
             });
         });
     },
+    getTeacherData: (req, res) => {
+        const { _id } = req.body;
+        Student.find({ teacherCode: _id }, (err, students) => {
+            if (err) return console.error('error finding students', err);
+            if (!students || !students.length) console.log('this teacher has no students');
+            Wearable.find({ teacherCode: _id }, (err, wearables) => {
+                if (err) return console.error('error finding wearables', err);
+                if (!wearables || !wearables.length) console.log('this teacher hasnt uploaded any wearables');
+                res.send({
+                    success: true,
+                    students,
+                    wearables
+                });
+            });
+        });
+    },
     getStudents: (req, res) => {
         const { id } = req.params;
         Student.find({ teacherCode: id }, (err, students) => {
@@ -201,6 +217,8 @@ module.exports = {
                 res.send({ success: false });
                 return;
             }
+            console.log(studentId);
+            console.dir(homework);
             res.send({
                 success: true,
                 homework: homework
@@ -263,8 +281,8 @@ module.exports = {
     },
     addWearable: (req, res) => {
         // todo validate name
-        const { name, category, src, value } = req.body;
-        const newWearable = new Wearable({ name, category, src, value });
+        const { teacherCode, name, category, src, value } = req.body;
+        const newWearable = new Wearable({ teacherCode, name, category, src, value });
         newWearable.save(err => {
             if (err) return console.error('error saving wearable', err);
             res.send({ success: true });

@@ -2,28 +2,30 @@ import { useState } from 'react';
 
 export default function Marketplace(props) {
     const { wearables } = props;
+    console.table(wearables);
     const [preview, setPreview] = useState({});
-    const [category, setCategory] = useState('hair');
-    const updatePreview = (src, category) => {
+    const [category, setCategory] = useState('head');
+    const updatePreview = ({ category, src, name }) => {
         setPreview(prevState => ({
             ...prevState,
-            [category]: src
+            [category]: { src, name }
         }));
     }
     const generatePreview = (preview) => {
         console.table(preview);
     }
     const generateWearables = (category) => {
+        console.table(wearables);
         const filteredList = wearables.filter(wearable => wearable.category === category);
         const array = [];
         for (let i = 0; i < filteredList.length; i++) {
             array.push(
-                <div className="wearableItem">
+                <div className="wearableItem" key={`${category}-wearable-${filteredList[i].name}`}>
                     <button className="stealth">
                         <img
                             alt={filteredList[i].name}
-                            src={filteredList[i].src} />
-                            onClick={() => updatePreview(filteredList[i].src, filteredList[i].category)}
+                            src={filteredList[i].src}
+                            onClick={() => updatePreview(filteredList[i])} />
                     </button>
                 </div>
             );

@@ -8,6 +8,7 @@ module.exports = (app) => {
     app.post('/student/signup', validate.studentSignup, (req, res) => controller.studentSignup(req, res));
     app.post('/teacher/login', controller.teacherLogin);
     app.post('/teacher/signup', validate.teacherSignup, controller.teacherSignup);
+    app.post('/teacher/data', controller.getTeacherData);
     app.get('/get/students/:id', controller.getStudents);
     app.post('/add/homework', controller.addHomework);
     app.post('/delete/homework', controller.deleteHomework);

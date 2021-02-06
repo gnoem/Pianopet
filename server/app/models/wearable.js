@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const Wearable = mongoose.model(
     'Wearable',
     new Schema({
+        teacherCode: String,
         name: String,
         category: String,
         value: Number,
