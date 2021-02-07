@@ -669,3 +669,38 @@ a:hover, button.link:hover {
 .StudentSidebar .studentCoins {
     grid-template-columns: auto auto;
 }
+.Marketplace {
+    background: #fff;
+    height: 20rem;
+    display: grid;
+    grid-template: auto 1fr / 13rem 1fr;
+    grid-template-areas:
+        'preview nav'
+        'preview items';
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.marketplacePreview {
+    grid-area: preview;
+    padding: 1rem;
+    border-right: 1px solid #666;
+}
+.marketplaceCategories {
+    grid-area: nav;
+    padding: 0.5rem;
+    background: var(--light-theme-color);
+}
+.marketplaceCategories button {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--deep-theme-color);
+}
+.marketplaceCategories button + button {
+    margin-left: 0.5rem;
+}
+.marketplaceWearables {
+    grid-area: items;
+    padding: 1rem;
+    overflow-y: auto;
+}
