@@ -217,8 +217,6 @@ module.exports = {
                 res.send({ success: false });
                 return;
             }
-            console.log(studentId);
-            console.dir(homework);
             res.send({
                 success: true,
                 homework: homework

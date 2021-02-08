@@ -252,6 +252,7 @@ a:hover, button.link:hover {
 .Main {
     grid-area: main;
     color: #fff;
+    overflow-y: auto;
 }
 .Teacher.Dashboard .Main {
     grid-column: 2 / -1;

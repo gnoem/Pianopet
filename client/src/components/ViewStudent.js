@@ -20,6 +20,7 @@ export default function ViewStudent(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
+        console.log('refreshed homework');
         setHomework(body.homework);
         setIsLoaded(true);
     }
@@ -31,7 +32,7 @@ export default function ViewStudent(props) {
         let content = (
             <div className="modalBox">
                 <h2>{`Add homework for ${student.firstName}`}</h2>
-                <AddHomeworkForm {...props} {...state} />
+                <AddHomeworkForm {...props} {...state} refreshHomework={getHomework} />
             </div>
         )
         props.updateModal(content);
@@ -49,10 +50,10 @@ export default function ViewStudent(props) {
                     <div className="avatarContainer">
                         <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
                     </div>
-                    <StudentCoins student={student} />
+                    <StudentCoins {...props} />
                 </div>
                 <div className="viewStudentHomework">
-                    <ViewHomework {...props} {...state} />
+                    <ViewHomework {...props} {...state} refreshHomework={getHomework} />
                 </div>
             </div>
         </div>
@@ -117,12 +118,12 @@ function StudentCoins(props) {
 }
 
 function ViewHomework(props) {
-    const { student, homework } = props;
+    const { homework } = props;
     const viewHomework = () => {
         if (!homework.length) return 'No homework exists for this student';
         const homeworkModules = [];
         for (let i = 0; i < homework.length; i++) {
-            homeworkModules.push(<Homework {...props} key={homework[i]._id} student={student} {...homework[i]} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} />)
+            homeworkModules.push(<Homework {...props} key={homework[i]._id} {...homework[i]} />)
         }
         return homeworkModules;
     }
@@ -134,7 +135,7 @@ function ViewHomework(props) {
 }
 
 function Homework(props) {
-    const { student, _id, date, headline, assignments } = props;
+    const { _id, date, headline, assignments } = props;
     const [showingMenu, updateShowingMenu] = useState(false);
     const toggleMenu = () => {
         updateShowingMenu(prevState => !prevState);
@@ -153,14 +154,19 @@ function Homework(props) {
     }
     const confirmDeletion = () => {
         updateShowingMenu(false);
-        let content = (
+        let content = (options = {
+            loadingIcon: false
+        }) => (
             <div className="modalBox">
                 <h2>Are you sure you want to proceed?</h2>
                 This cannot be undone.
-                <div className="buttons">
-                    <button onClick={handleDeleteHomework}>Yes, I'm sure</button>
-                    <button className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                </div>
+                {options.loadingIcon
+                    ?   <Loading />
+                    :   <div className="buttons">
+                            <button onClick={handleDeleteHomework}>Yes, I'm sure</button>
+                            <button className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                        </div>
+                    }
             </div>
         );
         props.updateModal(content);
@@ -177,12 +183,12 @@ function Homework(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
         props.updateModal(false);
-        props.refetchHomeworkData();
+        props.refreshHomework();
     }
     const homeworkAssignments = () => {
         const assignmentsList = [];
         for (let i = 0; i < assignments.length; i++) {
-            assignmentsList.push(<Assignment student={student} homeworkId={_id} refetchStudentData={props.refetchStudentData} refetchHomeworkData={props.refetchHomeworkData} key={assignments[i]._id} index={i} {...assignments[i]} />);
+            assignmentsList.push(<Assignment {...props} homeworkId={_id} key={assignments[i]._id} index={i} {...assignments[i]} />);
         }
         return assignmentsList;
     }
@@ -245,8 +251,8 @@ function Assignment(props) {
             if (!body) return console.log('no response from server');
             if (!body.success) return console.log('no { success: true } message from server');
             console.log('success!!!!!');
-            props.refetchStudentData(student._id);
-            props.refetchHomeworkData();
+            props.refreshData();
+            props.refreshHomework();
         }
         updateCoins();
     }
@@ -261,7 +267,7 @@ function Assignment(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        props.refetchHomeworkData();
+        props.refreshHomework();
     }
     return (
         <li>
@@ -301,8 +307,9 @@ function AddHomeworkForm(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        props.refreshData();
         props.updateModal(false);
+        props.refreshData();
+        props.refreshHomework();
     }
     const handleAddAssignment = (index, label) => {
         let { assignments } = formData;
@@ -354,7 +361,7 @@ function EditHomeworkForm(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
         props.closeModal();
-        props.refetchHomeworkData();
+        props.refreshHomework();
     }
     const handleEditAssignment = (index, label) => {
         let item = assignments[index];

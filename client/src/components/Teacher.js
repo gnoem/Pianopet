@@ -21,6 +21,7 @@ export default function Teacher(props) {
         refreshData: setShouldRefreshData
     }
     const getTeacherData = async () => {
+        console.log('refreshed teacher data');
         const response = await fetch('/teacher/data', {
             method: 'POST',
             headers: {
