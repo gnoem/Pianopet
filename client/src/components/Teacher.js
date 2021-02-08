@@ -4,6 +4,7 @@ import ViewStudent from './ViewStudent';
 import Loading from './Loading';
 import Modal from './Modal';
 import Marketplace from './Marketplace';
+import { getArrayIndexByKeyValue } from '../utils';
 
 export default function Teacher(props) {
     const { teacher } = props;
@@ -11,15 +12,6 @@ export default function Teacher(props) {
     const [students, setStudents] = useState([]);
     const [wearables, setWearables] = useState([]);
     const [modal, setModal] = useState(false);
-    const [shouldRefreshData, setShouldRefreshData] = useState(true);
-    const state = {
-        view,
-        students,
-        wearables,
-        modal,
-        updateModal: setModal,
-        refreshData: setShouldRefreshData
-    }
     const getTeacherData = async () => {
         console.log('refreshed teacher data');
         const response = await fetch('/teacher/data', {
@@ -34,12 +26,30 @@ export default function Teacher(props) {
         if (!body.success) return console.log('no success response from server');
         setStudents(body.students);
         setWearables(body.wearables);
+        if (view.type === 'student') {
+            const refreshThisStudent = (prevView) => {
+                console.log('refreshing student');
+                let thisStudent = prevView.data;
+                let index = getArrayIndexByKeyValue('_id', thisStudent._id, students);
+                return students[index];
+            }
+            setView(prevView => ({
+                type: 'student',
+                data: refreshThisStudent(prevView)
+            }));
+        }
+    }
+    const state = {
+        view,
+        students,
+        wearables,
+        modal,
+        updateModal: setModal,
+        refreshData: getTeacherData
     }
     useEffect(() => {
-        if (!shouldRefreshData) return;
         getTeacherData();
-        setShouldRefreshData(false);
-    }, [teacher._id, shouldRefreshData]);
+    }, [teacher._id]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const studentList = [];

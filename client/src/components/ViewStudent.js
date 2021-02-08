@@ -360,7 +360,7 @@ function EditHomeworkForm(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        props.closeModal();
+        props.updateModal(false);
         props.refreshHomework();
     }
     const handleEditAssignment = (index, label) => {
