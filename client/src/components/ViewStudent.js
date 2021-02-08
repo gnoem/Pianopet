@@ -69,6 +69,8 @@ function StudentCoins(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [student._id]);
     useEffect(() => {
+        console.log('updating coins count');
+        // NOT WORKING!!!!!
         updateCoinsCount(student.coins);
     }, [student.coins]);
     const handleUpdateCoins = async () => {
