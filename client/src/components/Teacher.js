@@ -13,7 +13,6 @@ export default function Teacher(props) {
     const [wearables, setWearables] = useState([]);
     const [modal, setModal] = useState(false);
     const getTeacherData = async () => {
-        console.log('refreshed teacher data');
         const response = await fetch('/teacher/data', {
             method: 'POST',
             headers: {
@@ -28,10 +27,9 @@ export default function Teacher(props) {
         setWearables(body.wearables);
         if (view.type === 'student') {
             const refreshThisStudent = (prevView) => {
-                console.log('refreshing student');
                 let thisStudent = prevView.data;
-                let index = getArrayIndexByKeyValue('_id', thisStudent._id, students);
-                return students[index];
+                let index = getArrayIndexByKeyValue('_id', thisStudent._id, body.students);
+                return body.students[index];
             }
             setView(prevView => ({
                 type: 'student',

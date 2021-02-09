@@ -20,7 +20,6 @@ export default function ViewStudent(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
-        console.log('refreshed homework');
         setHomework(body.homework);
         setIsLoaded(true);
     }
@@ -69,8 +68,6 @@ function StudentCoins(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [student._id]);
     useEffect(() => {
-        console.log('updating coins count');
-        // NOT WORKING!!!!!
         updateCoinsCount(student.coins);
     }, [student.coins]);
     const handleUpdateCoins = async () => {
