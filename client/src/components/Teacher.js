@@ -5,6 +5,7 @@ import Loading from './Loading';
 import Modal from './Modal';
 import Marketplace from './Marketplace';
 import { getArrayIndexByKeyValue } from '../utils';
+import MiniMenu from './MiniMenu';
 
 export default function Teacher(props) {
     const { teacher } = props;
@@ -126,12 +127,8 @@ function TeacherMarketplace(props) {
     }
     return (
         <div className="Main">
-            marketplace!
+            <h1>Marketplace</h1>
             <Marketplace {...props} />
-            <ul>
-                <li>add new wearables</li>
-                <li>edit/delete existing wearables</li>
-            </ul>
             <button onClick={addNewWearable}>Add new wearable</button>
         </div>
     )
@@ -169,6 +166,7 @@ function AddNewWearable(props) {
         if (!body.success) return console.log('no success response from server');
         console.table(formData);
         props.updateModal(false); // */
+        props.refreshData();
     }
     return (
         <div className="modalBox">
@@ -205,10 +203,6 @@ function TeacherBadges(props) {
         <div className="Main">
             <h1>Badges</h1>
             <Badges {...props} />
-            <ul>
-                <li>add new badges</li>
-                <li>edit/delete badges</li>
-            </ul>
             <button onClick={addNewBadge}>Add new badge</button>
         </div>
     )
@@ -216,7 +210,6 @@ function TeacherBadges(props) {
 
 function Badges(props) {
     const { badges } = props;
-    console.table(badges);
     const generateBadgeList = () => {
         let array = [];
         for (let badge of badges) {
@@ -265,7 +258,8 @@ function AddNewBadge(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        props.updateModal(false); // */
+        props.updateModal(false);
+        props.refreshData();
     }
     return (
         <div className="modalBox">
