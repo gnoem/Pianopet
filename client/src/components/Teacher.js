@@ -223,15 +223,15 @@ function Badges(props) {
             array.push(
                 <div className="badgeItem">
                     <img alt={badge.name} src={badge.src} />
-                    {badge.name}
-                    {badge.value}
+                    <span className="badgeName">{badge.name}</span>
+                    <span className="badgeValue">{badge.value}</span>
                 </div>
             )
         }
         return array;
     }
     return (
-        <div className="TeacherBadges">
+        <div className="BadgeList">
             {generateBadgeList()}
         </div>
     )
