@@ -6,6 +6,7 @@ const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const Homework = require('../models/homework');
 const Wearable = require('../models/wearable');
+const Badge = require('../models/badge');
 
 module.exports = {
     auth: (req, res) => {
@@ -175,10 +176,15 @@ module.exports = {
             Wearable.find({ teacherCode: _id }, (err, wearables) => {
                 if (err) return console.error('error finding wearables', err);
                 if (!wearables || !wearables.length) console.log('this teacher hasnt uploaded any wearables');
-                res.send({
-                    success: true,
-                    students,
-                    wearables
+                Badge.find({ teacherCode: _id }, (err, badges) => {
+                    if (err) return console.error('error finding badges', err);
+                    if (!badges || !badges.length) console.log('this teacher hasnt uploaded any badges');
+                    res.send({
+                        success: true,
+                        students,
+                        wearables,
+                        badges
+                    });
                 });
             });
         });
@@ -286,5 +292,15 @@ module.exports = {
             res.send({ success: true });
             console.log(`successfully added ${newWearable}`);
         }); // */
-    }
+    },
+    addBadge: (req, res) => {
+        // todo validate name
+        const { teacherCode, name, src, value } = req.body;
+        const newBadge = new Badge({ teacherCode, name, src, value });
+        newBadge.save(err => {
+            if (err) return console.error('error saving badge', err);
+            res.send({ success: true });
+            console.log(`successfully added ${newBadge}`);
+        }); // */
+    },
 }

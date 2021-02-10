@@ -4,11 +4,10 @@ const Schema = mongoose.Schema;
 const Badge = mongoose.model(
     'Badge',
     new Schema({
-        badgeID: String,
-        badgeName: String,
-        badgeDescription: String,
-        badgeImage: String,
-        badgeValue: Number
+        teacherCode: String,
+        name: String,
+        src: String,
+        value: Number
     }),
     'badges'
 );

@@ -11,6 +11,7 @@ export default function Teacher(props) {
     const [view, setView] = useState({ type: 'home' });
     const [students, setStudents] = useState([]);
     const [wearables, setWearables] = useState([]);
+    const [badges, setBadges] = useState([]);
     const [modal, setModal] = useState(false);
     const getTeacherData = async () => {
         const response = await fetch('/teacher/data', {
@@ -25,15 +26,16 @@ export default function Teacher(props) {
         if (!body.success) return console.log('no success response from server');
         setStudents(body.students);
         setWearables(body.wearables);
+        setBadges(body.badges);
         if (view.type === 'student') {
-            const refreshThisStudent = (prevView) => {
+            const refreshCurrentStudent = (prevView) => {
                 let thisStudent = prevView.data;
                 let index = getArrayIndexByKeyValue('_id', thisStudent._id, body.students);
                 return body.students[index];
             }
             setView(prevView => ({
                 type: 'student',
-                data: refreshThisStudent(prevView)
+                data: refreshCurrentStudent(prevView)
             }));
         }
     }
@@ -41,6 +43,7 @@ export default function Teacher(props) {
         view,
         students,
         wearables,
+        badges,
         modal,
         updateModal: setModal,
         refreshData: getTeacherData
@@ -194,14 +197,93 @@ function AddNewWearable(props) {
     )
 }
 
-function TeacherBadges() {
+function TeacherBadges(props) {
+    const addNewBadge = () => {
+        props.updateModal(<AddNewBadge {...props} />)
+    }
     return (
         <div className="Main">
-            badges!
+            <h1>Badges</h1>
+            <Badges {...props} />
             <ul>
                 <li>add new badges</li>
                 <li>edit/delete badges</li>
             </ul>
+            <button onClick={addNewBadge}>Add new badge</button>
+        </div>
+    )
+}
+
+function Badges(props) {
+    const { badges } = props;
+    console.table(badges);
+    const generateBadgeList = () => {
+        let array = [];
+        for (let badge of badges) {
+            array.push(
+                <div className="badgeItem">
+                    <img alt={badge.name} src={badge.src} />
+                    {badge.name}
+                    {badge.value}
+                </div>
+            )
+        }
+        return array;
+    }
+    return (
+        <div className="TeacherBadges">
+            {generateBadgeList()}
+        </div>
+    )
+}
+
+function AddNewBadge(props) {
+    const { teacher } = props;
+    const [loadingIcon, setLoadingIcon] = useState(false);
+    const [formData, setFormData] = useState({
+        teacherCode: teacher._id,
+        name: '',
+        src: '',
+        value: ''
+    });
+    const updateFormData = (key, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    }
+    const handleAddBadge = async (e) => {
+        e.preventDefault();
+        setLoadingIcon(true);
+        const response = await fetch('/add/badge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        props.updateModal(false); // */
+    }
+    return (
+        <div className="modalBox">
+            <form className="pad" onSubmit={handleAddBadge}>
+                <h2>Add new badge</h2>
+                <label htmlFor="name">Badge name:</label>
+                <input type="text" onChange={(e) => updateFormData('name', e.target.value)} />
+                <label htmlFor="src">Image link:</label>
+                <input type="text" onChange={(e) => updateFormData('src', e.target.value)} />
+                <label htmlFor="value">Badge value:</label>
+                <input type="text" onChange={(e) => updateFormData('value', e.target.value)} />
+                <div className="buttons">
+                    {loadingIcon
+                        ? <Loading />
+                        : <input type="submit" />
+                    }
+                </div>
+            </form>
         </div>
     )
 }
