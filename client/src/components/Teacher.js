@@ -4,8 +4,8 @@ import ViewStudent from './ViewStudent';
 import Loading from './Loading';
 import Modal from './Modal';
 import Marketplace from './Marketplace';
+import ContextMenu from './ContextMenu';
 import { getArrayIndexByKeyValue } from '../utils';
-import MiniMenu from './MiniMenu';
 
 export default function Teacher(props) {
     const { teacher } = props;
@@ -14,6 +14,7 @@ export default function Teacher(props) {
     const [wearables, setWearables] = useState([]);
     const [badges, setBadges] = useState([]);
     const [modal, setModal] = useState(false);
+    const [contextMenu, setContextMenu] = useState(false);
     const getTeacherData = async () => {
         const response = await fetch('/teacher/data', {
             method: 'POST',
@@ -40,15 +41,6 @@ export default function Teacher(props) {
             }));
         }
     }
-    const state = {
-        view,
-        students,
-        wearables,
-        badges,
-        modal,
-        updateModal: setModal,
-        refreshData: getTeacherData
-    }
     useEffect(() => {
         getTeacherData();
     }, [teacher._id]);
@@ -62,9 +54,30 @@ export default function Teacher(props) {
         }
         return <ul className="stealth">{studentList}</ul>;
     }
+    const updateContextMenu = (e, content) => {
+        const position = {
+            top: `${e.clientY}px`,
+            right: `${window.innerWidth - e.clientX}px`
+        }
+        setContextMenu({
+            position,
+            content
+        });
+    }
+    const state = {
+        view,
+        students,
+        wearables,
+        badges,
+        modal,
+        updateModal: setModal,
+        updateContextMenu,
+        refreshData: getTeacherData
+    }
     return (
         <Dashboard teacher={true}>
             {modal && <Modal exit={() => setModal(false)} children={modal} />}
+            {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
             <Header>
                 {teacher.username}
             </Header>
@@ -165,7 +178,7 @@ function AddNewWearable(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
         console.table(formData);
-        props.updateModal(false); // */
+        props.updateModal(false);
         props.refreshData();
     }
     return (
@@ -197,7 +210,7 @@ function AddNewWearable(props) {
 
 function TeacherBadges(props) {
     const addNewBadge = () => {
-        props.updateModal(<AddNewBadge {...props} />)
+        props.updateModal(<AddOrEditBadge {...props} />)
     }
     return (
         <div className="Main">
@@ -210,12 +223,27 @@ function TeacherBadges(props) {
 
 function Badges(props) {
     const { badges } = props;
+    const editOrDeleteBadge = (e, _id) => {
+        e.preventDefault();
+        const editBadge = () => {
+            const index = badges.findIndex(badge => badge._id === _id);
+            const badge = badges[index];
+            props.updateModal(<AddOrEditBadge {...props} badge={badge} />)
+        }
+        let content = (
+            <ul>
+                <li><button className="stealth link" onClick={editBadge}>Edit</button></li>
+                <li><button className="stealth link">Delete</button></li>
+            </ul>
+        );
+        props.updateContextMenu(e, content);
+    }
     const generateBadgeList = () => {
         let array = [];
         for (let badge of badges) {
             array.push(
                 <div className="badgeItem">
-                    <img alt={badge.name} src={badge.src} />
+                    <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
                     <span className="badgeName">{badge.name}</span>
                     <span className="badgeValue">{badge.value}</span>
                 </div>
@@ -230,14 +258,14 @@ function Badges(props) {
     )
 }
 
-function AddNewBadge(props) {
-    const { teacher } = props;
+function AddOrEditBadge(props) {
+    const { teacher, badge } = props;
     const [loadingIcon, setLoadingIcon] = useState(false);
     const [formData, setFormData] = useState({
         teacherCode: teacher._id,
-        name: '',
-        src: '',
-        value: ''
+        name: badge ? badge.name : '',
+        src: badge ? badge.src : '',
+        value: badge ? badge.value : ''
     });
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
@@ -245,10 +273,11 @@ function AddNewBadge(props) {
             [key]: value
         }));
     }
-    const handleAddBadge = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        const response = await fetch('/add/badge', {
+        const ROUTE = badge ? '/edit/badge' : '/add/badge';
+        const response = await fetch(ROUTE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -263,14 +292,14 @@ function AddNewBadge(props) {
     }
     return (
         <div className="modalBox">
-            <form className="pad" onSubmit={handleAddBadge}>
-                <h2>Add new badge</h2>
+            <form className="pad" onSubmit={handleSubmit}>
+                <h2>{badge ? 'Edit this' : 'Add new'} badge</h2>
                 <label htmlFor="name">Badge name:</label>
-                <input type="text" onChange={(e) => updateFormData('name', e.target.value)} />
+                <input type="text" defaultValue={badge.name} onChange={(e) => updateFormData('name', e.target.value)} />
                 <label htmlFor="src">Image link:</label>
-                <input type="text" onChange={(e) => updateFormData('src', e.target.value)} />
+                <input type="text" defaultValue={badge.src} onChange={(e) => updateFormData('src', e.target.value)} />
                 <label htmlFor="value">Badge value:</label>
-                <input type="text" onChange={(e) => updateFormData('value', e.target.value)} />
+                <input type="text" defaultValue={badge.value} onChange={(e) => updateFormData('value', e.target.value)} />
                 <div className="buttons">
                     {loadingIcon
                         ? <Loading />

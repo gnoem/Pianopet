@@ -4,6 +4,10 @@ export const prettifyDate = (date) => {
     return prettierDate;
 }
 
+export const elementHasParent = (element, selector) => {
+    return element.closest(selector);
+}
+
 export const getArrayIndexByKeyValue = (key, value, array) => {
     return array.findIndex(element => element[key] === value);
 }
