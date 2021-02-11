@@ -104,7 +104,7 @@ input:not([type=submit]) {
     border-top: 1px solid #ddd;
     border-bottom: 2px solid var(--med-theme-color);
 } */
-form li {
+/* form li {
     display: grid;
     grid-template-columns: auto 1fr;
     column-gap: 0.5rem;
@@ -112,7 +112,7 @@ form li {
     place-items: center;
     padding: 0;
     margin-bottom: 0.5rem;
-}
+} */
 li .numBubble {
     display: block;
     width: 1.5rem;
@@ -753,4 +753,81 @@ a:hover, button.link:hover {
 }
 .ContextMenu li + li {
     border-top: 1px solid #ddd;
+}
+
+.Dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+.dropdownDisplay {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    padding-right: 3rem;
+    transition: 0.2s;
+    position: relative;
+    z-index: 2;
+    background: #fff;
+}
+.dropdownDisplay::after {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    content: '\f0d9';
+    position: absolute;
+    top: 50%;
+    right: 0.7rem;
+    transform: translate3d(0, -50%, 0);
+    transition: 0.2s;
+}
+.Dropdown.expanded .dropdownDisplay {
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+.Dropdown.expanded .dropdownDisplay::after {
+    transform: translate3d(0, -50%, 0) rotate(-90deg);
+}
+.dropdownDisplay, .dropdownList button {
+    color: #666;
+    font-weight: 400;
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1.5;
+}
+.dropdownList, .dropdownList li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.dropdownList {
+    background: #fff;
+    transition: 0.2s;
+    overflow: hidden;
+    position: absolute;
+    z-index: 0;
+    top: calc(100% - 0.5rem);
+    left: 0;
+    width: 100%;
+    border-radius: 0 0 0.5rem 0.5rem;
+    border: 1px solid #ddd;
+    border-top: 0;
+}
+.Dropdown.expanded .dropdownList {
+    margin-top: 0.5rem;
+}
+.dropdownList li + li {
+    border-top: 1px solid #ddd;
+}
+.dropdownList button {
+    background: #fff;
+    padding: 0.3rem 0.6rem;
+    margin: 0;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-radius: 0;
+    color: #666;
+}
+.dropdownList button:hover {
+    background: #f7f7f7;
 }

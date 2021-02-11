@@ -5,6 +5,7 @@ import Loading from './Loading';
 import Modal from './Modal';
 import ContextMenu from './ContextMenu';
 import { getArrayIndexByKeyValue } from '../utils';
+import Dropdown from './Dropdown';
 
 export default function Teacher(props) {
     const { teacher } = props;
@@ -149,7 +150,7 @@ function TeacherMarketplace(props) {
 function Marketplace(props) {
     const { wearables } = props;
     const [preview, setPreview] = useState({});
-    const [category, setCategory] = useState('head');
+    const [category, setCategory] = useState('Head');
     const editOrDeleteWearable = (e, _id) => {
         e.preventDefault();
         const editWearable = () => {
@@ -165,7 +166,7 @@ function Marketplace(props) {
         props.updateContextMenu(e, content);
     }
     const updatePreview = ({ category, src, name }) => {
-        if (preview[category]) {
+        if (preview[category] && preview[category].name === name) {
             const previewObjectMinusCategory = (prevState) => {
                 const object = {...prevState};
                 delete object[category];
@@ -208,14 +209,13 @@ function Marketplace(props) {
     }
     return (
         <div className="Marketplace">
-            <div id="demo" onClick={() => console.table(preview)}></div>
             <div className="marketplacePreview">
                 {generatePreview(preview)}
             </div>
             <div className="marketplaceCategories">
-                <button className="stealth" onClick={() => setCategory('head')}>Head</button>
-                <button className="stealth" onClick={() => setCategory('face')}>Face</button>
-                <button className="stealth" onClick={() => setCategory('body')}>Body</button>
+                <button className="stealth" onClick={() => setCategory('Head')}>Head</button>
+                <button className="stealth" onClick={() => setCategory('Face')}>Face</button>
+                <button className="stealth" onClick={() => setCategory('Body')}>Body</button>
             </div>
             <div className="marketplaceWearables">
                 {generateWearables(category)}
@@ -231,7 +231,7 @@ function AddOrEditWearable(props) {
         _id: wearable ? wearable._id : '',
         teacherCode: wearable ? wearable.teacherCode : teacher._id,
         name: wearable ? wearable.name : '',
-        category: wearable ? wearable.category : 'head',
+        category: wearable ? wearable.category : 'Head',
         src: wearable ? wearable.src : '',
         value: wearable ? wearable.value : ''
     });
@@ -244,7 +244,6 @@ function AddOrEditWearable(props) {
     const handleAddWearable = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        console.table(formData);
         const ROUTE = wearable ? '/edit/wearable' : '/add/wearable';
         const response = await fetch(ROUTE, {
             method: 'POST',
@@ -256,7 +255,6 @@ function AddOrEditWearable(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        console.table(formData);
         props.updateModal(false);
         props.refreshData();
     }
@@ -267,14 +265,10 @@ function AddOrEditWearable(props) {
                 <label htmlFor="name">Wearable name:</label>
                 <input type="text" defaultValue={wearable ? wearable.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
                 <label htmlFor="value">Category:</label>
-                <select
-                  value={formData.category}
-                  style={{ marginBottom: '1rem', padding: '0.5rem' }}
-                  onChange={(e) => updateFormData('category', e.target.value)}>
-                    <option value="head">Head</option>
-                    <option value="face">Face</option>
-                    <option value="body">Body</option>
-                </select>
+                <Dropdown
+                    defaultValue={formData.category}
+                    listItems={['Head', 'Face', 'Body']}
+                    onChange={(value) => updateFormData('category', value)} />
                 <label htmlFor="src">Image link:</label>
                 <input type="text" defaultValue={wearable ? wearable.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />
                 <label htmlFor="value">Wearable value:</label>
