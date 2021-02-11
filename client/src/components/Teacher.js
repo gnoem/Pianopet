@@ -262,7 +262,8 @@ function AddOrEditBadge(props) {
     const { teacher, badge } = props;
     const [loadingIcon, setLoadingIcon] = useState(false);
     const [formData, setFormData] = useState({
-        teacherCode: teacher._id,
+        _id: badge ? badge._id : '',
+        teacherCode: badge ? badge.teacherCode : teacher._id,
         name: badge ? badge.name : '',
         src: badge ? badge.src : '',
         value: badge ? badge.value : ''
@@ -295,11 +296,11 @@ function AddOrEditBadge(props) {
             <form className="pad" onSubmit={handleSubmit}>
                 <h2>{badge ? 'Edit this' : 'Add new'} badge</h2>
                 <label htmlFor="name">Badge name:</label>
-                <input type="text" defaultValue={badge.name} onChange={(e) => updateFormData('name', e.target.value)} />
+                <input type="text" defaultValue={badge ? badge.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
                 <label htmlFor="src">Image link:</label>
-                <input type="text" defaultValue={badge.src} onChange={(e) => updateFormData('src', e.target.value)} />
+                <input type="text" defaultValue={badge ? badge.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />
                 <label htmlFor="value">Badge value:</label>
-                <input type="text" defaultValue={badge.value} onChange={(e) => updateFormData('value', e.target.value)} />
+                <input type="text" defaultValue={badge ? badge.value : ''} onChange={(e) => updateFormData('value', e.target.value)} />
                 <div className="buttons">
                     {loadingIcon
                         ? <Loading />

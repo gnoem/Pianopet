@@ -303,4 +303,20 @@ module.exports = {
             console.log(`successfully added ${newBadge}`);
         }); // */
     },
+    editBadge: (req, res) => {
+        // todo validate name
+        const { _id, name, src, value } = req.body;
+        Badge.findOne({ _id }, (err, badge) => {
+            if (err) return console.error('error finding badge', badge);
+            if (!badge) return console.log(`badge ${_id} not found`);
+            badge.name = name;
+            badge.src = src;
+            badge.value = value;
+            badge.save(err => {
+                if (err) return console.error('error saving badge', err);
+                res.send({ success: true });
+                console.log(`successfully edited badge ${_id}`);
+            });
+        });
+    }
 }
