@@ -3,7 +3,6 @@ import { Dashboard, Header, Sidebar } from './Dashboard';
 import ViewStudent from './ViewStudent';
 import Loading from './Loading';
 import Modal from './Modal';
-import Marketplace from './Marketplace';
 import ContextMenu from './ContextMenu';
 import { getArrayIndexByKeyValue } from '../utils';
 
@@ -136,7 +135,7 @@ function Home() {
 
 function TeacherMarketplace(props) {
     const addNewWearable = () => {
-        props.updateModal(<AddNewWearable {...props} />)
+        props.updateModal(<AddOrEditWearable {...props} />)
     }
     return (
         <div className="Main">
@@ -147,15 +146,94 @@ function TeacherMarketplace(props) {
     )
 }
 
-function AddNewWearable(props) {
-    const { teacher } = props;
+function Marketplace(props) {
+    const { wearables } = props;
+    const [preview, setPreview] = useState({});
+    const [category, setCategory] = useState('head');
+    const editOrDeleteWearable = (e, _id) => {
+        e.preventDefault();
+        const editWearable = () => {
+            const index = wearables.findIndex(wearable => wearable._id === _id);
+            props.updateModal(<AddOrEditWearable {...props} wearable={wearables[index]} />)
+        }
+        let content = (
+            <ul>
+                <li><button className="stealth link" onClick={editWearable}>Edit</button></li>
+                <li><button className="stealth link">Delete</button></li>
+            </ul>
+        );
+        props.updateContextMenu(e, content);
+    }
+    const updatePreview = ({ category, src, name }) => {
+        if (preview[category]) {
+            const previewObjectMinusCategory = (prevState) => {
+                const object = {...prevState};
+                delete object[category];
+                return object;
+            }
+            setPreview(prevState => ({
+                ...previewObjectMinusCategory(prevState)
+            }));
+            return;
+        }
+        setPreview(prevState => ({
+            ...prevState,
+            [category]: { src, name }
+        }));
+    }
+    const generatePreview = (preview) => {
+        const images = [];
+        for (let wearable in preview) {
+            images.push(<img src={preview[wearable].src} className={preview[wearable].category} />);
+        }
+        return images;
+    }
+    const generateWearables = (category) => {
+        const filteredList = wearables.filter(wearable => wearable.category === category);
+        const array = [];
+        for (let i = 0; i < filteredList.length; i++) {
+            array.push(
+                <div className="wearableItem" key={`${category}-wearable-${filteredList[i].name}`}>
+                    <button className="stealth">
+                        <img
+                            alt={filteredList[i].name}
+                            src={filteredList[i].src}
+                            onClick={() => updatePreview(filteredList[i])}
+                            onContextMenu={(e) => editOrDeleteWearable(e, filteredList[i]._id)} />
+                    </button>
+                </div>
+            );
+        }
+        return array;
+    }
+    return (
+        <div className="Marketplace">
+            <div id="demo" onClick={() => console.table(preview)}></div>
+            <div className="marketplacePreview">
+                {generatePreview(preview)}
+            </div>
+            <div className="marketplaceCategories">
+                <button className="stealth" onClick={() => setCategory('head')}>Head</button>
+                <button className="stealth" onClick={() => setCategory('face')}>Face</button>
+                <button className="stealth" onClick={() => setCategory('body')}>Body</button>
+            </div>
+            <div className="marketplaceWearables">
+                {generateWearables(category)}
+            </div>
+        </div>
+    )
+}
+
+function AddOrEditWearable(props) {
+    const { teacher, wearable } = props;
     const [loadingIcon, setLoadingIcon] = useState(false);
     const [formData, setFormData] = useState({
-        teacherCode: teacher._id,
-        name: '',
-        category: 'head',
-        src: '',
-        value: ''
+        _id: wearable ? wearable._id : '',
+        teacherCode: wearable ? wearable.teacherCode : teacher._id,
+        name: wearable ? wearable.name : '',
+        category: wearable ? wearable.category : 'head',
+        src: wearable ? wearable.src : '',
+        value: wearable ? wearable.value : ''
     });
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
@@ -167,7 +245,8 @@ function AddNewWearable(props) {
         e.preventDefault();
         setLoadingIcon(true);
         console.table(formData);
-        const response = await fetch('/add/wearable', {
+        const ROUTE = wearable ? '/edit/wearable' : '/add/wearable';
+        const response = await fetch(ROUTE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -186,17 +265,20 @@ function AddNewWearable(props) {
             <form className="pad" onSubmit={handleAddWearable}>
                 <h2>Add new wearable</h2>
                 <label htmlFor="name">Wearable name:</label>
-                <input type="text" onChange={(e) => updateFormData('name', e.target.value)} />
+                <input type="text" defaultValue={wearable ? wearable.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
                 <label htmlFor="value">Category:</label>
-                <select style={{ marginBottom: '1rem', padding: '0.5rem' }} onChange={(e) => updateFormData('category', e.target.value)} value={formData.category}>
+                <select
+                  value={formData.category}
+                  style={{ marginBottom: '1rem', padding: '0.5rem' }}
+                  onChange={(e) => updateFormData('category', e.target.value)}>
                     <option value="head">Head</option>
                     <option value="face">Face</option>
                     <option value="body">Body</option>
                 </select>
                 <label htmlFor="src">Image link:</label>
-                <input type="text" onChange={(e) => updateFormData('src', e.target.value)} />
+                <input type="text" defaultValue={wearable ? wearable.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />
                 <label htmlFor="value">Wearable value:</label>
-                <input type="text" onChange={(e) => updateFormData('value', e.target.value)} />
+                <input type="text" defaultValue={wearable ? wearable.value : ''} onChange={(e) => updateFormData('value', e.target.value)} />
                 <div className="buttons">
                     {loadingIcon
                         ? <Loading />
@@ -227,8 +309,7 @@ function Badges(props) {
         e.preventDefault();
         const editBadge = () => {
             const index = badges.findIndex(badge => badge._id === _id);
-            const badge = badges[index];
-            props.updateModal(<AddOrEditBadge {...props} badge={badge} />)
+            props.updateModal(<AddOrEditBadge {...props} badge={badges[index]} />)
         }
         let content = (
             <ul>
@@ -242,7 +323,7 @@ function Badges(props) {
         let array = [];
         for (let badge of badges) {
             array.push(
-                <div className="badgeItem">
+                <div className="badgeItem" key={`badgeList-${badge._id}`}>
                     <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
                     <span className="badgeName">{badge.name}</span>
                     <span className="badgeValue">{badge.value}</span>

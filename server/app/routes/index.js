@@ -18,6 +18,7 @@ module.exports = (app) => {
     app.post('/update/recorded', controller.updateRecorded);
     app.post('/update/coins', controller.updateCoins);
     app.post('/add/wearable', controller.addWearable);
+    app.post('/edit/wearable', controller.editWearable);
     app.post('/add/badge', controller.addBadge);
     app.post('/edit/badge', controller.editBadge);
     // ADMIN POWERS:

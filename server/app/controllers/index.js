@@ -293,6 +293,23 @@ module.exports = {
             console.log(`successfully added ${newWearable}`);
         }); // */
     },
+    editWearable: (req, res) => {
+        // todo validate name
+        const { _id, name, category, src, value } = req.body;
+        Wearable.findOne({ _id }, (err, wearable) => {
+            if (err) return console.error('error finding wearable', wearable);
+            if (!wearable) return console.log(`wearable ${_id} not found`);
+            wearable.name = name;
+            wearable.category = category;
+            wearable.src = src;
+            wearable.value = value;
+            wearable.save(err => {
+                if (err) return console.error('error saving wearable', err);
+                res.send({ success: true });
+                console.log(`successfully edited wearable ${_id}`);
+            });
+        });
+    },
     addBadge: (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
