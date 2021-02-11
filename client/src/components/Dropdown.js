@@ -3,7 +3,11 @@ import { elementHasParent } from '../utils';
 
 export default function Dropdown(props) {
     const { defaultValue, listItems } = props;
-    const [display, setDisplay] = useState(defaultValue);
+    const [display, setDisplay] = useState(() => {
+        if (!listItems || !listItems.length) return 'Add new...';
+        if (!defaultValue) return 'Select one';
+        return defaultValue;
+    });
     const [isOpen, setIsOpen] = useState(false);
     const [addingNew, setAddingNew] = useState(false);
     const dropdownList = useRef(null);
@@ -73,6 +77,7 @@ function AddNew(props) {
                 e.preventDefault();
                 props.addNew(inputRef.current.value);
                 props.updateDisplay(inputRef.current.value);
+                props.onChange(inputRef.current.value);
                 props.updateIsOpen(false);
                 return;
             }

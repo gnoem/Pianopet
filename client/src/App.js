@@ -9,14 +9,15 @@ class App extends Component {
     constructor() {
         super();
         this.logout = this.logout.bind(this);
+        this.getData = this.getData.bind(this);
         this.state = {
             isLoaded: false
         }
     }
     componentDidMount() {
-        this.authorize();
+        this.getData();
     }
-    authorize = async () => {
+    getData = async () => {
         const response = await fetch('/auth');
         const body = await response.json();
         if (!body) return console.log('server error');
@@ -30,9 +31,9 @@ class App extends Component {
     render() {
         const { isLoaded, student, teacher } = this.state;
         const app = () => {
-            if (!student && !teacher) return <Guest />
-            if (student) return <Student logout={this.logout} />
-            if (teacher) return <Teacher teacher={teacher} logout={this.logout} />
+            if (!student && !teacher) return <Guest />;
+            if (student) return <Student logout={this.logout} />;
+            if (teacher) return <Teacher teacher={teacher} refreshTeacher={this.getData} logout={this.logout} />;
         }
         console.log('app loaded');
         return (

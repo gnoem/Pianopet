@@ -135,8 +135,17 @@ function Home() {
 }
 
 function TeacherMarketplace(props) {
+    const { teacher, modal } = props;
+    const [wearableModal, setWearableModal] = useState(false);
+    useEffect(() => {
+        if (!modal) setWearableModal(false);
+    }, [modal]);
+    useEffect(() => {
+        if (wearableModal) addNewWearable();
+    }, [teacher]);
     const addNewWearable = () => {
-        props.updateModal(<AddOrEditWearable {...props} />)
+        props.updateModal(<AddOrEditWearable {...props} />);
+        setWearableModal(true);
     }
     return (
         <div className="Main">
@@ -148,7 +157,7 @@ function TeacherMarketplace(props) {
 }
 
 function Marketplace(props) {
-    const { wearables } = props;
+    const { teacher, wearables } = props;
     const [preview, setPreview] = useState({});
     const [category, setCategory] = useState('Head');
     const editOrDeleteWearable = (e, _id) => {
@@ -184,10 +193,19 @@ function Marketplace(props) {
     }
     const generatePreview = (preview) => {
         const images = [];
-        for (let wearable in preview) {
-            images.push(<img src={preview[wearable].src} className={preview[wearable].category} />);
+        for (let category in preview) {
+            images.push(<img key={`marketplacePreview-${category}`} src={preview[category].src} className={category} />);
         }
         return images;
+    }
+    const generateCategories = (categories) => {
+        const array = [];
+        for (let category of categories) {
+            array.push(
+                <button key={`wearableCategories-category-${category}`} className="stealth" onClick={() => setCategory(category)}>{category}</button>
+            );
+        }
+        return array;
     }
     const generateWearables = (category) => {
         const filteredList = wearables.filter(wearable => wearable.category === category);
@@ -213,9 +231,7 @@ function Marketplace(props) {
                 {generatePreview(preview)}
             </div>
             <div className="marketplaceCategories">
-                <button className="stealth" onClick={() => setCategory('Head')}>Head</button>
-                <button className="stealth" onClick={() => setCategory('Face')}>Face</button>
-                <button className="stealth" onClick={() => setCategory('Body')}>Body</button>
+                {generateCategories(teacher.wearableCategories)}
             </div>
             <div className="marketplaceWearables">
                 {generateWearables(category)}
@@ -231,7 +247,7 @@ function AddOrEditWearable(props) {
         _id: wearable ? wearable._id : '',
         teacherCode: wearable ? wearable.teacherCode : teacher._id,
         name: wearable ? wearable.name : '',
-        category: wearable ? wearable.category : 'Head',
+        category: wearable ? wearable.category : teacher.wearableCategories[0],
         src: wearable ? wearable.src : '',
         value: wearable ? wearable.value : ''
     });
@@ -241,7 +257,7 @@ function AddOrEditWearable(props) {
             [key]: value
         }));
     }
-    const handleAddWearable = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
         const ROUTE = wearable ? '/edit/wearable' : '/add/wearable';
@@ -272,11 +288,11 @@ function AddOrEditWearable(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        props.refreshData();
+        props.refreshTeacher();
     }
     return (
         <div className="modalBox">
-            <form className="pad" onSubmit={handleAddWearable}>
+            <form className="pad" onSubmit={handleSubmit}>
                 <h2>Add new wearable</h2>
                 <label htmlFor="name">Wearable name:</label>
                 <input type="text" defaultValue={wearable ? wearable.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
@@ -284,7 +300,7 @@ function AddOrEditWearable(props) {
                 <Dropdown
                     minWidth="10rem"
                     defaultValue={formData.category}
-                    listItems={['Head', 'Face', 'Body']}
+                    listItems={teacher.wearableCategories}
                     addNew={addCategory}
                     onChange={(value) => updateFormData('category', value)} />
                 <label htmlFor="src">Image link:</label>
