@@ -258,6 +258,22 @@ function AddOrEditWearable(props) {
         props.updateModal(false);
         props.refreshData();
     }
+    const addCategory = async (categoryName) => {
+        const response = await fetch('/add/wearableCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _id: teacher._id,
+                categoryName
+            })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        props.refreshData();
+    }
     return (
         <div className="modalBox">
             <form className="pad" onSubmit={handleAddWearable}>
@@ -266,8 +282,10 @@ function AddOrEditWearable(props) {
                 <input type="text" defaultValue={wearable ? wearable.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
                 <label htmlFor="value">Category:</label>
                 <Dropdown
+                    minWidth="10rem"
                     defaultValue={formData.category}
                     listItems={['Head', 'Face', 'Body']}
+                    addNew={addCategory}
                     onChange={(value) => updateFormData('category', value)} />
                 <label htmlFor="src">Image link:</label>
                 <input type="text" defaultValue={wearable ? wearable.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />

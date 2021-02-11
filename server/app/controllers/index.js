@@ -333,7 +333,19 @@ module.exports = {
             badge.save(err => {
                 if (err) return console.error('error saving badge', err);
                 res.send({ success: true });
-                console.log(`successfully edited badge ${_id}`);
+            });
+        });
+    },
+    addWearableCategory: (req, res) => {
+        // todo validate name
+        const { _id, categoryName } = req.body;
+        Teacher.findOne({ _id }, (err, user) => {
+            if (err) return console.error(`error finding user ${_id}`, err);
+            if (!user) return console.log(`user ${_id} not found`);
+            user.wearableCategories.push(categoryName);
+            user.save(err => {
+                if (err) return console.error('error saving user', err);
+                res.send({ success: true });
             });
         });
     }
