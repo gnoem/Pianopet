@@ -673,9 +673,9 @@ a:hover, button.link:hover {
 .Marketplace {
     margin: 2rem 0;
     background: #fff;
-    height: 20rem;
+    height: 25rem;
     display: grid;
-    grid-template: auto 1fr / 13rem 1fr;
+    grid-template: auto 1fr / 15rem 1fr;
     grid-template-areas:
         'preview nav'
         'preview items';
@@ -684,9 +684,53 @@ a:hover, button.link:hover {
 }
 .marketplacePreview {
     grid-area: preview;
-    padding: 1rem;
     border-right: 1px solid #666;
+    display: grid;
+    grid-template-rows: 15rem 1fr;
+    overflow: hidden;
 }
+.previewBox {
+    padding: 1rem;
+}
+ul.previewDescription {
+    border-top: 1px solid #ccc;
+    list-style: none;
+    font-size: 0.8rem;
+    line-height: 1;
+    margin: 0;
+    padding: 1rem;
+    background: #f7f7f7;
+    color: #666;
+    overflow: auto;
+}
+ul.previewDescription h3 {
+    margin-bottom: 0.5rem;
+}
+ul.previewDescription li {
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+ul.previewDescription li + li {
+    margin-top: 0.5rem;
+}
+ul.previewDescription button {
+    padding: 0.3rem;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+}
+ul.previewDescription button img.coin, ul.previewDescription button span {
+    display: inline-block;
+    vertical-align: middle;
+}
+ul.previewDescription img.coin {
+    width: auto;
+    height: 1rem;
+    margin-right: 0.3rem;
+}
+
 .marketplaceCategories {
     grid-area: nav;
     padding: 0.5rem;
@@ -706,6 +750,40 @@ a:hover, button.link:hover {
     grid-area: items;
     padding: 1rem;
     overflow-y: auto;
+}
+.wearablesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 7rem);
+    grid-template-rows: repeat(auto-fill, auto);
+    gap: 1rem;
+}
+.marketplaceWearables button.wearableItem {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    color: #333;
+    font-size: 0.75rem;
+}
+.marketplaceWearables .wearableItem img {
+    width: 4rem;
+    height: auto;
+}
+.marketplaceWearables .wearableItem span.wearableName {
+    display: block;
+    font-weight: 600;
+    color: #666;
+    line-height: 1;
+    margin: 0.2rem 0;
+}
+.marketplaceWearables .wearableItem img.coin, .marketplaceWearables .wearableItem span.wearableValue {
+    display: inline-block;
+    vertical-align: middle;
+}
+.marketplaceWearables .wearableItem img.coin {
+    width: auto;
+    height: 1.5em;
+    margin-right: 0.3rem;
 }
 .BadgeList {
     margin: 2rem 0;

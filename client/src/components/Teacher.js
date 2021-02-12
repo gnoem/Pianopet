@@ -174,7 +174,7 @@ function Marketplace(props) {
         );
         props.updateContextMenu(e, content);
     }
-    const updatePreview = ({ category, src, name }) => {
+    const updatePreview = ({ category, name, src, value }) => {
         if (preview[category] && preview[category].name === name) {
             const previewObjectMinusCategory = (prevState) => {
                 const object = {...prevState};
@@ -188,7 +188,7 @@ function Marketplace(props) {
         }
         setPreview(prevState => ({
             ...prevState,
-            [category]: { src, name }
+            [category]: { name, src, value }
         }));
     }
     const addOrEditCategory = (e, originalName) => {
@@ -260,7 +260,27 @@ function Marketplace(props) {
         for (let category in preview) {
             images.push(<img key={`marketplacePreview-${category}`} src={preview[category].src} className={category} />);
         }
-        return images;
+        return <div className="previewBox">{images}</div>;
+    }
+    const generatePreviewDescription = (preview) => {
+        const previewItems = [];
+        for (let category in preview) {
+            previewItems.push(
+                <li key={`marketplacePreviewDescription-${category}`}>
+                    <span className="wearableName">{preview[category].name}</span>
+                    <button>
+                        <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                        <span className="wearableValue">{preview[category].value}</span>
+                    </button>
+                </li>
+            )
+        }
+        return (
+            <ul className="previewDescription">
+                <h3>Shopping Cart</h3>
+                {previewItems}
+            </ul>
+        );
     }
     const generateCategories = (categories) => {
         const array = [];
@@ -283,15 +303,19 @@ function Marketplace(props) {
         const array = [];
         for (let wearable of filteredList) {
             array.push(
-                <div className="wearableItem" key={`${category}-wearable-${wearable.name}`}>
-                    <button className="stealth">
-                        <img
-                            alt={wearable.name}
-                            src={wearable.src}
-                            onClick={() => updatePreview(wearable)}
-                            onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)} />
-                    </button>
-                </div>
+                <button
+                  key={`${category}-wearable-${wearable.name}`}
+                  className="stealth wearableItem"
+                  onClick={() => updatePreview(wearable)}
+                  onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
+                    <img
+                        alt={wearable.name}
+                        src={wearable.src}
+                    />
+                    <span className="wearableName">{wearable.name}</span>
+                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                    <span className="wearableValue">{wearable.value}</span>
+                </button>
             );
         }
         return array;
@@ -300,12 +324,15 @@ function Marketplace(props) {
         <div className="Marketplace">
             <div className="marketplacePreview">
                 {generatePreview(preview)}
+                {generatePreviewDescription(preview)}
             </div>
             <div className="marketplaceCategories">
                 {generateCategories(teacher.wearableCategories)}
             </div>
             <div className="marketplaceWearables">
-                {generateWearables(category)}
+                <div className="wearablesGrid">
+                    {generateWearables(category)}
+                </div>
             </div>
         </div>
     )
