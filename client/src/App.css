@@ -697,6 +697,7 @@ a:hover, button.link:hover {
     border-radius: 999px;
     background: #fff;
     color: var(--deep-theme-color);
+    line-height: 1.2rem;
 }
 .marketplaceCategories button + button {
     margin-left: 0.5rem;
@@ -857,4 +858,21 @@ a:hover, button.link:hover {
     line-height: normal;
     display: block;
     margin-top: 0.2rem;
+}
+
+.marketplaceCategories button.add {
+    padding: 0.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    box-sizing: content-box;
+    display: inline-grid;
+    place-items: center;
+}
+.marketplaceCategories button.add::before {
+    line-height: 1.2rem;
+}
+button.add::before {
+    content: '\f067';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
 }

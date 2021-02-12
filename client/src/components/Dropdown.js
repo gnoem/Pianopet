@@ -86,7 +86,7 @@ function AddNew(props) {
         return () => window.removeEventListener('keydown', handleKeydown);
     }, [addingNew]);
     return (
-        <li className="dropdownItem">
+        <li className="dropdownItem" key="dropdownItem-addNew">
             {addingNew
                 ?   <button type="button" className="addNew active">
                         <input

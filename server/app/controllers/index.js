@@ -348,5 +348,28 @@ module.exports = {
                 res.send({ success: true });
             });
         });
+    },
+    editWearableCategory: (req, res) => {
+        const { _id, originalName, updatedName } = req.body;
+        Teacher.findOne({ _id }, (err, user) => {
+            if (err) return console.error(`error finding user ${_id}`, err);
+            if (!user) return console.log(`user ${_id} not found`);
+            const index = user.wearableCategories.indexOf(originalName);
+            user.wearableCategories.splice(index, 1, updatedName);
+            Wearable.find({ teacherCode: _id, category: originalName }, (err, wearables) => {
+                if (err) return console.error(`error finding wearables with teacherCode ${_id} and category ${originalName}`, err);
+                if (!wearables || !wearables.length) console.log(`no wearables with the category "${originalName}" found`);
+                for (let wearable of wearables) {
+                    wearable.category = updatedName;
+                    wearable.save(err => {
+                        if (err) console.log(`Error saving wearable ${_id} "${wearable.name}"`)
+                    });
+                }
+                user.save(err => {
+                    if (err) return console.error('error saving user', err);
+                    res.send({ success: true });
+                });
+            });
+        });
     }
 }

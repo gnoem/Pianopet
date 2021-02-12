@@ -47,9 +47,9 @@ export default function Teacher(props) {
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const studentList = [];
-        for (let i = 0; i < students.length; i++) {
+        for (let student of students) {
             studentList.push(
-                <li key={students[i]._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: students[i] })}>{students[i].firstName} {students[i].lastName}</button></li>
+                <li key={student._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: student })}>{student.firstName} {student.lastName}</button></li>
             );
         }
         return <ul className="stealth">{studentList}</ul>;
@@ -159,7 +159,7 @@ function TeacherMarketplace(props) {
 function Marketplace(props) {
     const { teacher, wearables } = props;
     const [preview, setPreview] = useState({});
-    const [category, setCategory] = useState('Head');
+    const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
     const editOrDeleteWearable = (e, _id) => {
         e.preventDefault();
         const editWearable = () => {
@@ -191,6 +191,70 @@ function Marketplace(props) {
             [category]: { src, name }
         }));
     }
+    const addOrEditCategory = (e, originalName) => {
+        e.preventDefault();
+        const editingCategory = teacher.wearableCategories.includes(originalName);
+        const handleAddOrEditCategory = async (e, categoryName) => {
+            e.preventDefault();
+            props.updateModal(content({ loadingIcon: true }));
+            const fromDropdown = !!categoryName;
+            const ROUTE = editingCategory ? '/edit/wearableCategory' : '/add/wearableCategory';
+            const formData = editingCategory
+                ?   {
+                        _id: teacher._id,
+                        originalName,
+                        updatedName: e.target[0].value
+                    }
+                :   {
+                        _id: teacher._id,
+                        categoryName: fromDropdown ? categoryName : e.target[0].value
+                    }
+            const response = await fetch(ROUTE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            const body = await response.json();
+            if (!body) return console.log('no response from server');
+            if (!body.success) return console.log('no success response from server');
+            props.refreshTeacher();
+            if (editingCategory) {
+                props.refreshData(); // in case any wearables were affected by category name change
+                if (category === originalName) setCategory(e.target[0].value);
+            }
+            props.updateModal(false);
+        }
+        let content = (options = {
+            loadingIcon: false
+        }) => (
+            <div className="modalBox">
+                <h2>{editingCategory ? 'Edit' : 'Add new'} category</h2>
+                <form onSubmit={handleAddOrEditCategory} autoComplete="off">
+                    <label htmlFor="categoryName">Category name:</label>
+                    <input type="text" name="categoryName" defaultValue={editingCategory ? originalName : ''} />
+                    <div className="buttons">
+                        {options.loadingIcon
+                            ? <Loading />
+                            : <input type="submit" />
+                        }
+                    </div>
+                </form>
+            </div>
+        );
+        props.updateModal(content);
+    }
+    const editOrDeleteCategory = (e, categoryName) => {
+        e.preventDefault();
+        let content = (
+            <ul>
+                <li><button className="stealth link" onClick={(e) => addOrEditCategory(e, categoryName)}>Edit</button></li>
+                <li><button className="stealth link">Delete</button></li>
+            </ul>
+        );
+        props.updateContextMenu(e, content);
+    }
     const generatePreview = (preview) => {
         const images = [];
         for (let category in preview) {
@@ -202,23 +266,30 @@ function Marketplace(props) {
         const array = [];
         for (let category of categories) {
             array.push(
-                <button key={`wearableCategories-category-${category}`} className="stealth" onClick={() => setCategory(category)}>{category}</button>
+                <button
+                  key={`wearableCategories-toolbar-${category}`}
+                  className="stealth"
+                  onClick={() => setCategory(category)}
+                  onContextMenu={(e) => editOrDeleteCategory(e, category)}>
+                    {category}
+                </button>
             );
         }
+        array.push(<button key="wearableCategories-toolbar-addNew" className="add" onClick={addOrEditCategory}></button>)
         return array;
     }
     const generateWearables = (category) => {
         const filteredList = wearables.filter(wearable => wearable.category === category);
         const array = [];
-        for (let i = 0; i < filteredList.length; i++) {
+        for (let wearable of filteredList) {
             array.push(
-                <div className="wearableItem" key={`${category}-wearable-${filteredList[i].name}`}>
+                <div className="wearableItem" key={`${category}-wearable-${wearable.name}`}>
                     <button className="stealth">
                         <img
-                            alt={filteredList[i].name}
-                            src={filteredList[i].src}
-                            onClick={() => updatePreview(filteredList[i])}
-                            onContextMenu={(e) => editOrDeleteWearable(e, filteredList[i]._id)} />
+                            alt={wearable.name}
+                            src={wearable.src}
+                            onClick={() => updatePreview(wearable)}
+                            onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)} />
                     </button>
                 </div>
             );
