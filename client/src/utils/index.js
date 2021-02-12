@@ -11,3 +11,8 @@ export const elementHasParent = (element, selector) => {
 export const getArrayIndexByKeyValue = (key, value, array) => {
     return array.findIndex(element => element[key] === value);
 }
+
+export const shrinkit = (element, destroy = false) => {
+    element.classList.add('goodbye');
+    if (destroy) setTimeout(() => element.style.display = 'none', 200);
+}

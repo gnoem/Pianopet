@@ -2,6 +2,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
+@keyframes shrinkit {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
 #demo {
     position: fixed;
     bottom: 1rem;
@@ -764,6 +775,7 @@ ul.previewDescription img.coin {
     border-radius: 0.5rem;
     color: #333;
     font-size: 0.75rem;
+    transition: 0.2s;
 }
 .marketplaceWearables .wearableItem img {
     width: 4rem;
@@ -792,6 +804,7 @@ ul.previewDescription img.coin {
 .badgeItem {
     flex: 0 0 3.5rem;
     margin: 0 1rem;
+    transition: 0.2s;
 }
 .badgeItem img {
     display: block;
@@ -953,4 +966,9 @@ button.add::before {
     content: '\f067';
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
+}
+.goodbye {
+    transform-origin: center;
+    transform: scale(0.7);
+    opacity: 0;
 }

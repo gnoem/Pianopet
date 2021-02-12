@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dashboard, Header, Sidebar } from './Dashboard';
 import ViewStudent from './ViewStudent';
 import Loading from './Loading';
 import Modal from './Modal';
 import ContextMenu from './ContextMenu';
-import { getArrayIndexByKeyValue } from '../utils';
+import { getArrayIndexByKeyValue, shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Teacher(props) {
@@ -160,16 +160,55 @@ function Marketplace(props) {
     const { teacher, wearables } = props;
     const [preview, setPreview] = useState({});
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
+    const wearableRefs = useRef({});
     const editOrDeleteWearable = (e, _id) => {
         e.preventDefault();
-        const editWearable = () => {
-            const index = wearables.findIndex(wearable => wearable._id === _id);
-            props.updateModal(<AddOrEditWearable {...props} wearable={wearables[index]} />)
+        const index = wearables.findIndex(wearable => wearable._id === _id);
+        const thisWearable = wearables[index];
+        const editWearable = () => props.updateModal(<AddOrEditWearable {...props} wearable={thisWearable} />);
+        const deleteWearable = () => {
+            const handleDelete = async (e) => {
+                e.preventDefault();
+                props.updateModal(content({ loadingIcon: true }));
+                const response = await fetch('/delete/wearable', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ _id })
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log('no success response from server');
+                shrinkit(wearableRefs.current[_id], true);
+                props.refreshTeacher();
+                props.refreshData();
+                props.updateModal(false);
+            }
+            let content = (options = {
+                loadingIcon: false
+            }) => (
+                <div className="modalBox">
+                    <h2>Are you sure?</h2>
+                    <img alt={thisWearable.name} src={thisWearable.src} style={{ float: 'right' }} />
+                    Are you sure you want to delete the wearable "{thisWearable.name}"? This action cannot be undone.
+                    <div className="buttons">
+                        {options.loadingIcon
+                            ?   <Loading />
+                            :   <form onSubmit={handleDelete}>
+                                    <button type="submit">Yes, I'm sure</button>
+                                    <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                                </form>
+                            }
+                    </div>
+                </div>
+            )
+            props.updateModal(content());
         }
         let content = (
             <ul>
                 <li><button className="stealth link" onClick={editWearable}>Edit</button></li>
-                <li><button className="stealth link">Delete</button></li>
+                <li><button className="stealth link" onClick={deleteWearable}>Delete</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -245,12 +284,11 @@ function Marketplace(props) {
         );
         props.updateModal(content);
     }
-    const editOrDeleteCategory = (e, categoryName) => {
+    const editCategory = (e, categoryName) => {
         e.preventDefault();
         let content = (
             <ul>
                 <li><button className="stealth link" onClick={(e) => addOrEditCategory(e, categoryName)}>Edit</button></li>
-                <li><button className="stealth link">Delete</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -290,7 +328,7 @@ function Marketplace(props) {
                   key={`wearableCategories-toolbar-${category}`}
                   className="stealth"
                   onClick={() => setCategory(category)}
-                  onContextMenu={(e) => editOrDeleteCategory(e, category)}>
+                  onContextMenu={(e) => editCategory(e, category)}>
                     {category}
                 </button>
             );
@@ -304,6 +342,7 @@ function Marketplace(props) {
         for (let wearable of filteredList) {
             array.push(
                 <button
+                  ref={(el) => wearableRefs.current[wearable._id] = el}
                   key={`${category}-wearable-${wearable.name}`}
                   className="stealth wearableItem"
                   onClick={() => updatePreview(wearable)}
@@ -431,16 +470,54 @@ function TeacherBadges(props) {
 
 function Badges(props) {
     const { badges } = props;
+    const badgesRef = useRef({});
     const editOrDeleteBadge = (e, _id) => {
         e.preventDefault();
-        const editBadge = () => {
-            const index = badges.findIndex(badge => badge._id === _id);
-            props.updateModal(<AddOrEditBadge {...props} badge={badges[index]} />)
+        const index = badges.findIndex(badge => badge._id === _id);
+        const thisBadge = badges[index];
+        const editBadge = () => props.updateModal(<AddOrEditBadge {...props} badge={badges[index]} />);
+        const deleteBadge = () => {
+            const handleDelete = async () => {
+                props.updateModal(content({ loadingIcon: true }));
+                const response = await fetch('/delete/badge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ _id })
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log('no success response from server');
+                shrinkit(badgesRef.current[_id], true);
+                props.refreshTeacher();
+                props.refreshData();
+                props.updateModal(false);
+            }
+            let content = (options = {
+                loadingIcon: false
+            }) => (
+                <div className="modalBox">
+                    <h2>Are you sure?</h2>
+                    <img alt={thisBadge.name} src={thisBadge.src} style={{ float: 'right' }} />
+                    Are you sure you want to delete the badge "{thisBadge.name}"? This action cannot be undone.
+                    <div className="buttons">
+                        {options.loadingIcon
+                            ?   <Loading />
+                            :   <form onSubmit={handleDelete}>
+                                    <button type="submit">Yes, I'm sure</button>
+                                    <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                                </form>
+                            }
+                    </div>
+                </div>
+            )
+            props.updateModal(content());
         }
         let content = (
             <ul>
                 <li><button className="stealth link" onClick={editBadge}>Edit</button></li>
-                <li><button className="stealth link">Delete</button></li>
+                <li><button className="stealth link" onClick={deleteBadge}>Delete</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -449,7 +526,10 @@ function Badges(props) {
         let array = [];
         for (let badge of badges) {
             array.push(
-                <div className="badgeItem" key={`badgeList-${badge._id}`}>
+                <div
+                  key={`badgeList-${badge._id}`}
+                  ref={(el) => badgesRef.current[badge._id] = el}
+                  className="badgeItem">
                     <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
                     <span className="badgeName">{badge.name}</span>
                     <span className="badgeValue">{badge.value}</span>

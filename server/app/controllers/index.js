@@ -311,6 +311,14 @@ module.exports = {
             });
         });
     },
+    deleteWearable: (req, res) => {
+        const { _id } = req.body;
+        Wearable.findOneAndDelete({ _id }, (err, wearable) => {
+            if (err) return console.error('error finding and deleting wearable', err);
+            if (!wearable) console.log(`no wearable with _id ${_id}`);
+            res.send({ success: true });
+        });
+    },
     addBadge: (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
@@ -334,6 +342,14 @@ module.exports = {
                 if (err) return console.error('error saving badge', err);
                 res.send({ success: true });
             });
+        });
+    },
+    deleteBadge: (req, res) => {
+        const { _id } = req.body;
+        Badge.findOneAndDelete({ _id }, (err, badge) => {
+            if (err) return console.error('error finding and deleting badge', err);
+            if (!badge) console.log(`no badge with _id ${_id}`);
+            res.send({ success: true });
         });
     },
     addWearableCategory: (req, res) => {

@@ -19,8 +19,10 @@ module.exports = (app) => {
     app.post('/update/coins', controller.updateCoins);
     app.post('/add/wearable', controller.addWearable);
     app.post('/edit/wearable', controller.editWearable);
+    app.post('/delete/wearable', controller.deleteWearable);
     app.post('/add/badge', controller.addBadge);
     app.post('/edit/badge', controller.editBadge);
+    app.post('/delete/badge', controller.deleteBadge);
     app.post('/add/wearableCategory', controller.addWearableCategory);
     app.post('/edit/wearableCategory', controller.editWearableCategory);
     // ADMIN POWERS:
