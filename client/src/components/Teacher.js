@@ -46,12 +46,9 @@ export default function Teacher(props) {
     }, [teacher._id]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
-        const studentList = [];
-        for (let student of students) {
-            studentList.push(
-                <li key={student._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: student })}>{student.firstName} {student.lastName}</button></li>
-            );
-        }
+        const studentList = students.map(student => (
+            <li key={student._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: student })}>{student.firstName} {student.lastName}</button></li>
+        ));
         return <ul className="stealth">{studentList}</ul>;
     }
     const updateContextMenu = (e, content) => {
@@ -350,43 +347,36 @@ function Marketplace(props) {
         );
     }
     const generateCategories = (categories) => {
-        const array = [];
-        for (let category of categories) {
-            array.push(
-                <button
-                  key={`wearableCategories-toolbar-${category}`}
-                  className="stealth"
-                  onClick={() => setCategory(category)}
-                  onContextMenu={(e) => editCategory(e, category)}>
-                    {category}
-                </button>
-            );
-        }
+        const array = categories.map(category => (
+            <button
+              key={`wearableCategories-toolbar-${category}`}
+              className="stealth"
+              onClick={() => setCategory(category)}
+              onContextMenu={(e) => editCategory(e, category)}>
+                {category}
+            </button>
+        ))
         array.push(<button key="wearableCategories-toolbar-addNew" className="add" onClick={addOrEditCategory}></button>)
         return array;
     }
     const generateWearables = (category) => {
         const filteredList = wearables.filter(wearable => wearable.category === category);
-        const array = [];
-        for (let wearable of filteredList) {
-            array.push(
-                <button
-                  ref={(el) => wearableRefs.current[wearable._id] = el}
-                  key={`${category}-wearable-${wearable.name}`}
-                  className="stealth wearableItem"
-                  onClick={() => updatePreview(wearable)}
-                  onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
-                    <img
-                        alt={wearable.name}
-                        src={wearable.src}
-                    />
-                    <span className="wearableName">{wearable.name}</span>
-                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                    <span className="wearableValue">{wearable.value}</span>
-                </button>
-            );
-        }
-        return array;
+        return filteredList.map(wearable => (
+            <button
+              ref={(el) => wearableRefs.current[wearable._id] = el}
+              key={`${category}-wearable-${wearable.name}`}
+              className="stealth wearableItem"
+              onClick={() => updatePreview(wearable)}
+              onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
+                <img
+                    alt={wearable.name}
+                    src={wearable.src}
+                />
+                <span className="wearableName">{wearable.name}</span>
+                <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                <span className="wearableValue">{wearable.value}</span>
+            </button>
+        ));
     }
     return (
         <div className="Marketplace">
@@ -552,20 +542,16 @@ function Badges(props) {
         props.updateContextMenu(e, content);
     }
     const generateBadgeList = () => {
-        let array = [];
-        for (let badge of badges) {
-            array.push(
-                <div
-                  key={`badgeList-${badge._id}`}
-                  ref={(el) => badgesRef.current[badge._id] = el}
-                  className="badgeItem">
-                    <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
-                    <span className="badgeName">{badge.name}</span>
-                    <span className="badgeValue">{badge.value}</span>
-                </div>
-            )
-        }
-        return array;
+        return badges.map(badge => (
+            <div
+              key={`badgeList-${badge._id}`}
+              ref={(el) => badgesRef.current[badge._id] = el}
+              className="badgeItem">
+                <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
+                <span className="badgeName">{badge.name}</span>
+                <span className="badgeValue">{badge.value}</span>
+            </div>
+        ));
     }
     return (
         <div className="BadgeList">
