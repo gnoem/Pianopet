@@ -213,12 +213,28 @@ a:hover, button.link:hover {
 .Guest {
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-columns: 1fr 350px;
+    display: flex;
+    place-items: center;
+    justify-content: center;
+    flex-direction: column;
     padding: 4rem;
+    background: #fff;
 }
 .Guest input, form.pad input:not([type=submit]) {
     margin-bottom: 1rem;
+}
+.Guest .hero {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+.Guest .hero img {
+    width: 100%;
+}
+.Guest {
+    text-align: center;
+}
+.Guest label {
+    text-align: left;
 }
 .Signup input:not([type=submit]) {
     line-height: 2.5rem;

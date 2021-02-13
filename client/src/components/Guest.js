@@ -24,7 +24,9 @@ class Guest extends Component {
         }
         return (
             <div className="Guest">
-                <div className="hero"></div>
+                <div className="hero">
+                    <img alt="pianopet logo" src="assets/logo.svg" />
+                </div>
                 {type === 'student' && studentPortal()}
                 {type === 'teacher' && teacherPortal()}
             </div>
