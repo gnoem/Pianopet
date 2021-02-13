@@ -46,10 +46,23 @@ export default function Teacher(props) {
     }, [teacher._id]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
-        const studentList = students.map(student => (
-            <li key={student._id}><button className="stealth link" onClick={() => setView({ type: 'student', data: student })}>{student.firstName} {student.lastName}</button></li>
-        ));
-        return <ul className="stealth">{studentList}</ul>;
+        const makeSureNameFits = (string) => {
+            if (string.length < 18) return string;
+            let shortenedString = string.substring(0, 17);
+            return shortenedString + '...';
+        }
+        const studentList = students.map(student => ({
+            value: student._id,
+            display: makeSureNameFits(student.firstName + ' ' + student.lastName)
+        }));
+        return (
+            <Dropdown
+                minWidth="12rem"
+                defaultValue={{ value: students[0]._id, display: makeSureNameFits(students[0].firstName + ' ' + students[0].lastName) }}
+                listItems={studentList}
+                onChange={(_id) => setView({ type: 'student', data: students[students.findIndex(student => student._id === _id)] })}
+            />
+        )
     }
     const updateContextMenu = (e, content) => {
         const position = {
@@ -446,6 +459,14 @@ function AddOrEditWearable(props) {
         if (!body.success) return console.log('no success response from server');
         props.refreshTeacher();
     }
+    const dropdownListItems = () => {
+        const listItems = teacher.wearableCategories.map(item => ({
+            value: item,
+            display: item
+        }));
+        console.table(listItems);
+        return listItems;
+    }
     return (
         <div className="modalBox">
             <form className="pad" onSubmit={handleSubmit}>
@@ -455,8 +476,8 @@ function AddOrEditWearable(props) {
                 <label htmlFor="value">Category:</label>
                 <Dropdown
                     minWidth="10rem"
-                    defaultValue={formData.category}
-                    listItems={teacher.wearableCategories}
+                    defaultValue={{ value: formData.category, display: formData.category }}
+                    listItems={dropdownListItems()}
                     addNew={addCategory}
                     onChange={(value) => updateFormData('category', value)} />
                 <label htmlFor="src">Image link:</label>

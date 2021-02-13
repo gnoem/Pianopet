@@ -6,7 +6,7 @@ export default function Dropdown(props) {
     const [display, setDisplay] = useState(() => {
         if (!listItems || !listItems.length) return 'Add new...';
         if (!defaultValue) return 'Select one';
-        return defaultValue;
+        return defaultValue.display;
     });
     const [isOpen, setIsOpen] = useState(false);
     const [addingNew, setAddingNew] = useState(false);
@@ -34,7 +34,7 @@ export default function Dropdown(props) {
     const toggleIsOpen = () => setIsOpen(prevState => !prevState);
     const handleClick = (e) => {
         setDisplay(e.target.innerHTML);
-        props.onChange(e.target.innerHTML);
+        props.onChange(e.target.getAttribute('data-value'));
     }
     const generateList = () => {
         const buttonForAddNew =
@@ -44,12 +44,15 @@ export default function Dropdown(props) {
                 updateIsOpen={setIsOpen}
                 updateDisplay={setDisplay}
             />;
-        if ((!listItems || !listItems.length) && props.addNew) return buttonForAddNew;
+        if ((!listItems || !listItems.length) && props.addNew) {
+            console.table(listItems);
+            return buttonForAddNew;
+        }
         const array = [];
         for (let item of listItems) {
             array.push(
-                <li className="dropdownItem" key={`dropdownItem-${item}`}>
-                    <button type="button" onClick={handleClick}>{item}</button>
+                <li className="dropdownItem" key={`dropdownItem-${item.value}`}>
+                    <button type="button" data-value={item.value} onClick={handleClick}>{item.display}</button>
                 </li>
             );
         }
