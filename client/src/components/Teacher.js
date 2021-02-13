@@ -70,6 +70,7 @@ export default function Teacher(props) {
         wearables,
         badges,
         modal,
+        updateView: setView,
         updateModal: setModal,
         updateContextMenu,
         refreshData: getTeacherData
@@ -78,9 +79,7 @@ export default function Teacher(props) {
         <Dashboard teacher={true}>
             {modal && <Modal exit={() => setModal(false)} children={modal} />}
             {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
-            <Header>
-                {teacher.username}
-            </Header>
+            <TeacherProfileDropdown {...props} {...state} />
             <Sidebar>
                 <h2>Students</h2>
                 {generateStudentList()}
@@ -101,6 +100,34 @@ export default function Teacher(props) {
     );
 }
 
+function TeacherProfileDropdown(props) {
+    const { teacher } = props;
+    const [expanded, setExpanded] = useState(false);
+    const toggleExpanded = () => setExpanded(prevState => !prevState);
+    return (
+        <Header className={expanded ? 'expanded' : ''}>
+            <button onClick={toggleExpanded}>
+                <span className="name">{teacher.username}</span>
+                <span className="caret"></span>
+            </button>
+            <div className="pfp" onClick={toggleExpanded}>
+                <img alt="pfp" src={teacher.profilePic ? teacher.profilePic : 'assets/defaultpfp.jpg' } />
+            </div>
+            <ContextMenu
+              position={null}
+              ignoreClick={['.User .pfp', '.User > button']}
+              updateContextMenu={() => setExpanded(false)}
+              content={(
+                <ul>
+                    <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
+                    <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
+                    <li><button className="logout" onClick={props.logout}>Logout</button></li>
+                </ul>
+            )} />
+        </Header>
+    )
+}
+
 function Main(props) {
     const { view } = props;
     switch (view.type) {
@@ -108,6 +135,8 @@ function Main(props) {
         case 'student': return <ViewStudent {...props} student={view.data} />;
         case 'marketplace': return <TeacherMarketplace {...props} />;
         case 'badges': return <TeacherBadges {...props} />;
+        case 'account': return <MyAccount {...props} />;
+        case 'settings': return <Settings {...props} />;
         default: return <Home {...props} />;
     }
 }
@@ -206,9 +235,9 @@ function Marketplace(props) {
             props.updateModal(content());
         }
         let content = (
-            <ul>
-                <li><button className="stealth link" onClick={editWearable}>Edit</button></li>
-                <li><button className="stealth link" onClick={deleteWearable}>Delete</button></li>
+            <ul className="editDelete">
+                <li><button onClick={editWearable}>Edit</button></li>
+                <li><button onClick={deleteWearable}>Delete</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -287,8 +316,8 @@ function Marketplace(props) {
     const editCategory = (e, categoryName) => {
         e.preventDefault();
         let content = (
-            <ul>
-                <li><button className="stealth link" onClick={(e) => addOrEditCategory(e, categoryName)}>Edit</button></li>
+            <ul className="editDelete">
+                <li><button onClick={(e) => addOrEditCategory(e, categoryName)}>Edit</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -515,9 +544,9 @@ function Badges(props) {
             props.updateModal(content());
         }
         let content = (
-            <ul>
-                <li><button className="stealth link" onClick={editBadge}>Edit</button></li>
-                <li><button className="stealth link" onClick={deleteBadge}>Delete</button></li>
+            <ul className="editDelete">
+                <li><button onClick={editBadge}>Edit</button></li>
+                <li><button onClick={deleteBadge}>Delete</button></li>
             </ul>
         );
         props.updateContextMenu(e, content);
@@ -597,4 +626,20 @@ function AddOrEditBadge(props) {
             </form>
         </div>
     )
+}
+
+function MyAccount(props) {
+    return (
+        <div className="Main">
+            <h1>My Account</h1>
+        </div>
+    );
+}
+
+function Settings(props) {
+    return (
+        <div className="Main">
+            <h1>Settings</h1>
+        </div>
+    );
 }

@@ -16,9 +16,9 @@ function Header(props) {
             </div>
             <div className="Header">
                 <h1>My Dashboard</h1>
-            </div>
-            <div className="User">
-                {props.children}
+                <div className={`${props.className ? props.className : ''} User`}>
+                    {props.children}
+                </div>
             </div>
         </>
     )
