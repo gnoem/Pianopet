@@ -408,5 +408,14 @@ module.exports = {
                 });
             });
         });
+    },
+    buyWearable: (req, res) => {
+        const { _id, wearableId } = req.body;
+        Student.findOne({ _id }, (err, student) => {
+            if (err) return console.error(`error finding student ${_id}`, err);
+            if (!student) return console.log(`student ${_id} not found`);
+            if (!student.closet.includes(wearableId)) student.closet.push(wearableId);
+            return res.send({ success: true });
+        });
     }
 }

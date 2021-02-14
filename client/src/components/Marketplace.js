@@ -4,7 +4,8 @@ import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Marketplace(props) {
-    const { viewingAsTeacher, teacher, wearables } = props;
+    console.dir(props);
+    const { viewingAsTeacher, student, teacher, wearables } = props;
     const [preview, setPreview] = useState({});
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
     const wearableRefs = useRef({});
@@ -61,7 +62,7 @@ export default function Marketplace(props) {
         );
         props.updateContextMenu(e, content);
     }
-    const updatePreview = ({ category, name, src, value }) => {
+    const updatePreview = ({ category, _id, name, src, value }) => {
         if (preview[category] && preview[category].name === name) {
             const previewObjectMinusCategory = (prevState) => {
                 const object = {...prevState};
@@ -75,7 +76,7 @@ export default function Marketplace(props) {
         }
         setPreview(prevState => ({
             ...prevState,
-            [category]: { name, src, value }
+            [category]: { _id, name, src, value }
         }));
     }
     const addOrEditCategory = (e, originalName) => {
@@ -143,6 +144,46 @@ export default function Marketplace(props) {
         );
         props.updateContextMenu(e, content);
     }
+    const studentOperations = {
+        buyWearable: ({ wearableId, name, src, value }) => {
+            if (viewingAsTeacher) return;
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                //return props.updateModal(content({ loadingIcon: true }));
+                const response = await fetch('/buy/wearable', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _id: student._id,
+                        wearableId
+                    })
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log('no success response from server');
+                props.refreshData();
+            }
+            let content = (options = {
+                loadingIcon: false
+            }) => (
+                <div className="modalBox">
+                    <h2>Confirm purchase</h2>
+                    <img alt={name} src={src} style={{ float: 'right' }} />
+                    Are you sure you want to purchase <b>{name}</b> for <b>{value}</b>?
+                    {options.loadingIcon
+                        ?   <Loading />
+                        :   <form className="buttons" onSubmit={handleSubmit}>
+                                <button type="submit">Yes, I'm sure</button>
+                                <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                            </form>
+                        }
+                </div>
+            );
+            //props.updateModal(content());
+        }
+    }
     const generate = {
         previewObject: (preview) => {
             const images = [];
@@ -157,7 +198,7 @@ export default function Marketplace(props) {
                 previewItems.push(
                     <li key={`marketplacePreviewDescription-${category}`}>
                         <span className="wearableName">{preview[category].name}</span>
-                        <button>
+                        <button onClick={() => studentOperations.buyWearable(preview[category])}>
                             <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
                             <span className="wearableValue">{preview[category].value}</span>
                         </button>
@@ -181,7 +222,9 @@ export default function Marketplace(props) {
                     {category}
                 </button>
             ))
-            array.push(<button key="wearableCategories-toolbar-addNew" className="add" onClick={addOrEditCategory}></button>)
+            if (viewingAsTeacher) array.push(
+                <button key="wearableCategories-toolbar-addNew" className="add" onClick={addOrEditCategory}></button>
+            );
             return array;
         },
         wearablesList: (category) => {

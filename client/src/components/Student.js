@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
+import Marketplace from './Marketplace';
 import Loading from './Loading';
 import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
@@ -51,7 +52,7 @@ export default function Student(props) {
                     </div>
                 </div>
             </Sidebar>
-            <Main view={view} student={student} />
+            <Main {...props} {...state} />
             <Nav>
                 <button className="stealth link" onClick={() => setView('home')}>Homework</button>
                 <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
@@ -120,7 +121,11 @@ function Homework(props) {
     useEffect(() => {
         getHomework();
     }, []);
-    const generateHomeworkModules = () => homework.map(homework => <HomeworkModule {...props} {...homework} refreshHomework={getHomework} />);
+    const generateHomeworkModules = () => {
+        return homework.map(homework => (
+            <HomeworkModule key={`homeworkModule-${homework._id}`} {...props} {...homework} refreshHomework={getHomework} />
+        ));
+    };
     return (
         <div className="Main">
             <h1>My Homework Tracker</h1>
@@ -133,7 +138,11 @@ function Homework(props) {
 
 function HomeworkModule(props) {
     const { _id, date, headline, assignments } = props;
-    const homeworkAssignments = () => assignments.map((info, index) => <Assignment {...props} index={index} {...info} _id={_id} />)
+    const homeworkAssignments = () => {
+        return assignments.map((info, index) => (
+            <Assignment key={`homeworkAssignment-${_id}-${index}`} {...props} index={index} {...info} _id={_id} />
+        ));
+    }
     return (
         <div className="Homework">
             <div className="Header">
@@ -201,6 +210,7 @@ function StudentMarketplace(props) {
         <div className="Main">
             <div className="StudentMarketplace">
                 <h1>Marketplace</h1>
+                <Marketplace {...props} />
             </div>
         </div>
     );
