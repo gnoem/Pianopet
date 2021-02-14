@@ -1,121 +1,126 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { prettifyDate } from '../utils';
+import { useState, useEffect } from 'react';
+import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import Loading from './Loading';
-import { Dashboard, Header, Sidebar, Nav } from './Dashboard'
+import ContextMenu from './ContextMenu';
+import { prettifyDate } from '../utils';
 
-const StudentContext = React.createContext();
-const HomeworkContext = React.createContext();
-
-function Student(props) {
+export default function Student(props) {
     const [view, setView] = useState('home');
     const [student, setStudent] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
-    const fetchStudentData = () => {
-        fetch('/auth')
-            .then(response => response.json())
-            .then(body => {
-                if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no { success: true } response from server');
-                setStudent(body.student);
-                setIsLoaded(true);
-            });
+    const getStudentData = async () => {
+        const response = await fetch('/auth');
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        setStudent(body.student);
+        setIsLoaded(true);
     }
     useEffect(() => {
-        fetchStudentData();
+        getStudentData();
     }, []);
-    if (!isLoaded) return (
-        <Dashboard>
-            <Loading />
-        </Dashboard>
-    )
+    const state = {
+        view,
+        student,
+        updateView: setView,
+        refreshData: getStudentData
+    }
+    if (!isLoaded) return <Dashboard><Loading /></Dashboard>;
     return (
-        <StudentContext.Provider value={fetchStudentData}>
-            <Dashboard teacher={false}>
-                <Header>
-                    {student.firstName}
-                </Header>
-                <Sidebar>
-                    <div className="StudentSidebar">
-                        <div className="avatarContainer">
-                            <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
-                        </div>
-                        <div className="studentCoins">
-                            <div className="coinsIcon"><img alt="coin icon" src="assets/Coin_ico.png" /></div>
-                            <span className="coinsCount">{student.coins.toString()}</span>
-                        </div>
+        <Dashboard teacher={false}>
+            <StudentProfileDropdown {...props} {...state} />
+            <Sidebar>
+                <div className="StudentSidebar">
+                    <div className="avatarContainer">
+                        <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
                     </div>
-                </Sidebar>
-                <Main view={view} student={student} />
-                <Nav>
-                    <button className="stealth link" onClick={() => setView('home')}>Homework</button>
-                    <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
-                    <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
-                    <button className="stealth link" onClick={props.logout}>Log out</button>
-                </Nav>
-            </Dashboard>
-        </StudentContext.Provider>
+                    <div className="studentCoins">
+                        <div className="coinsIcon"><img alt="coin icon" src="assets/Coin_ico.png" /></div>
+                        <span className="coinsCount">{student.coins.toString()}</span>
+                    </div>
+                </div>
+            </Sidebar>
+            <Main view={view} student={student} />
+            <Nav>
+                <button className="stealth link" onClick={() => setView('home')}>Homework</button>
+                <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
+                <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
+                <button className="stealth link" onClick={props.logout}>Log out</button>
+            </Nav>
+        </Dashboard>
+    );
+}
+
+function StudentProfileDropdown(props) {
+    const { student } = props;
+    const [expanded, setExpanded] = useState(false);
+    const toggleExpanded = () => setExpanded(prevState => !prevState);
+    return (
+        <Header className={expanded ? 'expanded' : ''}>
+            <button onClick={toggleExpanded}>
+                <span className="name">{student.firstName}</span>
+                <span className="caret"></span>
+            </button>
+            <div className="pfp" onClick={toggleExpanded}>
+                <img alt="pfp" src={student.profilePic ? student.profilePic : 'assets/defaultpfp.jpg' } />
+            </div>
+            <ContextMenu
+              position={null}
+              ignoreClick={['.User .pfp', '.User > button']}
+              updateContextMenu={() => setExpanded(false)}
+              content={(
+                <ul>
+                    <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
+                    <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
+                    <li><button className="logout" onClick={props.logout}>Logout</button></li>
+                </ul>
+            )} />
+        </Header>
     )
 }
 
 function Main(props) {
     const { view, student } = props;
     switch (view) {
-        case 'home': return <Home student={student} />;
-        default: return <Home student={student} />;
+        case 'home': return <Homework student={student} />;
+        default: return <Homework student={student} />;
     }
 }
 
-function Home(props) {
-    return (
-        <div className="Main">
-            <ViewHomework student={props.student} />
-        </div>
-    )
-}
-
-function ViewHomework(props) {
+function Homework(props) {
     const { student } = props;
-    const [homework, updateHomework] = useState(null);
-    const fetchHomework = () => {
-        fetch('/get/homework', {
+    const [homework, setHomework] = useState(null);
+    const getHomework = async () => {
+        console.log('refreshing homework');
+        const response = await fetch('/get/homework', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ studentId: student._id })
-        }).then(response => response.json())
-            .then(body => {
-                if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no { success: true } response from server');
-                updateHomework(body.homework);
-            });
+        })
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        setHomework(body.homework);
     }
-    useEffect(fetchHomework, []);
-    const viewHomework = () => {
-        const homeworkModules = [];
-        for (let i = 0; i < homework.length; i++) {
-            homeworkModules.push(<Homework {...homework[i]} />);
-        }
-        return homeworkModules;
-    }
+    useEffect(() => {
+        getHomework();
+    }, []);
+    const generateHomeworkModules = () => homework.map(homework => <HomeworkModule {...props} {...homework} refreshHomework={getHomework} />);
     return (
-        <HomeworkContext.Provider value={fetchHomework}>
+        <div className="Main">
+            <h1>My Homework Tracker</h1>
             <div className="ViewHomework">
-                {homework ? viewHomework() : '...'}
+                {homework ? generateHomeworkModules() : '...'}
             </div>
-        </HomeworkContext.Provider>
-    )
+        </div>
+    );
 }
 
-function Homework(props) {
+function HomeworkModule(props) {
     const { _id, date, headline, assignments } = props;
-    const homeworkAssignments = () => {
-        const assignmentsArray = [];
-        for (let i = 0; i < assignments.length; i++) {
-            assignmentsArray.push(<Assignment homeworkId={_id} index={i} {...assignments[i]} />);
-        }
-        return assignmentsArray;
-    }
+    const homeworkAssignments = () => assignments.map((info, index) => <Assignment {...props} index={index} {...info} _id={_id} />)
     return (
         <div className="Homework">
             <div className="Header">
@@ -136,52 +141,44 @@ function Homework(props) {
                 </ol>
             </div>
         </div>
-    )
+    );
 }
 
 function Assignment(props) {
-    const { homeworkId } = props;
-    const fetchHomework = useContext(HomeworkContext);
-    const updateHomeworkProgress = (value) => {
-        fetch('/update/progress', {
+    const { _id, index, label, progress, recorded } = props;
+    const updateHomeworkProgress = async (value) => {
+        // todo don't wait for server response to visually update UI!!!
+        const response = await fetch('/update/progress', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ _id: homeworkId, index: props.index, value })
-        }).then(response => response.json())
-            .then(body => {
-                if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no { success: true } response from server');
-                fetchHomework();
-                // refresh hw data
-            });
+            body: JSON.stringify({ _id, index, value })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no { success: true } response from server');
+        props.refreshHomework();
     }
     return (
         <li>
-            <div className="label">{props.label}</div>
+            <div className="label">{label}</div>
             <div className="progress">
-                <button onClick={props.progress === 0 ? () => {} : () => updateHomeworkProgress(props.progress - 1)}
-                    className={`stealth${props.progress === 0 ? ' disabled' : ''}`}
-                    style={{ visibility: props.recorded ? 'hidden' : 'visible' }}><i className="fas fa-minus-circle"></i></button>
-                <ProgressBar percentage={(100 * props.progress) / 4} />
-                <button onClick={props.progress === 4 ? () => {} : () => updateHomeworkProgress(props.progress + 1)}
-                    className={`stealth${props.progress === 4 ? ' disabled' : ''}`}
-                    style={{ visibility: props.recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
-                {/*(props.progress > 0) &&
-                    <div className={`coinsEarned${props.recorded ? ' coinsAdded' : ''}`}>
-                        <img className="coinIcon" alt="coin icon" src="assets/Coin_ico.png" />
-                        <span>{`${props.progress * 20}`}</span>
-                    </div>*/}
+                <button onClick={progress === 0 ? () => {} : () => updateHomeworkProgress(progress - 1)}
+                    className={`stealth${progress === 0 ? ' disabled' : ''}`}
+                    style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-minus-circle"></i></button>
+                <ProgressBar percentage={(100 * progress) / 4} />
+                <button onClick={progress === 4 ? () => {} : () => updateHomeworkProgress(progress + 1)}
+                    className={`stealth${progress === 4 ? ' disabled' : ''}`}
+                    style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
             </div>
         </li>
     )
 }
 
 function ProgressBar(props) {
+    const { percentage } = props;
     return (
         <div className="ProgressBar">
-            <div className="bar" style={{ width: props.percentage+'%' }}></div>
+            <div className="bar" style={{ width: percentage + '%' }}></div>
         </div>
     )
 }
-
-export default Student;
