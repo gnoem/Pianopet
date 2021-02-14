@@ -7,6 +7,9 @@ import { prettifyDate } from '../utils';
 export default function Student(props) {
     const [view, setView] = useState('home');
     const [student, setStudent] = useState(null);
+    const [teacher, setTeacher] = useState(null);
+    const [wearables, setWearables] = useState(null);
+    const [badges, setBadges] = useState(null); 
     const [isLoaded, setIsLoaded] = useState(false);
     const getStudentData = async () => {
         const response = await fetch('/auth');
@@ -15,6 +18,11 @@ export default function Student(props) {
         if (!body.success) return console.log('no { success: true } response from server');
         setStudent(body.student);
         setIsLoaded(true);
+        // todo figure out where next three goes
+        // only need to get this info once
+        setTeacher(body.teacher);
+        setWearables(body.wearables);
+        setBadges(body.badges);
     }
     useEffect(() => {
         getStudentData();
@@ -22,6 +30,9 @@ export default function Student(props) {
     const state = {
         view,
         student,
+        teacher,
+        wearables,
+        badges,
         updateView: setView,
         refreshData: getStudentData
     }
@@ -80,10 +91,12 @@ function StudentProfileDropdown(props) {
 }
 
 function Main(props) {
-    const { view, student } = props;
+    const { view } = props;
     switch (view) {
-        case 'home': return <Homework student={student} />;
-        default: return <Homework student={student} />;
+        case 'home': return <Homework {...props} />;
+        case 'marketplace': return <StudentMarketplace {...props} />;
+        case 'badges': return <StudentBadges {...props} />;
+        default: return <Homework {...props} />;
     }
 }
 
@@ -181,4 +194,24 @@ function ProgressBar(props) {
             <div className="bar" style={{ width: percentage + '%' }}></div>
         </div>
     )
+}
+
+function StudentMarketplace(props) {
+    return (
+        <div className="Main">
+            <div className="StudentMarketplace">
+                <h1>Marketplace</h1>
+            </div>
+        </div>
+    );
+}
+
+function StudentBadges(props) {
+    return (
+        <div className="Main">
+            <div className="StudentBadges">
+                <h1>My Badges</h1>
+            </div>
+        </div>
+    );
 }

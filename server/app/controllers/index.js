@@ -34,7 +34,27 @@ module.exports = {
                     return res.send({ success: true, teacher: teacher });
                 });
             }
-            else return res.send({ success: true, student: student });
+            // [else...]
+            const { teacherCode } = student;
+            Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
+                if (err) return console.error(`error finding teacher ${teacherCode}`, err);
+                if (!teacher) return console.log(`teacher ${teacherCode} not found`);
+                Wearable.find({ teacherCode }, (err, wearables) => {
+                    if (err) return console.error(`error finding wearables w/ teacherCode ${teacherCode}`, err);
+                    if (!wearables || !wearables.length) console.log(`did not find any wearables w/ teacherCode ${teacherCode}`);
+                    Badge.find({ teacherCode }, (err, badges) => {
+                        if (err) return console.error(`error finding badges w/ teacherCode ${teacherCode}`, err);
+                        if (!badges || !badges.length) console.log(`did not find any badges w/ teacherCode ${teacherCode}`);
+                        return res.send({
+                            success: true,
+                            student,
+                            teacher,
+                            wearables,
+                            badges
+                        });
+                    });
+                });
+            });
         });
     },
     logout: (req, res) => {
