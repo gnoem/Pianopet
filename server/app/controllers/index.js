@@ -33,6 +33,7 @@ module.exports = {
                     } // LOGOUT!!!!!
                     return res.send({ success: true, teacher: teacher });
                 });
+                return;
             }
             // [else...]
             const { teacherCode } = student;
