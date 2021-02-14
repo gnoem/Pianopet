@@ -4,7 +4,6 @@ import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Marketplace(props) {
-    console.dir(props);
     const { viewingAsTeacher, student, teacher, wearables } = props;
     const [preview, setPreview] = useState({});
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
@@ -145,11 +144,11 @@ export default function Marketplace(props) {
         props.updateContextMenu(e, content);
     }
     const studentOperations = {
-        buyWearable: ({ wearableId, name, src, value }) => {
+        buyWearable: ({ _id, name, src, value }) => {
             if (viewingAsTeacher) return;
             const handleSubmit = async (e) => {
                 e.preventDefault();
-                //return props.updateModal(content({ loadingIcon: true }));
+                props.updateModal(content({ loadingIcon: true }));
                 const response = await fetch('/buy/wearable', {
                     method: 'POST',
                     headers: {
@@ -157,13 +156,14 @@ export default function Marketplace(props) {
                     },
                     body: JSON.stringify({
                         _id: student._id,
-                        wearableId
+                        wearableId: _id
                     })
                 });
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
                 props.refreshData();
+                props.updateModal(false);
             }
             let content = (options = {
                 loadingIcon: false
@@ -172,16 +172,18 @@ export default function Marketplace(props) {
                     <h2>Confirm purchase</h2>
                     <img alt={name} src={src} style={{ float: 'right' }} />
                     Are you sure you want to purchase <b>{name}</b> for <b>{value}</b>?
+                    <div className="buttons">
                     {options.loadingIcon
                         ?   <Loading />
-                        :   <form className="buttons" onSubmit={handleSubmit}>
+                        :   <form onSubmit={handleSubmit}>
                                 <button type="submit">Yes, I'm sure</button>
                                 <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
                             </form>
                         }
+                    </div>
                 </div>
             );
-            //props.updateModal(content());
+            props.updateModal(content());
         }
     }
     const generate = {

@@ -4,11 +4,15 @@ import Loading from './components/Loading';
 import Guest from './components/Guest';
 import Student from './components/Student';
 import Teacher from './components/Teacher';
+import Modal from './components/Modal';
+import ContextMenu from './components/ContextMenu';
 
 export default function App() {
     const [student, setStudent] = useState(false);
     const [teacher, setTeacher] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [modal, setModal] = useState(false);
+    const [contextMenu, setContextMenu] = useState(false);
     useEffect(() => {
         getData();
     }, []);
@@ -31,14 +35,32 @@ export default function App() {
     const logout = async () => {
         fetch('/logout').then(() => window.location.assign('/'));
     }
+    const updateContextMenu = (e, content) => {
+        const position = {
+            top: `${e.clientY}px`,
+            right: `${window.innerWidth - e.clientX}px`
+        }
+        setContextMenu({
+            position,
+            content
+        });
+    }
+    const state = {
+        modal,
+        logout,
+        updateModal: setModal,
+        updateContextMenu
+    }
     const app = () => {
         if (!student && !teacher) return <Guest />;
-        if (student) return <Student logout={logout} />;
-        if (teacher) return <Teacher teacher={teacher} refreshTeacher={getData} logout={logout} />;
+        if (student) return <Student {...state} student={student} refreshData={getData} />;
+        if (teacher) return <Teacher {...state} teacher={teacher} refreshTeacher={getData} />;
     }
     return (
         <div className="App">
+            {modal && <Modal exit={() => setModal(false)} children={modal} />}
+            {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
             {isLoaded ? app() : <Loading />}
         </div>
-    )
+    );
 }

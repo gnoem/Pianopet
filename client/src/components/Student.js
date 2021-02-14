@@ -6,38 +6,32 @@ import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
 
 export default function Student(props) {
+    const { student } = props;
     const [view, setView] = useState('home');
-    const [student, setStudent] = useState(null);
     const [teacher, setTeacher] = useState(null);
     const [wearables, setWearables] = useState(null);
-    const [badges, setBadges] = useState(null); 
-    const [isLoaded, setIsLoaded] = useState(false);
-    const getStudentData = async () => {
-        const response = await fetch('/auth');
-        const body = await response.json();
-        if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no { success: true } response from server');
-        setStudent(body.student);
-        setIsLoaded(true);
-        // todo figure out where next three goes
-        // only need to get this info once
-        setTeacher(body.teacher);
-        setWearables(body.wearables);
-        setBadges(body.badges);
-    }
+    const [badges, setBadges] = useState(null);
     useEffect(() => {
+        const getStudentData = async () => {
+            // only need to get this info once
+            const response = await fetch('/auth');
+            const body = await response.json();
+            if (!body) return console.log('no response from server');
+            if (!body.success) return console.log('no { success: true } response from server');
+            setTeacher(body.teacher);
+            setWearables(body.wearables);
+            setBadges(body.badges);
+            // nothing that would need to be refetched based on user action
+        }
         getStudentData();
     }, []);
     const state = {
         view,
-        student,
         teacher,
         wearables,
         badges,
-        updateView: setView,
-        refreshData: getStudentData
+        updateView: setView
     }
-    if (!isLoaded) return <Dashboard><Loading /></Dashboard>;
     return (
         <Dashboard teacher={false}>
             <StudentProfileDropdown {...props} {...state} />
@@ -55,6 +49,7 @@ export default function Student(props) {
             <Main {...props} {...state} />
             <Nav>
                 <button className="stealth link" onClick={() => setView('home')}>Homework</button>
+                <button className="stealth link" onClick={() => setView('closet')}>Closet</button>
                 <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
                 <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
                 <button className="stealth link" onClick={props.logout}>Log out</button>
@@ -95,6 +90,7 @@ function Main(props) {
     const { view } = props;
     switch (view) {
         case 'home': return <Homework {...props} />;
+        case 'closet': return <StudentCloset {...props} />
         case 'marketplace': return <StudentMarketplace {...props} />;
         case 'badges': return <StudentBadges {...props} />;
         default: return <Homework {...props} />;
@@ -105,7 +101,6 @@ function Homework(props) {
     const { student } = props;
     const [homework, setHomework] = useState(null);
     const getHomework = async () => {
-        console.log('refreshing homework');
         const response = await fetch('/get/homework', {
             method: 'POST',
             headers: {
@@ -214,6 +209,27 @@ function StudentMarketplace(props) {
             </div>
         </div>
     );
+}
+
+function StudentCloset(props) {
+    const { student, wearables } = props;
+    const generateClosetItems = () => {
+        return student.closet.map(_id => {
+            const thisWearable = wearables[wearables.findIndex(element => element._id === _id)];
+            return (
+                <div key={`closetItem-${_id}`} className="closetItem" style={{ display: 'inline-block' }}>
+                    <img alt={thisWearable.name} src={thisWearable.src} />
+                    <b style={{ display: 'block' }}>{thisWearable.name}</b>
+                </div>
+            );
+        });
+    }
+    return (
+        <div className="Main">
+            <h1>Closet</h1>
+            {generateClosetItems()}
+        </div>
+    )
 }
 
 function StudentBadges(props) {

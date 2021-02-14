@@ -13,7 +13,7 @@ const Student = mongoose.model(
         avatar: {
             body: String
         },
-        closet: String, // going to be object with keys 'eyes', 'hat', etc. that have arrays of strings as values
+        closet: [String],
         badges: [String]
     }),
     'students'

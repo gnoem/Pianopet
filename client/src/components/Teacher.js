@@ -3,7 +3,6 @@ import { Dashboard, Header, Sidebar } from './Dashboard';
 import ViewStudent from './ViewStudent';
 import Marketplace, { AddOrEditWearable } from './Marketplace';
 import Loading from './Loading';
-import Modal from './Modal';
 import ContextMenu from './ContextMenu';
 import { getArrayIndexByKeyValue, shrinkit } from '../utils';
 import Dropdown from './Dropdown';
@@ -14,8 +13,6 @@ export default function Teacher(props) {
     const [students, setStudents] = useState([]);
     const [wearables, setWearables] = useState([]);
     const [badges, setBadges] = useState([]);
-    const [modal, setModal] = useState(false);
-    const [contextMenu, setContextMenu] = useState(false);
     const getTeacherData = async () => {
         const response = await fetch('/teacher/data', {
             method: 'POST',
@@ -66,31 +63,16 @@ export default function Teacher(props) {
             />
         );
     }
-    const updateContextMenu = (e, content) => {
-        const position = {
-            top: `${e.clientY}px`,
-            right: `${window.innerWidth - e.clientX}px`
-        }
-        setContextMenu({
-            position,
-            content
-        });
-    }
     const state = {
         view,
         students,
         wearables,
         badges,
-        modal,
         updateView: setView,
-        updateModal: setModal,
-        updateContextMenu,
         refreshData: getTeacherData
     }
     return (
         <Dashboard teacher={true}>
-            {modal && <Modal exit={() => setModal(false)} children={modal} />}
-            {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
             <TeacherProfileDropdown {...props} {...state} />
             <Sidebar>
                 <h2>Students</h2>
