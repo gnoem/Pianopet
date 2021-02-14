@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { elementHasParent } from '../utils';
 
 export default function Dropdown(props) {
-    const { defaultValue, listItems } = props;
+    const { defaultValue, listItems, restoreDefault } = props;
     const [display, setDisplay] = useState(() => {
         if (!listItems || !listItems.length) return 'Add new...';
         if (!defaultValue) return 'Select one';
@@ -31,6 +31,9 @@ export default function Dropdown(props) {
     useEffect(() => {
         if (addingNew) dropdownList.current.style.maxHeight = dropdownList.current.scrollHeight + 1 + 'px';
     }, [addingNew]);
+    useEffect(() => {
+        if (restoreDefault) setDisplay(defaultValue.display);
+    }, [restoreDefault]);
     const toggleIsOpen = () => setIsOpen(prevState => !prevState);
     const handleClick = (e) => {
         setDisplay(e.target.innerHTML);
