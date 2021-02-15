@@ -479,13 +479,18 @@ a:hover, button.link:hover {
     left: 50%;
     margin-left: -0.25rem;
 }
-.studentAvatar {
+.studentAvatar, .Avatar {
     width: 14rem;
     height: 14rem;
     padding: 2rem;
     background: #fff;
     border: 3px solid var(--dark-theme-color);
     border-radius: 999px;
+    position: relative;
+}
+.Avatar .default {
+    width: 100%;
+    height: 100%;
 }
 .Teacher.Dashboard .studentAvatar {
     width: 12rem;
@@ -794,7 +799,7 @@ a:hover, button.link:hover {
 .StudentSidebar .studentCoins {
     grid-template-columns: auto auto;
 }
-.Marketplace {
+.Marketplace, .Closet {
     margin: 2rem 0;
     background: #fff;
     height: 25rem;
@@ -805,6 +810,13 @@ a:hover, button.link:hover {
         'preview items';
     border-radius: 1rem;
     overflow: hidden;
+}
+.Closet {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 100%;
+    grid-template-areas:
+        'nav'
+        'items';
 }
 .marketplacePreview {
     grid-area: preview;
@@ -855,22 +867,22 @@ ul.previewDescription img.coin {
     margin-right: 0.3rem;
 }
 
-.marketplaceCategories {
+.marketplaceCategories, .closetCategories {
     grid-area: nav;
     padding: 0.5rem;
     background: var(--light-theme-color);
 }
-.marketplaceCategories button {
+.marketplaceCategories button, .closetCategories button {
     padding: 0.5rem 1rem;
     border-radius: 999px;
     background: #fff;
     color: var(--deep-theme-color);
     line-height: 1.2rem;
 }
-.marketplaceCategories button + button {
+.marketplaceCategories button + button, .closetCategories button + button {
     margin-left: 0.5rem;
 }
-.marketplaceWearables {
+.marketplaceWearables, .closetWearables {
     grid-area: items;
     padding: 1rem;
     overflow-y: auto;
@@ -881,7 +893,7 @@ ul.previewDescription img.coin {
     grid-template-rows: repeat(auto-fill, auto);
     gap: 1rem;
 }
-.marketplaceWearables button.wearableItem {
+.marketplaceWearables button.wearableItem, .closetWearables button.closetItem {
     padding: 0.5rem;
     text-align: center;
     border: 1px solid #ddd;
@@ -890,11 +902,11 @@ ul.previewDescription img.coin {
     font-size: 0.75rem;
     transition: 0.2s;
 }
-.marketplaceWearables .wearableItem img {
+.marketplaceWearables .wearableItem img, .closetWearables .closetItem img {
     width: 4rem;
     height: auto;
 }
-.marketplaceWearables .wearableItem span.wearableName {
+.marketplaceWearables .wearableItem span.wearableName, .closetWearables .closetItem span.wearableName {
     display: block;
     font-weight: 600;
     color: #666;

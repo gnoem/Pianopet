@@ -10,9 +10,7 @@ const Student = mongoose.model(
         password: String,
         teacherCode: String,
         coins: Number,
-        avatar: {
-            body: String
-        },
+        avatar: [String],
         closet: [String],
         badges: [String]
     }),

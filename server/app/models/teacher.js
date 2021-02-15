@@ -4,9 +4,11 @@ const Schema = mongoose.Schema;
 const Teacher = mongoose.model(
     'Teacher',
     new Schema({
+        firstName: String,
+        lastName: String,
         username: String,
         password: String,
-        students: [String], // string of student IDs
+        students: [String], // array of student IDs
         wearableCategories: [String]
     }),
     'teachers'

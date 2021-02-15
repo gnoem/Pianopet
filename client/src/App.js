@@ -10,6 +10,8 @@ import ContextMenu from './components/ContextMenu';
 export default function App() {
     const [student, setStudent] = useState(false);
     const [teacher, setTeacher] = useState(false);
+    const [wearables, setWearables] = useState(false);
+    const [badges, setBadges] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [contextMenu, setContextMenu] = useState(false);
@@ -23,6 +25,9 @@ export default function App() {
         if (!body.success) return setIsLoaded(true);
         if (body.student) {
             setStudent(body.student);
+            setTeacher(body.teacher);
+            setWearables(body.wearables);
+            setBadges(body.badges);
             setIsLoaded(true);
             return;
         }
@@ -51,9 +56,15 @@ export default function App() {
         updateModal: setModal,
         updateContextMenu
     }
+    const studentProps = {
+        student,
+        teacher,
+        wearables,
+        badges
+    }
     const app = () => {
         if (!student && !teacher) return <Guest />;
-        if (student) return <Student {...state} student={student} refreshData={getData} />;
+        if (student) return <Student {...state} {...studentProps} refreshData={getData} />;
         if (teacher) return <Teacher {...state} teacher={teacher} refreshTeacher={getData} />;
     }
     return (

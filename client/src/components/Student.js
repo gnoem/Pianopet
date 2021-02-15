@@ -1,36 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
+import Closet from './Closet';
 import Marketplace from './Marketplace';
-import Loading from './Loading';
 import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
 
 export default function Student(props) {
-    const { student } = props;
+    const { student, wearables } = props;
     const [view, setView] = useState('home');
-    const [teacher, setTeacher] = useState(null);
-    const [wearables, setWearables] = useState(null);
-    const [badges, setBadges] = useState(null);
+    const [avatar, setAvatar] = useState(null);
     useEffect(() => {
-        const getStudentData = async () => {
-            // only need to get this info once
-            const response = await fetch('/auth');
-            const body = await response.json();
-            if (!body) return console.log('no response from server');
-            if (!body.success) return console.log('no { success: true } response from server');
-            setTeacher(body.teacher);
-            setWearables(body.wearables);
-            setBadges(body.badges);
-            // nothing that would need to be refetched based on user action
-        }
-        getStudentData();
-    }, []);
+        console.table(avatar);
+        // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
+        const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
+            const index = wearables.findIndex(element => element._id === id);
+            const { category, _id, src } = wearables[index];
+            obj[category] = { _id, src };
+            return obj;
+        }, {});
+        setAvatar(createAvatarObject(student.avatar));
+    }, [student.avatar, view]);
+    const closet = student.closet.map(_id => { // converting student.closet, which is an array of string IDs, to an array of objects
+        const index = wearables.findIndex(element => element._id === _id);
+        const thisWearable = wearables[index];
+        return thisWearable;
+    });
     const state = {
         view,
-        teacher,
-        wearables,
-        badges,
-        updateView: setView
+        avatar,
+        closet,
+        updateView: setView,
+        updateAvatar: setAvatar
     }
     return (
         <Dashboard teacher={false}>
@@ -52,7 +52,6 @@ export default function Student(props) {
                 <button className="stealth link" onClick={() => setView('closet')}>Closet</button>
                 <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
                 <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
-                <button className="stealth link" onClick={props.logout}>Log out</button>
             </Nav>
         </Dashboard>
     );
@@ -212,24 +211,12 @@ function StudentMarketplace(props) {
 }
 
 function StudentCloset(props) {
-    const { student, wearables } = props;
-    const generateClosetItems = () => {
-        return student.closet.map(_id => {
-            const thisWearable = wearables[wearables.findIndex(element => element._id === _id)];
-            return (
-                <div key={`closetItem-${_id}`} className="closetItem" style={{ display: 'inline-block' }}>
-                    <img alt={thisWearable.name} src={thisWearable.src} />
-                    <b style={{ display: 'block' }}>{thisWearable.name}</b>
-                </div>
-            );
-        });
-    }
     return (
         <div className="Main">
             <h1>Closet</h1>
-            {generateClosetItems()}
+            <Closet {...props} />
         </div>
-    )
+    );
 }
 
 function StudentBadges(props) {
