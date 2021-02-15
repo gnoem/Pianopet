@@ -22,7 +22,7 @@ export default function Closet(props) {
         wearablesList: (category) => {
             const previewWearable = ({ category, _id, src }) => {
                 props.updateAvatar(prevState => {
-                    if (prevState[category]._id === _id) {
+                    if (prevState[category] && prevState[category]._id === _id) {
                         let prevStateMinusThisCategory = {...prevState};
                         delete prevStateMinusThisCategory[category];
                         return prevStateMinusThisCategory;

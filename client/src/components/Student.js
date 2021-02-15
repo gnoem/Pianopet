@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import Closet from './Closet';
+import Avatar from './Avatar';
 import Marketplace from './Marketplace';
 import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
+import Button from './Button';
 
 export default function Student(props) {
     const { student, wearables } = props;
     const [view, setView] = useState('home');
     const [avatar, setAvatar] = useState(null);
     useEffect(() => {
-        console.table(avatar);
         // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
         const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
             const index = wearables.findIndex(element => element._id === id);
@@ -38,7 +39,7 @@ export default function Student(props) {
             <Sidebar>
                 <div className="StudentSidebar">
                     <div className="avatarContainer">
-                        <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
+                        <Avatar {...props} {...state} />
                     </div>
                     <div className="studentCoins">
                         <div className="coinsIcon"><img alt="coin icon" src="assets/Coin_ico.png" /></div>
@@ -211,10 +212,45 @@ function StudentMarketplace(props) {
 }
 
 function StudentCloset(props) {
+    const { student, avatar } = props;
+    const handleUpdateAvatar = async () => {
+        const updatedAvatar = Object.keys(avatar).map(key => avatar[key]._id);
+        const response = await fetch('/update/avatar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _id: student._id,
+                avatar: updatedAvatar
+            })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        props.refreshData();
+    }
+    const unsavedChanges = () => {
+        // there has got to be a better way todo this
+        const previewAvatar = Object.keys(avatar).map(key => avatar[key]._id);
+        const trueAvatar = student.avatar;
+        if (trueAvatar.length !== previewAvatar.length) return true;
+        const trueAvatarObject = {};
+        const previewAvatarObject = {};
+        for (let id of trueAvatar) trueAvatarObject[id] = true;
+        for (let id of previewAvatar) previewAvatarObject[id] = true;
+        // checking if the two arrays have equal contents (regardless of order)
+        if ((previewAvatar.every(string => trueAvatarObject[string]))
+        && (trueAvatar.every(string => previewAvatarObject[string]))) {
+            return false;
+        }
+        else return true;
+    }
     return (
         <div className="Main">
             <h1>Closet</h1>
             <Closet {...props} />
+            {unsavedChanges() && <div className="buttons"><Button onClick={handleUpdateAvatar}>Save Changes</Button></div>}
         </div>
     );
 }

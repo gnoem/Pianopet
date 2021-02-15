@@ -421,5 +421,17 @@ module.exports = {
                 return res.send({ success: true });
             });
         });
+    },
+    updateAvatar: (req, res) => {
+        const { _id, avatar } = req.body;
+        Student.findOne({ _id }, (err, student) => {
+            if (err) return console.error(`error finding student ${_id}`, err);
+            if (!student) return console.log(`student ${_id} not found`);
+            student.avatar = avatar;
+            student.save(err => {
+                if (err) return console.error(`error saving student ${_id}`, err);
+                return res.send({ success: true });
+            });
+        })
     }
 }

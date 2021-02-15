@@ -26,6 +26,7 @@ module.exports = (app) => {
     app.post('/add/wearableCategory', controller.addWearableCategory);
     app.post('/edit/wearableCategory', controller.editWearableCategory);
     app.post('/buy/wearable', controller.buyWearable);
+    app.post('/update/avatar', controller.updateAvatar);
     // ADMIN POWERS:
     // create badges
     // transfer coins
