@@ -22,6 +22,19 @@
         transform: scale(1);
     }
 }
+@keyframes slideUpIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 50%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+.slideUpIn {
+    animation: slideUpIn 0.2s 1;
+}
 
 #demo {
     position: fixed;
@@ -297,8 +310,7 @@ a:hover, button.link:hover {
 }
 .User span.caret::after {
     content: '\f107';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
+    font: 900 1em 'Font Awesome 5 Free';
     transition: 0.2s;
     margin-left: 1rem;
     display: block;
@@ -346,9 +358,7 @@ a:hover, button.link:hover {
     justify-content: space-between;
 }
 .User .ContextMenu button::before {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: 1.1rem;
+    font: 900 1.1rem 'Font Awesome 5 Free';
     line-height: inherit;
     display: inline-block;
     margin-right: 1.5rem;
@@ -487,6 +497,7 @@ a:hover, button.link:hover {
     border: 3px solid var(--dark-theme-color);
     border-radius: 999px;
     position: relative;
+    text-align: center;
 }
 .Avatar .default {
     width: 100%;
@@ -550,9 +561,7 @@ a:hover, button.link:hover {
 }
 .Exp .ExpHeader::before {
     content: '\f055';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: inherit;
+    font: 900 1em 'Font Awesome 5 Free';
     color: var(--deep-theme-color);
     padding-right: 0.5rem;
 }
@@ -751,9 +760,7 @@ a:hover, button.link:hover {
     vertical-align: middle;
 }
 .MiniMenu button::after {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: 0.75em;
+    font: 900 0.75em 'Font Awesome 5 Free';
     padding-left: 0.5rem;
     display: inline-block;
     vertical-align: middle;
@@ -852,8 +859,14 @@ ul.previewDescription li {
 ul.previewDescription li + li {
     margin-top: 0.5rem;
 }
+ul.previewDescription span.owned::before {
+    content: '\f00c';
+    font: 900 1em 'Font Awesome 5 Free';
+    line-height: 1.4rem;
+}
 ul.previewDescription button {
-    padding: 0.3rem;
+    padding: 0 0.3rem;
+    line-height: 1.4rem;
     border-radius: 0.3rem;
     font-size: 0.7rem;
 }
@@ -901,6 +914,9 @@ ul.previewDescription img.coin {
     color: #333;
     font-size: 0.75rem;
     transition: 0.2s;
+}
+.marketplaceWearables button.wearableItem.active, .closetWearables button.closetItem.active {
+    border-color: #000;
 }
 .marketplaceWearables .wearableItem img, .closetWearables .closetItem img {
     width: 4rem;
@@ -987,8 +1003,7 @@ ul.previewDescription img.coin {
     padding-right: 0.2rem;
 }
 .ContextMenu ul.editDelete button::after {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
+    font: 900 1em 'Font Awesome 5 Free';
     margin-left: 1.5rem;
 }
 .ContextMenu ul.editDelete li:last-child button::after {
@@ -1016,8 +1031,7 @@ ul.previewDescription img.coin {
     width: 100%;
 }
 .dropdownDisplay::after {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
+    font: 900 1em 'Font Awesome 5 Free';
     content: '\f0d9';
     position: absolute;
     top: 50%;
@@ -1115,8 +1129,7 @@ ul.previewDescription img.coin {
 }
 button.add::before {
     content: '\f067';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
+    font: 900 1em 'Font Awesome 5 Free';
 }
 .goodbye {
     transform-origin: center;

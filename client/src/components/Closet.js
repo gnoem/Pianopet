@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function Closet(props) {
-    const { closet, teacher } = props;
+    const { closet, avatar, teacher } = props;
     const [category, setCategory] = useState(() => {
         return teacher.wearableCategories.find(category => closet.some(wearable => wearable.category === category));
     });
@@ -34,10 +34,11 @@ export default function Closet(props) {
                 });
             }
             return closet.map(wearable => {
+                const currentlyPreviewing = avatar[wearable.category] && avatar[wearable.category]._id === wearable._id;
                 if (wearable.category === category) return (
                     <button
                       key={`closetItem-${category}-${wearable._id}`}
-                      className={`stealth closetItem`} // if currently previewing, add light green background or something
+                      className={`stealth closetItem${currentlyPreviewing ? ' active' : ''}`} // if currently previewing, add light green background or something
                       onClick={() => previewWearable(wearable)}>
                         <img alt={wearable.name} src={wearable.src} />
                         <span className="wearableName">{wearable.name}</span>

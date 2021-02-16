@@ -148,6 +148,19 @@ export default function Marketplace(props) {
             if (viewingAsTeacher) return;
             const handleSubmit = async (e) => {
                 e.preventDefault();
+                if (student.coins < value) {
+                    let cantAfford = (
+                        <div className="modalBox">
+                            <h2>Not enough coins</h2>
+                            You don't have enough coins to purchase this item. It costs {value} and you only have {student.coins}.
+                            <div className="buttons">
+                                <button type="button" onClick={() => props.updateModal(false)}>OK</button>
+                            </div>
+                        </div>
+                    );
+                    props.updateModal(cantAfford);
+                    return;
+                }
                 props.updateModal(content({ loadingIcon: true }));
                 const response = await fetch('/buy/wearable', {
                     method: 'POST',
@@ -156,7 +169,8 @@ export default function Marketplace(props) {
                     },
                     body: JSON.stringify({
                         _id: student._id,
-                        wearableId: _id
+                        wearableId: _id,
+                        wearableCost: value
                     })
                 });
                 const body = await response.json();
@@ -200,16 +214,19 @@ export default function Marketplace(props) {
                 previewItems.push(
                     <li key={`marketplacePreviewDescription-${category}`}>
                         <span className="wearableName">{preview[category].name}</span>
-                        <button onClick={() => studentOperations.buyWearable(preview[category])}>
-                            <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                            <span className="wearableValue">{preview[category].value}</span>
-                        </button>
+                        {!viewingAsTeacher && student.closet.includes(preview[category]._id)
+                            ?   <span className="owned"></span>
+                            :   <button onClick={() => studentOperations.buyWearable(preview[category])}>
+                                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                                    <span className="wearableValue">{preview[category].value}</span>
+                                </button>
+                            }
                     </li>
                 )
             }
             return (
                 <ul className="previewDescription">
-                    <h3>Shopping Cart</h3>
+                    <h3>Trying On:</h3>
                     {previewItems}
                 </ul>
             );

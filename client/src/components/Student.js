@@ -250,7 +250,7 @@ function StudentCloset(props) {
         <div className="Main">
             <h1>Closet</h1>
             <Closet {...props} />
-            {unsavedChanges() && <div className="buttons"><Button onClick={handleUpdateAvatar}>Save Changes</Button></div>}
+            {unsavedChanges() && <div className="buttons"><Button onClick={handleUpdateAvatar} className="slideUpIn">Save Changes</Button></div>}
         </div>
     );
 }

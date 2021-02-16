@@ -9,7 +9,7 @@ export default function Button(props) {
     }
     if (loadingIcon) return <Loading />;
     return (
-        <button onClick={handleClick}>
+        <button onClick={handleClick} className={props.className}>
             {props.children}
         </button>
     );
