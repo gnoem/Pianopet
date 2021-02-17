@@ -18,13 +18,7 @@ export default function Marketplace(props) {
             const handleDelete = async (e) => {
                 e.preventDefault();
                 props.updateModal(content({ loadingIcon: true }));
-                const response = await fetch('/delete/wearable', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ _id })
-                });
+                const response = await fetch(`/wearable/${_id}`, { method: 'DELETE' });
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
@@ -86,10 +80,9 @@ export default function Marketplace(props) {
             e.preventDefault();
             props.updateModal(content({ loadingIcon: true }));
             const fromDropdown = !!categoryName;
-            const ROUTE = editingCategory ? '/edit/wearableCategory' : '/add/wearableCategory';
+            const ROUTE = editingCategory ? `/teacher/${teacher._id}/wearable-category` : '/wearable-category';
             const formData = editingCategory
                 ?   {
-                        _id: teacher._id,
                         originalName,
                         updatedName: e.target[0].value
                     }
@@ -162,13 +155,12 @@ export default function Marketplace(props) {
                     return;
                 }
                 props.updateModal(content({ loadingIcon: true }));
-                const response = await fetch('/buy/wearable', {
-                    method: 'POST',
+                const response = await fetch(`/student/${student._id}/closet`, {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        _id: student._id,
                         wearableId: _id,
                         wearableCost: value
                     })
@@ -305,9 +297,9 @@ export function AddOrEditWearable(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        const ROUTE = wearable ? '/edit/wearable' : '/add/wearable';
+        const ROUTE = wearable ? `/wearable/${wearable._id}` : '/wearable';
         const response = await fetch(ROUTE, {
-            method: 'POST',
+            method: wearable ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -320,7 +312,7 @@ export function AddOrEditWearable(props) {
         props.refreshData();
     }
     const addCategory = async (categoryName) => {
-        const response = await fetch('/add/wearableCategory', {
+        const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

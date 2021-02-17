@@ -101,13 +101,7 @@ function Homework(props) {
     const { student } = props;
     const [homework, setHomework] = useState(null);
     const getHomework = async () => {
-        const response = await fetch('/get/homework', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ studentId: student._id })
-        })
+        const response = await fetch(`/student/${student._id}/homework`);
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
@@ -165,10 +159,15 @@ function Assignment(props) {
     const { _id, index, label, progress, recorded } = props;
     const updateHomeworkProgress = async (value) => {
         // todo don't wait for server response to visually update UI!!!
-        const response = await fetch('/update/progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ _id, index, value })
+        const response = await fetch(`/assignment/${_id}/progress`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                index,
+                value
+            })
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
@@ -215,13 +214,12 @@ function StudentCloset(props) {
     const { student, avatar } = props;
     const handleUpdateAvatar = async () => {
         const updatedAvatar = Object.keys(avatar).map(key => avatar[key]._id);
-        const response = await fetch('/update/avatar', {
-            method: 'POST',
+        const response = await fetch(`student/${student._id}/avatar`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                _id: student._id,
                 avatar: updatedAvatar
             })
         });

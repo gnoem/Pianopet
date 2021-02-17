@@ -190,14 +190,14 @@ module.exports = {
         });
     },
     getTeacherData: (req, res) => {
-        const { _id } = req.body;
-        Student.find({ teacherCode: _id }, (err, students) => {
+        const { id } = req.params;
+        Student.find({ teacherCode: id }, (err, students) => {
             if (err) return console.error('error finding students', err);
             if (!students || !students.length) console.log('this teacher has no students');
-            Wearable.find({ teacherCode: _id }, (err, wearables) => {
+            Wearable.find({ teacherCode: id }, (err, wearables) => {
                 if (err) return console.error('error finding wearables', err);
                 if (!wearables || !wearables.length) console.log('this teacher hasnt uploaded any wearables');
-                Badge.find({ teacherCode: _id }, (err, badges) => {
+                Badge.find({ teacherCode: id }, (err, badges) => {
                     if (err) return console.error('error finding badges', err);
                     if (!badges || !badges.length) console.log('this teacher hasnt uploaded any badges');
                     res.send({
@@ -210,16 +210,6 @@ module.exports = {
             });
         });
     },
-    getStudents: (req, res) => {
-        const { id } = req.params;
-        Student.find({ teacherCode: id }, (err, students) => {
-            if (err) return console.error('error finding students', err);
-            if (!students) return console.log('this teacher has no students');
-            res.send({
-                students: students
-            });
-        })
-    },
     addHomework: (req, res) => {
         const newHomework = new Homework(req.body);
         newHomework.save(err => {
@@ -228,7 +218,7 @@ module.exports = {
         }); // */
     },
     deleteHomework: (req, res) => {
-        const { _id } = req.body;
+        const { id: _id } = req.params;
         Homework.findOneAndDelete({ _id }, (err, homework) => {
             if (err) return console.error('error deleting homework', err);
             if (!homework) return console.log(`homework ${_id} not found`);
@@ -236,8 +226,8 @@ module.exports = {
         });
     },
     getHomework: (req, res) => {
-        const { studentId } = req.body;
-        Homework.find({ studentId }).sort({ date: 'desc' }).exec((err, homework) => {
+        const { id } = req.params;
+        Homework.find({ studentId: id }).sort({ date: 'desc' }).exec((err, homework) => {
             if (err) return console.error('error finding homework', err);
             if (!homework) {
                 console.log('no homework exists for this student');
@@ -251,7 +241,8 @@ module.exports = {
         });
     },
     editHomework: (req, res) => {
-        const { _id, date, headline, assignments } = req.body;
+        const { id: _id } = req.params;
+        const { date, headline, assignments } = req.body;
         Homework.findOne({ _id }, (err, homework) => {
             if (err) return console.error('error finding homework', err);
             if (!homework) return console.log(`homework ${_id} not found!`);
@@ -266,7 +257,8 @@ module.exports = {
         });
     },
     updateProgress: (req, res) => {
-        const { _id, index, value } = req.body;
+        const { id: _id } = req.params;
+        const { index, value } = req.body;
         Homework.findOne({ _id }, (err, homework) => {
             if (err) return console.error('error finding homework', err);
             if (!homework) return console.log(`homework ${_id} not found`);
@@ -279,7 +271,8 @@ module.exports = {
         });
     },
     updateRecorded: (req, res) => {
-        const { _id, index, recorded } = req.body;
+        const { id: _id } = req.params;
+        const { index, recorded } = req.body;
         Homework.findOne({ _id }, (err, homework) => {
             if (err) return console.error('error finding homework', err);
             if (!homework) return console.log(`homework ${_id} not found`);
@@ -292,8 +285,9 @@ module.exports = {
         });
     },
     updateCoins: (req, res) => {
-        const { studentId, coins } = req.body;
-        Student.findOne({ _id: studentId }, (err, student) => {
+        const { id: _id } = req.params;
+        const { coins } = req.body;
+        Student.findOne({ _id }, (err, student) => {
             if (err) return console.error('error finding student', err);
             if (!student) return console.log('no student with that ID');
             student.coins = coins;
@@ -316,8 +310,9 @@ module.exports = {
         }); // */
     },
     editWearable: (req, res) => {
+        const { id: _id } = req.params;
         // todo validate name
-        const { _id, name, category, src, value } = req.body;
+        const { name, category, src, value } = req.body;
         Wearable.findOne({ _id }, (err, wearable) => {
             if (err) return console.error('error finding wearable', wearable);
             if (!wearable) return console.log(`wearable ${_id} not found`);
@@ -333,7 +328,7 @@ module.exports = {
         });
     },
     deleteWearable: (req, res) => {
-        const { _id } = req.body;
+        const { _id } = req.params;
         Wearable.findOneAndDelete({ _id }, (err, wearable) => {
             if (err) return console.error('error finding and deleting wearable', err);
             if (!wearable) console.log(`no wearable with _id ${_id}`);
@@ -351,8 +346,9 @@ module.exports = {
         }); // */
     },
     editBadge: (req, res) => {
+        const { id: _id } = req.params;
         // todo validate name
-        const { _id, name, src, value } = req.body;
+        const { name, src, value } = req.body;
         Badge.findOne({ _id }, (err, badge) => {
             if (err) return console.error('error finding badge', badge);
             if (!badge) return console.log(`badge ${_id} not found`);
@@ -366,7 +362,7 @@ module.exports = {
         });
     },
     deleteBadge: (req, res) => {
-        const { _id } = req.body;
+        const { id: _id } = req.params;
         Badge.findOneAndDelete({ _id }, (err, badge) => {
             if (err) return console.error('error finding and deleting badge', err);
             if (!badge) console.log(`no badge with _id ${_id}`);
@@ -387,7 +383,8 @@ module.exports = {
         });
     },
     editWearableCategory: (req, res) => {
-        const { _id, originalName, updatedName } = req.body;
+        const { id: _id } = req.params;
+        const { originalName, updatedName } = req.body;
         Teacher.findOne({ _id }, (err, user) => {
             if (err) return console.error(`error finding user ${_id}`, err);
             if (!user) return console.log(`user ${_id} not found`);
@@ -409,8 +406,9 @@ module.exports = {
             });
         });
     },
-    buyWearable: (req, res) => {
-        const { _id, wearableId, wearableCost } = req.body;
+    updateCloset: (req, res) => {
+        const { id: _id } = req.params;
+        const { wearableId, wearableCost } = req.body;
         Student.findOne({ _id }, (err, student) => {
             if (err) return console.error(`error finding student ${_id}`, err);
             if (!student) return console.log(`student ${_id} not found`);
@@ -424,7 +422,8 @@ module.exports = {
         });
     },
     updateAvatar: (req, res) => {
-        const { _id, avatar } = req.body;
+        const { id: _id } = req.params;
+        const { avatar } = req.body;
         Student.findOne({ _id }, (err, student) => {
             if (err) return console.error(`error finding student ${_id}`, err);
             if (!student) return console.log(`student ${_id} not found`);

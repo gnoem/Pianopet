@@ -14,13 +14,7 @@ export default function Teacher(props) {
     const [wearables, setWearables] = useState([]);
     const [badges, setBadges] = useState([]);
     const getTeacherData = async () => {
-        const response = await fetch('/teacher/data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ _id: teacher._id })
-        });
+        const response = await fetch(`/teacher/${teacher._id}/data`);
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
@@ -203,13 +197,7 @@ function Badges(props) {
         const deleteBadge = () => {
             const handleDelete = async () => {
                 props.updateModal(content({ loadingIcon: true }));
-                const response = await fetch('/delete/badge', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ _id })
-                });
+                const response = await fetch(`/badge/${_id}`, { method: 'DELETE' });
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
@@ -284,9 +272,9 @@ function AddOrEditBadge(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        const ROUTE = badge ? '/edit/badge' : '/add/badge';
+        const ROUTE = badge ? `/badge/${badge._id}` : '/badge';
         const response = await fetch(ROUTE, {
-            method: 'POST',
+            method: badge ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },

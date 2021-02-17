@@ -10,13 +10,7 @@ export default function ViewStudent(props) {
     const [isLoaded, setIsLoaded] = useState(false);
     const state = { homework }
     const getHomework = async () => {
-        const response = await fetch('/get/homework', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ studentId: student._id })
-        });
+        const response = await fetch(`/student/${student._id}/homework`);
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
@@ -71,13 +65,12 @@ function StudentCoins(props) {
         updateCoinsCount(student.coins);
     }, [student.coins]);
     const handleUpdateCoins = async () => {
-        const response = await fetch('/update/coins', {
-            method: 'POST',
+        const response = await fetch(`/coins/${student._id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                studentId: student._id,
                 coins: coinsCount
             })
         });
@@ -171,13 +164,7 @@ function Homework(props) {
         props.updateModal(content);
     }
     const handleDeleteHomework = async () => {
-        const response = await fetch('/delete/homework', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ _id })
-        });
+        const response = await fetch(`/homework/${_id}`, { method: 'DELETE' });
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
@@ -223,12 +210,15 @@ function Assignment(props) {
     const coinsNumber = useRef(null);
     const addCoins = async (index, recorded = true) => {
         if (props.recorded) return;
-        const response = await fetch('/update/recorded', {
-            method: 'POST',
+        const response = await fetch(`/assignment/${homeworkId}/recorded`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ _id: homeworkId, index, recorded })
+            body: JSON.stringify({
+                index,
+                recorded
+            })
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
@@ -236,13 +226,12 @@ function Assignment(props) {
         const updateCoins = async () => {
             let coinsCount = parseInt(coinsNumber.current.innerHTML);
             coinsCount += student.coins;
-            const response = await fetch('/update/coins', {
-                method: 'POST',
+            const response = await fetch(`/coins/${student._id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    studentId: student._id,
                     coins: coinsCount
                 })
             });
@@ -256,12 +245,15 @@ function Assignment(props) {
         updateCoins();
     }
     const updateHomeworkProgress = async (index, value) => {
-        const response = await fetch('/update/progress', {
-            method: 'POST',
+        const response = await fetch(`/assignment/${homeworkId}/progress`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ _id: homeworkId, index, value })
+            body: JSON.stringify({
+                index,
+                value
+            })
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
@@ -296,7 +288,7 @@ function AddHomeworkForm(props) {
     });
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('/add/homework', {
+        const response = await fetch('/homework', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -349,8 +341,8 @@ function EditHomeworkForm(props) {
     const [formData, updateFormData] = useState({ _id, date, headline, assignments });
     const handleEditHomework = async (e) => {
         e.preventDefault();
-        const response = await fetch('/edit/homework', {
-            method: 'POST',
+        const response = await fetch(`/homework/${_id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },

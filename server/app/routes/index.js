@@ -5,36 +5,25 @@ module.exports = (app) => {
     app.get('/auth', controller.auth);
     app.get('/logout', controller.logout);
     app.post('/student/login', controller.studentLogin);
-    app.post('/student/signup', validate.studentSignup, (req, res) => controller.studentSignup(req, res));
+    app.post('/student/signup', validate.studentSignup, controller.studentSignup);
     app.post('/teacher/login', controller.teacherLogin);
     app.post('/teacher/signup', validate.teacherSignup, controller.teacherSignup);
-    app.post('/teacher/data', controller.getTeacherData);
-    app.get('/get/students/:id', controller.getStudents);
-    app.post('/add/homework', controller.addHomework);
-    app.post('/delete/homework', controller.deleteHomework);
-    app.post('/get/homework', controller.getHomework);
-    app.post('/edit/homework', controller.editHomework);
-    app.post('/update/progress', controller.updateProgress);
-    app.post('/update/recorded', controller.updateRecorded);
-    app.post('/update/coins', controller.updateCoins);
-    app.post('/add/wearable', controller.addWearable);
-    app.post('/edit/wearable', controller.editWearable);
-    app.post('/delete/wearable', controller.deleteWearable);
-    app.post('/add/badge', controller.addBadge);
-    app.post('/edit/badge', controller.editBadge);
-    app.post('/delete/badge', controller.deleteBadge);
-    app.post('/add/wearableCategory', controller.addWearableCategory);
-    app.post('/edit/wearableCategory', controller.editWearableCategory);
-    app.post('/buy/wearable', controller.buyWearable);
-    app.post('/update/avatar', controller.updateAvatar);
-    // ADMIN POWERS:
-    // create badges
-    // transfer coins
-    // assign badges
-    // create/update/delete homework
-    // fill in homework progress
-
-    // STUDENT POWERS:
-    // fill in homework progress
-    // redeem coins
+    app.get('/teacher/:id/data', controller.getTeacherData);
+    app.post('/homework', controller.addHomework);
+    app.delete('/homework/:id', controller.deleteHomework);
+    app.get('/student/:id/homework', controller.getHomework);
+    app.put('/homework/:id', controller.editHomework);
+    app.put('/assignment/:id/progress', controller.updateProgress);
+    app.put('/assignment/:id/recorded', controller.updateRecorded);
+    app.put('/coins/:id', controller.updateCoins);
+    app.post('/wearable', controller.addWearable);
+    app.put('/wearable/:id', controller.editWearable);
+    app.delete('/wearable/:id', controller.deleteWearable);
+    app.post('/badge', controller.addBadge);
+    app.put('/badge/:id', controller.editBadge);
+    app.delete('/badge/:id', controller.deleteBadge);
+    app.post('/wearable-category', controller.addWearableCategory);
+    app.put('/teacher/:id/wearable-category', controller.editWearableCategory);
+    app.put('/student/:id/closet', controller.updateCloset);
+    app.put('/student/:id/avatar', controller.updateAvatar);
 }
