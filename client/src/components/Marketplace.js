@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Loading from './Loading';
 import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
@@ -209,6 +209,7 @@ export default function Marketplace(props) {
             return <div className="previewBox">{images}</div>;
         },
         previewDescription: (preview) => {
+            if (viewingAsTeacher) return;
             const previewItems = [];
             for (let category in preview) {
                 previewItems.push(
@@ -343,21 +344,29 @@ export function AddOrEditWearable(props) {
     }
     return (
         <div className="modalBox">
+            <h2>Add new wearable</h2>
             <form className="pad" onSubmit={handleSubmit}>
-                <h2>Add new wearable</h2>
-                <label htmlFor="name">Wearable name:</label>
-                <input type="text" defaultValue={wearable ? wearable.name : ''} onChange={(e) => updateFormData('name', e.target.value)} />
-                <label htmlFor="value">Category:</label>
-                <Dropdown
-                    minWidth="10rem"
-                    defaultValue={{ value: formData.category, display: formData.category }}
-                    listItems={dropdownListItems()}
-                    addNew={addCategory}
-                    onChange={(value) => updateFormData('category', value)} />
-                <label htmlFor="src">Image link:</label>
-                <input type="text" defaultValue={wearable ? wearable.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />
-                <label htmlFor="value">Wearable value:</label>
-                <input type="text" defaultValue={wearable ? wearable.value : ''} onChange={(e) => updateFormData('value', e.target.value)} />
+                <div className="addWearableForm">
+                    <div>
+                        <label htmlFor="name">Wearable name:</label>
+                        <input
+                            type="text"
+                            defaultValue={wearable ? wearable.name : ''}
+                            onChange={(e) => updateFormData('name', e.target.value)} />
+                        <label htmlFor="value">Category:</label>
+                        <Dropdown
+                            minWidth="10rem"
+                            defaultValue={{ value: formData.category, display: formData.category }}
+                            listItems={dropdownListItems()}
+                            addNew={addCategory}
+                            onChange={(value) => updateFormData('category', value)} />
+                        <label htmlFor="src">Image link:</label>
+                        <input type="text" defaultValue={wearable ? wearable.src : ''} onChange={(e) => updateFormData('src', e.target.value)} />
+                        <label htmlFor="value">Wearable value:</label>
+                        <input type="text" defaultValue={wearable ? wearable.value : ''} onChange={(e) => updateFormData('value', e.target.value)} />
+                    </div>
+                    <AddOrEditWearablePreview image={formData.src} />
+                </div>
                 <div className="buttons">
                     {loadingIcon
                         ? <Loading />
@@ -366,5 +375,26 @@ export function AddOrEditWearable(props) {
                 </div>
             </form>
         </div>
-    )
+    );
+}
+
+function AddOrEditWearablePreview(props) {
+    const { image } = props;
+    const draggable = useRef(null);
+    useEffect(() => {
+        const draggableObject = draggable.current;
+        const dragElement = () => {
+
+        }
+        draggableObject.addEventListener('mousedown', dragElement);
+        return () => draggableObject.removeEventListener('mousedown', dragElement);
+    }, []);
+    return (
+        <div>
+            <label>Preview:</label>
+            <div className="previewBox">
+                <img src={image} ref={draggable} />
+            </div>
+        </div>
+    );
 }
