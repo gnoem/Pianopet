@@ -42,14 +42,15 @@ class StudentLogin extends Component {
     handleLogin = async (e) => {
         e.preventDefault();
         const { username, password } = this.state;
-        const response = await fetch('/student/login', {
+        const response = await fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: username,
-                password: password
+                role: 'student',
+                username,
+                password
             })
         });
         const body = await response.json();
@@ -135,14 +136,15 @@ class TeacherLogin extends Component {
     handleLogin = async (e) => {
         e.preventDefault();
         const { username, password } = this.state;
-        const response = await fetch('/teacher/login', {
+        const response = await fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: username,
-                password: password
+                role: 'teacher',
+                username,
+                password
             })
         });
         const body = await response.json();

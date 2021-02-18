@@ -5,9 +5,8 @@ module.exports = (app) => {
 
     // COMMON
     app.get('/auth', controller.auth);
+    app.post('/login', controller.login);
     app.get('/logout', controller.logout);
-    app.post('/student/login', controller.studentLogin);
-    app.post('/teacher/login', controller.teacherLogin);
 
     // TEACHER
     app.post('/teacher', validate.teacherSignup, controller.teacherSignup);

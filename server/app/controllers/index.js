@@ -58,13 +58,9 @@ module.exports = {
             });
         });
     },
-    logout: (req, res) => {
-        res.clearCookie('auth');
-        res.redirect('/');
-    },
-    studentLogin: (req, res) => {
-        const { username, password } = req.body;
-        Student.findOne({ username: username }, (err, user) => {
+    login: (req, res) => {
+        const { role, username, password } = req.body;
+        const handleLogin = (err, user) => {
             if (err) return console.error('error signing in', err);
             if (!user) return console.log('User does not exist');
             const passwordIsValid = () => {
@@ -83,7 +79,13 @@ module.exports = {
                 success: true,
                 accessToken: accessToken
             });
-        });
+        }
+        if (role === 'student') return Student.findOne({ username }, handleLogin);
+        if (role === 'teacher') return Teacher.findOne({ username }, handleLogin);
+    },
+    logout: (req, res) => {
+        res.clearCookie('auth');
+        res.redirect('/');
     },
     studentSignup: (req, res) => {
         const { firstName, lastName, username, password, teacherCode } = req.body;
@@ -118,41 +120,6 @@ module.exports = {
                         accessToken: accessToken
                     });
                 });
-            });
-        });
-    },
-    teacherLogin: (req, res) => {
-        const { username, password } = req.body;
-        Teacher.findOne({ username: username }, (err, user) => {
-            if (err) {
-                console.error('error signing in...', err);
-                res.send({ success: false });
-                return;
-            }
-            if (!user) {
-                console.error('user does not exist');
-                res.send({ success: false });
-                return;
-            }
-            const passwordIsValid = () => {
-                bcrypt.compareSync(password, user.password);
-            }
-            if (!passwordIsValid) {
-                console.error('invalid password');
-                res.send({ success: false });
-                return;
-            }
-            const accessToken = jwt.sign({ id: user.id }, config.secret, {
-                expiresIn: 86400 // 24 hours
-            });
-            res.cookie('auth', accessToken, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 3600000 // 1,000 hours
-            });
-            res.send({
-                success: true,
-                accessToken: accessToken
             });
         });
     },
