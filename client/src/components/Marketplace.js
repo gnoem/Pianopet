@@ -80,17 +80,10 @@ export default function Marketplace(props) {
             e.preventDefault();
             props.updateModal(content({ loadingIcon: true }));
             const fromDropdown = !!categoryName;
-            const ROUTE = editingCategory ? `/teacher/${teacher._id}/wearable-category` : '/wearable-category';
             const formData = editingCategory
-                ?   {
-                        originalName,
-                        updatedName: e.target[0].value
-                    }
-                :   {
-                        _id: teacher._id,
-                        categoryName: fromDropdown ? categoryName : e.target[0].value
-                    }
-            const response = await fetch(ROUTE, {
+                ?   { originalName, updatedName: e.target[0].value }
+                :   { categoryName: fromDropdown ? categoryName : e.target[0].value }
+            const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

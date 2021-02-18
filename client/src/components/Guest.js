@@ -84,7 +84,7 @@ class StudentSignup extends Component {
     handleSignup = async (e) => {
         e.preventDefault();
         const { firstName, lastName, username, password, teacherCode } = this.state;
-        const response = await fetch('/student/signup', {
+        const response = await fetch('/student', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -177,7 +177,7 @@ class TeacherSignup extends Component {
     handleSignup = async (e) => {
         e.preventDefault();
         const { username, password } = this.state;
-        const response = await fetch('/teacher/signup', {
+        const response = await fetch('/teacher', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

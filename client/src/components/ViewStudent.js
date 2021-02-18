@@ -65,7 +65,7 @@ function StudentCoins(props) {
         updateCoinsCount(student.coins);
     }, [student.coins]);
     const handleUpdateCoins = async () => {
-        const response = await fetch(`/coins/${student._id}`, {
+        const response = await fetch(`/student/${student._id}/coins`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -164,7 +164,7 @@ function Homework(props) {
         props.updateModal(content);
     }
     const handleDeleteHomework = async () => {
-        const response = await fetch(`/homework/${_id}`, { method: 'DELETE' });
+        const response = await fetch(`/student/homework/${_id}`, { method: 'DELETE' });
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
@@ -210,7 +210,7 @@ function Assignment(props) {
     const coinsNumber = useRef(null);
     const addCoins = async (index, recorded = true) => {
         if (props.recorded) return;
-        const response = await fetch(`/assignment/${homeworkId}/recorded`, {
+        const response = await fetch(`/student/homework/assignment/${homeworkId}/recorded`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -226,7 +226,7 @@ function Assignment(props) {
         const updateCoins = async () => {
             let coinsCount = parseInt(coinsNumber.current.innerHTML);
             coinsCount += student.coins;
-            const response = await fetch(`/coins/${student._id}`, {
+            const response = await fetch(`/student/${student._id}/coins`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -245,7 +245,7 @@ function Assignment(props) {
         updateCoins();
     }
     const updateHomeworkProgress = async (index, value) => {
-        const response = await fetch(`/assignment/${homeworkId}/progress`, {
+        const response = await fetch(`/student/homework/assignment/${homeworkId}/progress`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -280,15 +280,15 @@ function Assignment(props) {
 }
 
 function AddHomeworkForm(props) {
+    const { student } = props;
     const [formData, updateFormData] = useState({
-        studentId: props.student._id,
         date: dayjs().format('YYYY-MM-DD'),
         headline: '',
         assignments: [{}, {}, {}, {}]
     });
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('/homework', {
+        const response = await fetch(`/student/${student._id}/homework`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -341,7 +341,7 @@ function EditHomeworkForm(props) {
     const [formData, updateFormData] = useState({ _id, date, headline, assignments });
     const handleEditHomework = async (e) => {
         e.preventDefault();
-        const response = await fetch(`/homework/${_id}`, {
+        const response = await fetch(`/student/homework/${_id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

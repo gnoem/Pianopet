@@ -211,11 +211,16 @@ module.exports = {
         });
     },
     addHomework: (req, res) => {
-        const newHomework = new Homework(req.body);
+        const { id } = req.params;
+        const homework = {...req.body};
+        const newHomework = new Homework({
+            studentId: id,
+            ...homework
+        });
         newHomework.save(err => {
             if (err) return console.error('error saving homework', err);
             res.send({ success: true });
-        }); // */
+        });
     },
     deleteHomework: (req, res) => {
         const { id: _id } = req.params;
@@ -226,8 +231,8 @@ module.exports = {
         });
     },
     getHomework: (req, res) => {
-        const { id } = req.params;
-        Homework.find({ studentId: id }).sort({ date: 'desc' }).exec((err, homework) => {
+        const { id: studentId } = req.params;
+        Homework.find({ studentId }).sort({ date: 'desc' }).exec((err, homework) => {
             if (err) return console.error('error finding homework', err);
             if (!homework) {
                 console.log('no homework exists for this student');
@@ -370,8 +375,9 @@ module.exports = {
         });
     },
     addWearableCategory: (req, res) => {
+        const { id: _id } = req.params;
         // todo validate name
-        const { _id, categoryName } = req.body;
+        const { categoryName } = req.body;
         Teacher.findOne({ _id }, (err, user) => {
             if (err) return console.error(`error finding user ${_id}`, err);
             if (!user) return console.log(`user ${_id} not found`);
