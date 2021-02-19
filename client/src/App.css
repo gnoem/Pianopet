@@ -60,6 +60,7 @@
     --dark-theme-color: #09172F;
     --light-accent-color: #eeeeee;
     --med-accent-color: #FF8772;
+    --caution: #aa0f0f;
 }
 html, body {
     font-family: var(--default-font);
@@ -138,6 +139,22 @@ input:not([type=submit]) {
     border-top: 1px solid #ddd;
     border-bottom: 2px solid var(--med-theme-color);
 } */
+
+.Login form span.error, .Signup form span.error {
+    color: var(--caution);
+    display: block;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+span.error::before {
+    content: '\f071';
+    font: 900 1em 'Font Awesome 5 Free';
+    margin-right: 0.2rem;
+}
+
 form.addHomeworkForm li {
     display: grid;
     grid-template-columns: auto 1fr;

@@ -1,102 +1,142 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 
-class Guest extends Component {
-    constructor(props) {
-        super(props);
-        this.updateView = this.updateView.bind(this);
-        this.state = {
-            type: 'student',
-            view: 'login'
-        }
-    }
-    updateView = (type, view) => {
-        this.setState({ type: type, view: view });
-    }
-    render() {
-        const { type, view } = this.state;
-        const studentPortal = () => {
-            if (view === 'login') return <StudentLogin {...this.props} updateView={this.updateView} />;
-            if (view === 'signup') return <StudentSignup {...this.props} updateView={this.updateView} />;
-        }
-        const teacherPortal = () => {
-            if (view === 'login') return <TeacherLogin {...this.props} updateView={this.updateView} />;
-            if (view === 'signup') return <TeacherSignup {...this.props} updateView={this.updateView} />;
-        }
-        return (
-            <div className="Guest">
-                <div className="hero">
-                    <img alt="pianopet logo" src="assets/logo.svg" />
-                </div>
-                {type === 'student' && studentPortal()}
-                {type === 'teacher' && teacherPortal()}
+export default function Guest(props) {
+    const [view, setView] = useState({ type: 'student', action: 'login' });
+    const updateView = (type, action) => setView({ type, action });
+    return (
+        <div className="Guest">
+            <div className="hero">
+                <img alt="pianopet logo" src="assets/logo.svg" />
             </div>
-        )
-    }
+            {view.action === 'login' && <Login {...view} {...props} updateView={updateView} />}
+            {view.action === 'signup' && <Signup {...view} {...props} updateView={updateView} />}
+        </div>
+    );
 }
 
-class StudentLogin extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
+function Login(props) {
+    const { type } = props;
+    const [formData, setFormData] = useState({
+        username: 'daniel',
+        password: 'kjhg'
+    });
+    const [formError, setFormError] = useState({});
+    useEffect(() => {
+        setFormData({
+            username: '',
+            password: ''
+        });
+        setFormError({});
+    }, [type]);
+    const updateFormData = (e) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }));
     }
-    handleLogin = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        const { username, password } = this.state;
+        const { username, password } = formData;
         const response = await fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                role: 'student',
+                role: type,
                 username,
                 password
             })
         });
         const body = await response.json();
         if (!body) return console.log('server error');
-        if (!body.success) return console.log('server working but something went wrong');
-        if (body.accessToken) window.location.assign('/');
-        else return console.log('no token!!?');
+        if (!body.success) return setFormError(body.errors);
+        window.location.assign('/');
     }
-    render() {
-        return (
-            <div className="Login">
-                <h1>Student Login</h1>
-                <form onSubmit={this.handleLogin} autoComplete="off">
-                    <label htmlFor="username">Username:</label>
-                    <input type="text" onChange={(e) => this.setState({ username: e.target.value })} />
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" onChange={(e) => this.setState({ password: e.target.value })} />
-                    <input type="submit" />
-                </form>
-                Don't have an account? Click <button className="stealth link" onClick={() => this.props.updateView('student', 'signup')}>here</button> to sign up.
-                <button className="cornerButton" onClick={() => this.props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
-            </div>
-        )
+    const showError = {
+        username: () => {
+            if (!formError || !formError.username) return null;
+            if (formError.username) return <span className="error">{formError.username}</span>;
+        },
+        password: () => {
+            if (!formError || !formError.password) return null;
+            if (formError.password) return <span className="error">{formError.password}</span>;
+        }
+    }
+    const state = {
+        formData,
+        formError,
+        resetFormError: () => setFormError({}),
+        updateFormData,
+        handleLogin,
+        showError
+    }
+    switch (type) {
+        case 'student': return <StudentLogin {...props} {...state} />;
+        case 'teacher': return <TeacherLogin {...props} {...state} />;
+        default: return null;
     }
 }
 
-class StudentSignup extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
+function StudentLogin(props) {
+    const { showError } = props;
+    return (
+        <div className="Login">
+            <h1>Student Login</h1>
+            <form onSubmit={props.handleLogin} autoComplete="off">
+                <label htmlFor="username">Username:</label>
+                <input name="username" type="text" onInput={props.resetFormError} onChange={props.updateFormData} />
+                {showError.username()}
+                <label htmlFor="password">Password:</label>
+                <input name="password" type="password" onInput={props.resetFormError} onChange={props.updateFormData} />
+                {showError.password()}
+                <input type="submit" />
+            </form>
+            Don't have an account? Click <button className="stealth link" onClick={() => props.updateView('student', 'signup')}>here</button> to sign up.
+            <button className="cornerButton" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
+        </div>
+    );
+}
+
+function TeacherLogin(props) {
+    const { showError } = props;
+    return (
+        <div className="Login">
+            <div id="demo" onClick={() => console.table(props.formData)}></div>
+            <h1>Teacher Login</h1>
+            <form onSubmit={props.handleLogin} autoComplete="off">
+                <label htmlFor="username">Username:</label>
+                <input name="username" type="text" onInput={props.resetFormError} onChange={props.updateFormData} />
+                {showError.username()}
+                <label htmlFor="password">Password:</label>
+                <input name="password" type="password" onInput={props.resetFormError} onChange={props.updateFormData} />
+                {showError.password()}
+                <input type="submit" />
+            </form>
+            Don't have an account? Click <button className="stealth link" onClick={() => props.updateView('teacher', 'signup')}>here</button> to sign up.
+            <button className="cornerButton" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
+        </div>
+    )
+}
+
+function Signup(props) {
+    const { type } = props;
+    const [formData, setFormData] = useState({});
+    useEffect(() => setFormData({}), [type]);
+    const updateFormData = (e) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }))
     }
-    handleSignup = async (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
-        const { firstName, lastName, username, password, teacherCode } = this.state;
         const response = await fetch('/student', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                firstName: firstName,
-                lastName: lastName,
-                username: username,
-                password: password,
-                teacherCode: teacherCode
-            })
+            body: JSON.stringify(formData)
         });
         const body = await response.json();
         if (!body) return console.log('server error');
@@ -104,114 +144,57 @@ class StudentSignup extends Component {
         if (body.accessToken) window.location.assign('/');
         else return console.log('no token!!?');
     }
-    render() {
-        return (
-            <div className="Signup">
-                <h1>Student Signup</h1>
-                <form onSubmit={this.handleSignup} autoComplete="off">
-                    <label htmlFor="firstName">First name:</label>
-                    <input type="text" onChange={(e) => this.setState({ firstName: e.target.value })} />
-                    <label htmlFor="lastName">Last name:</label>
-                    <input type="text" onChange={(e) => this.setState({ lastName: e.target.value })} />
-                    <label htmlFor="username">Choose a username:</label>
-                    <input type="text" onChange={(e) => this.setState({ username: e.target.value })} />
-                    <label htmlFor="password">Choose a password:</label>
-                    <input type="password" onChange={(e) => this.setState({ password: e.target.value })} />
-                    <label htmlFor="teacherCode">Teacher code:</label>
-                    <input type="text" onChange={(e) => this.setState({ teacherCode: e.target.value })} />
-                    <input type="submit" />
-                </form>
-                Already have an account? Click <button className="stealth link" onClick={() => this.props.updateView('student', 'login')}>here</button> to log in.
-                <button className="cornerButton" onClick={() => this.props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
-            </div>
-        )
+    const functions = {
+        updateFormData,
+        handleSignup
+    }
+    switch (type) {
+        case 'student': return <StudentSignup {...props} {...functions} />;
+        case 'teacher': return <TeacherSignup {...props} {...functions} />;
+        default: return null;
     }
 }
 
-class TeacherLogin extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    handleLogin = async (e) => {
-        e.preventDefault();
-        const { username, password } = this.state;
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                role: 'teacher',
-                username,
-                password
-            })
-        });
-        const body = await response.json();
-        if (!body) return console.log('server error');
-        if (!body.success) return console.log('server working but something went wrong');
-        if (body.accessToken) window.location.assign('/');
-        else return console.log('no token!!?');
-    }
-    render() {
-        return (
-            <div className="Login">
-                <h1>Teacher Login</h1>
-                <form onSubmit={this.handleLogin} autoComplete="off">
-                    <label htmlFor="username">Username:</label>
-                    <input type="text" onChange={(e) => this.setState({ username: e.target.value })} />
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" onChange={(e) => this.setState({ password: e.target.value })} />
-                    <input type="submit" />
-                </form>
-                Don't have an account? Click <button className="stealth link" onClick={() => this.props.updateView('teacher', 'signup')}>here</button> to sign up.
-                <button className="cornerButton" onClick={() => this.props.updateView('student', 'login')}>&raquo; Student Portal</button>
-            </div>
-        )
-    }
+function StudentSignup(props) {
+    return (
+        <div className="Signup">
+            <h1>Student Signup</h1>
+            <form onSubmit={props.handleSignup} autoComplete="off">
+                <label htmlFor="firstName">First name:</label>
+                <input name="firstName" type="text" onChange={props.updateFormData} />
+                <label htmlFor="lastName">Last name:</label>
+                <input name="lastName" type="text" onChange={props.updateFormData} />
+                <label htmlFor="username">Choose a username:</label>
+                <input name="username" type="text" onChange={props.updateFormData} />
+                <label htmlFor="password">Choose a password:</label>
+                <input name="password" type="password" onChange={props.updateFormData} />
+                <label htmlFor="teacherCode">Teacher code:</label>
+                <input name="teacherCode" type="text" onChange={props.updateFormData} />
+                <input type="submit" />
+            </form>
+            Already have an account? Click <button className="stealth link" onClick={() => props.updateView('student', 'login')}>here</button> to log in.
+            <button className="cornerButton" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
+        </div>
+    )
 }
 
-class TeacherSignup extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-    handleSignup = async (e) => {
-        e.preventDefault();
-        const { username, password } = this.state;
-        const response = await fetch('/teacher', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-        const body = await response.json();
-        if (!body) return console.log('server error');
-        if (!body.success) return console.log('server working but something went wrong');
-        if (body.accessToken) window.location.assign('/');
-        else return console.log('no token!!?');
-    }
-    render() {
-        return (
-            <div className="Signup">
-                <h1>Student Signup</h1>
-                <form onSubmit={this.handleSignup} autoComplete="off">
-                    <label htmlFor="username">Choose a username:</label>
-                    <input type="text" onChange={(e) => this.setState({ username: e.target.value })} />
-                    <label htmlFor="password">Choose a password:</label>
-                    <input type="password" onChange={(e) => this.setState({ password: e.target.value })} />
-                    <input type="submit" />
-                </form>
-                Already have an account? Click <button className="stealth link" onClick={() => this.props.updateView('teacher', 'login')}>here</button> to log in.
-                <button className="cornerButton" onClick={() => this.props.updateView('student', 'login')}>&raquo; Student Portal</button>
-            </div>
-        )
-    }
+function TeacherSignup(props) {
+    return (
+        <div className="Signup">
+            <h1>Teacher Signup</h1>
+            <form onSubmit={props.handleSignup} autoComplete="off">
+                <label htmlFor="firstName">First name:</label>
+                <input name="firstName" type="text" onChange={props.updateFormData} />
+                <label htmlFor="lastName">Last name:</label>
+                <input name="lastName" type="text" onChange={props.updateFormData} />
+                <label htmlFor="username">Choose a username:</label>
+                <input name="username" type="text" onChange={props.updateFormData} />
+                <label htmlFor="password">Choose a password:</label>
+                <input name="password" type="password" onChange={props.updateFormData} />
+                <input type="submit" />
+            </form>
+            Already have an account? Click <button className="stealth link" onClick={() => props.updateView('teacher', 'login')}>here</button> to log in.
+            <button className="cornerButton" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
+        </div>
+    );
 }
-
-
-export default Guest;

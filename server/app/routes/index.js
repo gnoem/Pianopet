@@ -3,6 +3,8 @@ const { validate } = require('../middleware');
 
 module.exports = (app) => {
 
+    app.post('/custom', controller.custom);
+
     // COMMON
     app.get('/auth', controller.auth);
     app.post('/login', controller.login);

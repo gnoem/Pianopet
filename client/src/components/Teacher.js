@@ -4,7 +4,7 @@ import ViewStudent from './ViewStudent';
 import Marketplace, { AddOrEditWearable } from './Marketplace';
 import Loading from './Loading';
 import ContextMenu from './ContextMenu';
-import { getArrayIndexByKeyValue, shrinkit } from '../utils';
+import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Teacher(props) {
@@ -24,7 +24,7 @@ export default function Teacher(props) {
         if (view.type === 'student') {
             const refreshCurrentStudent = (prevView) => {
                 let thisStudent = prevView.data;
-                let index = getArrayIndexByKeyValue('_id', thisStudent._id, body.students);
+                let index = body.students.findIndex(student => student._id === thisStudent._id);
                 return body.students[index];
             }
             setView(prevView => ({

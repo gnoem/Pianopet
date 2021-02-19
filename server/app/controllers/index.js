@@ -9,6 +9,7 @@ const Wearable = require('../models/wearable');
 const Badge = require('../models/badge');
 
 module.exports = {
+    custom: (req, res) => {},
     auth: (req, res) => {
         const accessToken = req.cookies.auth;
         if (!accessToken) return res.send({ student: false, teacher: false });
@@ -62,11 +63,25 @@ module.exports = {
         const { role, username, password } = req.body;
         const handleLogin = (err, user) => {
             if (err) return console.error('error signing in', err);
-            if (!user) return console.log('User does not exist');
-            const passwordIsValid = () => {
-                bcrypt.compareSync(password, user.password);
+            if (!user) {
+                res.send({
+                    success: false,
+                    errors: {
+                        username: 'Username not found'
+                    }
+                });
+                return;
             }
-            if (!passwordIsValid) return console.log('invalid password');
+            const passwordIsValid = bcrypt.compareSync(password, user.password);
+            if (!passwordIsValid) {
+                res.send({
+                    success: false,
+                    errors: {
+                        password: 'Invalid password'
+                    }
+                });
+                return;
+            }
             const accessToken = jwt.sign({ id: user.id }, config.secret, {
                 expiresIn: 86400 // 24 hours
             });
@@ -76,8 +91,7 @@ module.exports = {
                 maxAge: 3600000 // 1,000 hours
             });
             res.send({
-                success: true,
-                accessToken: accessToken
+                success: true
             });
         }
         if (role === 'student') return Student.findOne({ username }, handleLogin);
