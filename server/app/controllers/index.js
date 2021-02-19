@@ -421,6 +421,21 @@ module.exports = {
             });
         });
     },
+    updateBadges: (req, res) => {
+        const { id: _id } = req.params;
+        const { badge } = req.body;
+        Student.findOne({ _id }, (err, student) => {
+            if (err) return console.error(`error finding student ${_id}`, err);
+            if (!student) return console.log(`couldn't find student ${_id}`);
+            if (!student.badges) student.badges = [badge];
+            else if (student.badges.includes(badge)) return res.send({ success: true }); // ?
+            else student.badges.push(badge);
+            student.save(err => {
+                if (err) console.error(`error saving student ${_id}`, err);
+                return res.send({ success: true });
+            });
+        });
+    },
     updateCloset: (req, res) => {
         const { id: _id } = req.params;
         const { wearableId, wearableCost } = req.body;

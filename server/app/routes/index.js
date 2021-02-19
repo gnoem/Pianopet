@@ -43,6 +43,7 @@ module.exports = (app) => {
     app.put('/student/homework/assignment/:id/progress', controller.updateProgress);
     app.put('/student/homework/assignment/:id/recorded', controller.updateRecorded);
     app.put('/student/:id/coins', controller.updateCoins);
+    app.put('/student/:id/badges', controller.updateBadges);
     app.put('/student/:id/closet', controller.updateCloset);
     app.put('/student/:id/avatar', controller.updateAvatar);
 }

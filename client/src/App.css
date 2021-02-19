@@ -143,13 +143,15 @@ input:not([type=submit]) {
 } */
 
 .Login form span.error, .Signup form span.error {
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+span.error {
     color: var(--caution);
     display: block;
     font-weight: 500;
     font-size: 0.8rem;
-    text-align: left;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
 }
 span.error::before {
     content: '\f071';
@@ -931,22 +933,44 @@ ul.previewDescription img.coin {
     flex: 0 0 3.5rem;
     margin: 0 1rem;
     transition: 0.2s;
+    text-align: center;
 }
-.badgeItem img {
+.badgeItem img.badgeImage {
     display: block;
     width: 3.5rem;
     margin: auto;
     margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+.StudentBadges .badgeItem img.badgeImage {
+    cursor: default;
 }
 .badgeItem span {
-    display: block;
     font-size: 0.8rem;
     line-height: 130%;
-    text-align: center;
+}
+.badgeItem img.coin {
+    width: auto;
+    height: 1em;
+    padding-right: 0.3rem;
+}
+.badgeItem span.badgeValue, .badgeItem img.coin {
+    vertical-align: middle;
+    display: inline-block;
+    cursor: pointer;
 }
 .badgeItem span.badgeName {
+    display: block;
     font-weight: bold;
-    margin-bottom: 0.2rem;
+}
+.badgeItem.redeemed img.coin {
+    filter: grayscale();
+}
+.badgeItem.redeemed span.badgeValue {
+    text-decoration: line-through;
+}
+.badgeItem.redeemed span.badgeValue, .badgeItem.redeemed img.coin {
+    cursor: default;
 }
 
 .ContextMenu {
@@ -1002,6 +1026,7 @@ ul.previewDescription img.coin {
     position: relative;
     display: inline-block;
     margin-bottom: 1rem;
+    text-align: left;
 }
 .dropdownDisplay {
     border: 1px solid #ddd;

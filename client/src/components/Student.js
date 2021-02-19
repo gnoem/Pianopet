@@ -75,7 +75,7 @@ function StudentProfileDropdown(props) {
               position={null}
               ignoreClick={['.User .pfp', '.User > button']}
               updateContextMenu={() => setExpanded(false)}
-              content={(
+              children={(
                 <ul>
                     <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
                     <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
@@ -254,10 +254,32 @@ function StudentCloset(props) {
 }
 
 function StudentBadges(props) {
+    const { student, badges } = props;
+    const generateBadgeList = () => {
+        if (!student.badges) return "You haven't earned any badges yet!";
+        return badges.map(badge => {
+            if (student.badges.includes(badge._id)) return (
+                <div
+                key={`badgeList-${badge._id}`}
+                className="badgeItem">
+                    <img
+                        className="badgeImage"
+                        alt={badge.name}
+                        src={badge.src} />
+                    <span className="badgeName">{badge.name}</span>
+                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                    <span className="badgeValue">{badge.value}</span>
+                </div>
+            )
+        });
+    }
     return (
         <div className="Main">
             <div className="StudentBadges">
                 <h1>My Badges</h1>
+                <div className="BadgeList">
+                    {generateBadgeList()}
+                </div>
             </div>
         </div>
     );

@@ -50,7 +50,7 @@ export default function Teacher(props) {
         }));
         return (
             <Dropdown
-                minWidth="12rem"
+                style={{ minWidth: '12rem' }}
                 restoreDefault={view.type !== 'student'}
                 defaultValue={{ value: null, display: 'Select one...' }}
                 listItems={studentList}
@@ -190,11 +190,16 @@ function TeacherBadges(props) {
 function Badges(props) {
     const { badges } = props;
     const badgesRef = useRef({});
+    const awardBadge = (_id) => {
+        const index = badges.findIndex(badge => badge._id === _id);
+        const thisBadge = badges[index];
+        props.updateModal(<AwardBadge {...props} badge={thisBadge} />);
+    }
     const editOrDeleteBadge = (e, _id) => {
         e.preventDefault();
         const index = badges.findIndex(badge => badge._id === _id);
         const thisBadge = badges[index];
-        const editBadge = () => props.updateModal(<AddOrEditBadge {...props} badge={badges[index]} />);
+        const editBadge = () => props.updateModal(<AddOrEditBadge {...props} badge={thisBadge} />);
         const deleteBadge = () => {
             const handleDelete = async () => {
                 props.updateModal(content({ loadingIcon: true }));
@@ -241,7 +246,11 @@ function Badges(props) {
               key={`badgeList-${badge._id}`}
               ref={(el) => badgesRef.current[badge._id] = el}
               className="badgeItem">
-                <img alt={badge.name} src={badge.src} onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
+                <img
+                  alt={badge.name}
+                  src={badge.src}
+                  onClick={() => awardBadge(badge._id)}
+                  onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
                 <span className="badgeName">{badge.name}</span>
                 <span className="badgeValue">{badge.value}</span>
             </div>
@@ -250,6 +259,63 @@ function Badges(props) {
     return (
         <div className="BadgeList">
             {generateBadgeList()}
+        </div>
+    )
+}
+
+function AwardBadge(props) {
+    const { students, badge } = props;
+    const [recipient, setRecipient] = useState(null); // student id
+    const [error, setError] = useState(false);
+    const [loadingIcon, setLoadingIcon] = useState(false);
+    const makeSureNameFits = (string) => {
+        if (string.length < 18) return string;
+        let shortenedString = string.substring(0, 17);
+        return shortenedString + '...';
+    }
+    const studentList = students.map(student => ({
+        value: student._id,
+        display: makeSureNameFits(student.firstName + ' ' + student.lastName)
+    }));
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!recipient) return setError('Please select a student!');
+        setLoadingIcon(true);
+        const response = await fetch(`/student/${recipient}/badges`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ badge: badge._id })
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        props.updateModal(false);
+        props.refreshData();
+    }
+    const updateRecipient = (_id) => {
+        setError(false);
+        setRecipient(_id);
+    }
+    return (
+        <div className="modalBox">
+            <h2>Award this badge</h2>
+            <p>Choose a student to award this badge to:</p>
+            <div style={{ textAlign: 'center' }}>
+                <Dropdown
+                    style={{ minWidth: '12rem', marginBottom: '0.2rem' }}
+                    defaultValue={{ value: null, display: 'Select one...' }}
+                    listItems={studentList}
+                    onChange={updateRecipient}/>
+                {error && <span className="error">{error}</span>}
+            </div>
+            <form onSubmit={handleSubmit} className="buttons">
+                {loadingIcon
+                    ? <Loading />
+                    : <input type="submit" />
+                }
+            </form>
         </div>
     )
 }

@@ -63,7 +63,7 @@ export default function Dropdown(props) {
         return array;
     }
     return (
-        <div className={`Dropdown${isOpen ? ' expanded' : ''}`} style={{ minWidth: props.minWidth }}>
+        <div className={`Dropdown${isOpen ? ' expanded' : ''}`} style={props.style}>
             <div className="dropdownDisplay" onClick={toggleIsOpen}>{display}</div>
             <ul className="dropdownList" ref={dropdownList}>{generateList()}</ul>
         </div>
