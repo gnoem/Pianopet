@@ -170,7 +170,7 @@ module.exports = {
             });
         });
     },
-    getTeacherData: (req, res) => {
+    getTeacher: (req, res) => {
         const { id } = req.params;
         Student.find({ teacherCode: id }, (err, students) => {
             if (err) return console.error('error finding students', err);
@@ -190,6 +190,34 @@ module.exports = {
                 });
             });
         });
+    },
+    editTeacher: (req, res) => {
+        const { id: _id } = req.params;
+        const formData = req.body;
+        Teacher.findOne({ _id }, (err, user) => {
+            if (err) return console.error(`error finding teacher ${_id}`, err);
+            if (!user) return console.log(`teacher ${_id} not found`);
+            user = Object.assign(user, formData);
+            user.save(err => {
+                if (err) return console.error(`error saving user ${_id}`, err);
+                res.send({ success: true });
+                return;
+            });
+        });
+    },
+    editTeacherPassword: (req, res) => {
+        const { id: _id } = req.params;
+        const { newPassword } = req.body;
+        Teacher.findOne({ _id }, (err, user) => {
+            if (err) return console.error(`error finding teacher ${_id}`, err);
+            if (!user) return console.log(`teacher ${_id} not found`);
+            user.password = bcrypt.hashSync(newPassword, 8);
+            user.save(err => {
+                if (err) return console.error(`error saving user ${_id}`, err);
+                res.send({ success: true });
+                return;
+            });
+        })
     },
     addHomework: (req, res) => {
         const { id } = req.params;

@@ -107,6 +107,7 @@ input, select, textarea, button {
     font-family: inherit;
     font-size: inherit;
     outline: none;
+    transition: 0.2s;
 }
 input[type=submit], button, input[type=range] {
     cursor: pointer;
@@ -116,9 +117,6 @@ input[type=text], input[type=password], input[type=number], input[type=date] {
     padding: 0 0.5rem;
     overflow: visible;
 }
-input:disabled {
-    cursor: not-allowed;
-}
 input:not([type=submit]):not([type=range]) {
     display: block;
     width: 100%;
@@ -126,6 +124,10 @@ input:not([type=submit]):not([type=range]) {
 }
 input:not([type=submit]):focus {
     border-color: var(--med-theme-color);
+}
+input[type=submit]:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
 }
 /* input[type=text], input[type=password], input[type=number], input[type=date] {
     border: 0;
@@ -182,6 +184,7 @@ input[type=submit], button {
     color: #fff;
     padding: 0.7rem 1.5rem;
     border-radius: 999px;
+    line-height: 1.5rem;
 }
 button.secondary {
     font-size: 0.8rem;
@@ -717,6 +720,10 @@ a:hover, button.link:hover {
     height: 100%;
     place-items: center;
 }
+.Loading.mini svg {
+    width: auto;
+    height: 100%;
+}
 .Modal {
     position: fixed;
     top: 0;
@@ -1163,4 +1170,71 @@ button.add::before {
     height: 14rem;
     border: 1px solid #ddd;
     float: right;
+}
+
+form.dark input:not([type=submit]) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: transparent;
+    border-radius: 0.5rem;
+    color: #fff;
+}
+form.dark input:not([type=submit]):focus {
+    border-color: var(--med-theme-color);
+}
+
+form.divide > div.half {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    column-gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.MyAccount form {
+    margin-top: 3rem;
+}
+.MyAccount div.profilePic {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.MyAccount div.profilePic img {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 999px;
+    border: 3px solid #fff;
+}
+.successAnimation {
+    animation: 1s check 1;
+}
+
+@keyframes check {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes checkmark-shrink {
+    100% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0);
+    }
+}
+
+button.successAnimation svg {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2px;
+    stroke-dasharray: 2rem;
+    stroke-dashoffset: 2rem;
+    height: 100%;
+    transform-origin: center right;
+    transform: rotate(45deg) scale(1); /* translate3d(-25%, -25%, 0); */
+    animation: 1s check 1 forwards, 0.5s checkmark-shrink 1 forwards 1s;
+}
+button.loadingAnimation svg {
+    height: 1.5rem;
+}
+button.loadingAnimation svg * {
+    fill: #fff;
 }
