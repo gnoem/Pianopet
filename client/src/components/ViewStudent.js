@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Loading from './Loading';
 import { prettifyDate } from '../utils';
 import dayjs from 'dayjs';
-import MiniMenu from './MiniMenu';
+import ContextMenu from './ContextMenu';
 
 export default function ViewStudent(props) {
     const { student } = props;
@@ -134,17 +134,21 @@ function Homework(props) {
     }
     const showMenu = () => {
         return (
-            <MiniMenu exit={() => updateShowingMenu(false)}>
-                <button className="stealth link edit" onClick={launchEditHomework}>Edit</button>
-                <button className="stealth link delete" onClick={confirmDeletion}>Delete</button>
-            </MiniMenu>
+            <ContextMenu
+              position={null}
+              updateContextMenu={() => updateShowingMenu(false)}>
+                <ul className="editDelete">
+                    <li><button onClick={editHomework}>Edit</button></li>
+                    <li><button onClick={confirmDeleteHomework}>Delete</button></li>
+                </ul>
+            </ContextMenu>
         );
     }
-    const launchEditHomework = () => {
+    const editHomework = () => {
         updateShowingMenu(false);
         props.updateModal(<EditHomeworkForm {...props} />);
     }
-    const confirmDeletion = () => {
+    const confirmDeleteHomework = () => {
         updateShowingMenu(false);
         let content = (options = {
             loadingIcon: false
@@ -360,7 +364,6 @@ function EditHomeworkForm(props) {
         assignments[index] = item;
         updateFormData({ ...formData, assignments });
     }
-    console.log(date);
     return (
         <form className="addHomeworkForm" onSubmit={handleEditHomework} autoComplete="off">
             <h2>Edit homework for {prettifyDate(date)}</h2>

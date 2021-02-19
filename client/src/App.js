@@ -47,7 +47,7 @@ export default function App() {
         }
         setContextMenu({
             position,
-            content
+            children: content
         });
     }
     const state = {

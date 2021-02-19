@@ -4,7 +4,7 @@ import { elementHasParent } from '../utils';
 export default function ContextMenu(props) {
     useEffect(() => {
         const closeContextMenu = (e) => {
-            if (props.ignoreClick) {
+            if (props.ignoreClick) { // will be an array like ['.Modal', '#menu li']
                 for (let selector of props.ignoreClick) {
                     if (elementHasParent(e.target, selector)) return;
                 }
@@ -16,7 +16,7 @@ export default function ContextMenu(props) {
     }, []);
     return (
         <div className="ContextMenu" style={props.position}>
-            {props.content}
+            {props.children}
         </div>
     );
 }

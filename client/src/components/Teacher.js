@@ -96,7 +96,7 @@ function TeacherProfileDropdown(props) {
     return (
         <Header className={expanded ? 'expanded' : ''}>
             <button onClick={toggleExpanded}>
-                <span className="name">{teacher.username}</span>
+                <span className="name">{teacher.firstName}</span>
                 <span className="caret"></span>
             </button>
             <div className="pfp" onClick={toggleExpanded}>
@@ -106,7 +106,7 @@ function TeacherProfileDropdown(props) {
               position={null}
               ignoreClick={['.User .pfp', '.User > button']}
               updateContextMenu={() => setExpanded(false)}
-              content={(
+              children={(
                 <ul>
                     <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
                     <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
@@ -323,6 +323,7 @@ function MyAccount(props) {
         confirmNewPassword: ''
     });
     const [passwordFormSuccess, setPasswordFormSuccess] = useState(false);
+    const changePasswordForm = useRef(null);
     const updateFormData = (e) => {
         setFormData(prevState => ({
             ...prevState,
@@ -352,13 +353,11 @@ function MyAccount(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        console.dir(body);
         props.refreshTeacher();
         setFormSuccess(true);
         setFormSuccess(false);
     }
-    const handleChangePassword = async (e) => {
-        e.preventDefault();
+    const handleChangePassword = async () => {
         if (!passwordsMatch()) return;
         const { newPassword } = passwordFormData;
         const response = await fetch(`/teacher/${teacher._id}/password`, {
@@ -373,6 +372,10 @@ function MyAccount(props) {
         if (!body.success) return console.log('no success response from server');
         props.refreshTeacher();
         setPasswordFormSuccess(true);
+        setPasswordFormSuccess(false);
+        setTimeout(() => {
+            changePasswordForm.current.reset();
+        }, 2000);
     }
     return (
         <div className="Main MyAccount">
@@ -428,7 +431,7 @@ function MyAccount(props) {
                 </div>
                 <Button type="submit" success={formSuccess} onClick={handleSubmit}>Save Changes</Button>
             </form>
-            <form className="dark divide" onSubmit={handleChangePassword} autoComplete="off">
+            <form className="dark divide" autoComplete="off" ref={changePasswordForm}>
                 <h2>Change password</h2>
                 <div className="half">
                     <div>
@@ -440,7 +443,7 @@ function MyAccount(props) {
                         <input name="confirmNewPassword" type="password" onInput={updatePasswordFormData} />
                     </div>
                 </div>
-                <Button type="submit" success={passwordFormSuccess} disabled={!passwordsMatch()}>Save Changes</Button>
+                <Button type="submit" success={passwordFormSuccess} onClick={handleChangePassword} disabled={!passwordsMatch()}>Save Changes</Button>
             </form>
         </div>
     );
