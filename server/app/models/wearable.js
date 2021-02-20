@@ -8,7 +8,12 @@ const Wearable = mongoose.model(
         name: String,
         category: String,
         value: Number,
-        src: String
+        src: String,
+        image: {
+            w: Number,
+            x: Number,
+            y: Number
+        }
     }),
     'wearables'
 );

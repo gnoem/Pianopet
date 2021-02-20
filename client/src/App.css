@@ -1158,6 +1158,14 @@ button.add::before {
     height: 14rem;
     border: 1px solid #ddd;
     float: right;
+    position: relative;
+}
+.addWearableForm .previewBox .draggable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid #ddd;
+    resize: both;
 }
 
 form.dark input:not([type=submit]) {

@@ -42,6 +42,7 @@ export default function Dropdown(props) {
     const generateList = () => {
         const buttonForAddNew =
             <AddNew {...props}
+                key="dropdownItem-addNew"
                 addingNew={addingNew}
                 updateAddingNew={setAddingNew}
                 updateIsOpen={setIsOpen}
@@ -92,7 +93,7 @@ function AddNew(props) {
         return () => window.removeEventListener('keydown', handleKeydown);
     }, [addingNew]);
     return (
-        <li className="dropdownItem" key="dropdownItem-addNew">
+        <li className="dropdownItem">
             {addingNew
                 ?   <button type="button" className="addNew active">
                         <input

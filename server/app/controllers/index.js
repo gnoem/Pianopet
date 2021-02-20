@@ -326,14 +326,11 @@ module.exports = {
     editWearable: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        const { name, category, src, value } = req.body;
+        const formData = req.body;
         Wearable.findOne({ _id }, (err, wearable) => {
             if (err) return console.error('error finding wearable', wearable);
             if (!wearable) return console.log(`wearable ${_id} not found`);
-            wearable.name = name;
-            wearable.category = category;
-            wearable.src = src;
-            wearable.value = value;
+            wearable = Object.assign(wearable, formData);
             wearable.save(err => {
                 if (err) return console.error('error saving wearable', err);
                 res.send({ success: true });
@@ -439,7 +436,7 @@ module.exports = {
             if (alreadyHasBadge()) return res.send({
                 success: false,
                 error: 'This student already has this badge'
-            }); // ?
+            });
             else student.badges.push({
                 id: badgeId,
                 redeemed: false

@@ -274,17 +274,30 @@ export function AddOrEditWearable(props) {
     const { teacher, wearable } = props;
     const [loadingIcon, setLoadingIcon] = useState(false);
     const [formData, setFormData] = useState({
-        _id: wearable ? wearable._id : '',
         teacherCode: wearable ? wearable.teacherCode : teacher._id,
         name: wearable ? wearable.name : '',
         category: wearable ? wearable.category : teacher.wearableCategories[0],
         src: wearable ? wearable.src : '',
-        value: wearable ? wearable.value : ''
+        value: wearable ? wearable.value : '',
+        image: {
+            w: wearable ? wearable.image.w : 50,
+            x: wearable ? wearable.image.x : 10,
+            y: wearable ? wearable.image.y : 40
+        }
     });
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
             ...prevState,
             [key]: value
+        }));
+    }
+    const updateImage = (newStuff) => {
+        setFormData(prevState => ({
+            ...prevState,
+            image: {
+                ...prevState.image,
+                ...newStuff
+            }
         }));
     }
     const handleSubmit = async (e) => {
@@ -350,7 +363,7 @@ export function AddOrEditWearable(props) {
                         <label htmlFor="value">Wearable value:</label>
                         <input type="text" defaultValue={wearable ? wearable.value : ''} onChange={(e) => updateFormData('value', e.target.value)} />
                     </div>
-                    <AddOrEditWearablePreview image={formData.src} />
+                    <AddOrEditWearablePreview src={formData.src} image={formData.image} updateImage={updateImage} />
                 </div>
                 <div className="buttons">
                     {loadingIcon
@@ -364,21 +377,90 @@ export function AddOrEditWearable(props) {
 }
 
 function AddOrEditWearablePreview(props) {
-    const { image } = props;
+    const { src, image } = props;
+    const [mouseIsDown, setMouseIsDown] = useState(false);
+    const [mouseIsMoving, setMouseIsMoving] = useState(false);
+    const [elementPosition, setElementPosition] = useState({
+        x: 0,
+        y: 0
+    });
+    const [elementOffset, setElementOffset] = useState(null);
+    const preview = useRef(null);
     const draggable = useRef(null);
     useEffect(() => {
         const draggableObject = draggable.current;
-        const dragElement = () => {
-
+        const previewBox = preview.current;
+        if (!draggableObject || !previewBox) return;
+        setElementPosition({
+            x: (image.x * previewBox.scrollWidth) / 100,
+            y: (image.y * previewBox.scrollHeight) / 100
+        });
+        const mouseup = () => setMouseIsDown(false);
+        const mousedown = (e) => {
+            setMouseIsDown(e);
+            window.addEventListener('mouseup', mouseup);
         }
-        draggableObject.addEventListener('mousedown', dragElement);
-        return () => draggableObject.removeEventListener('mousedown', dragElement);
+        draggableObject.addEventListener('mousedown', mousedown);
+        return () => {
+            draggableObject.removeEventListener('mousedown', mousedown);
+            window.removeEventListener('mouseup', mouseup);
+        }
     }, []);
+    useEffect(() => {
+        const previewBox = preview.current;
+        const mousemove = (e) => {
+            e.preventDefault();
+            setMouseIsMoving(e);
+        }
+        if (!mouseIsDown) {
+            setMouseIsDown(false);
+            setMouseIsMoving(false);
+            const calculateImageCoords = () => ({
+                x: (elementPosition.x * 100) / previewBox.scrollWidth,
+                y: (elementPosition.y * 100) / previewBox.scrollHeight
+            });
+            props.updateImage(calculateImageCoords());
+            previewBox.removeEventListener('mousemove', mousemove);
+            return;
+        }
+        const e = mouseIsDown;
+        const calculateElementOffset = (e) => {
+            const mouseX = e.clientX - previewBox.getBoundingClientRect().left;
+            const mouseY = e.clientY - previewBox.getBoundingClientRect().top;
+            const offsetX = mouseX - elementPosition.x;
+            const offsetY = mouseY - elementPosition.y;
+            setElementOffset({
+                x: offsetX,
+                y: offsetY
+            });
+        }
+        calculateElementOffset(e);
+        previewBox.addEventListener('mousemove', mousemove);
+        return () => previewBox.removeEventListener('mousemove', mousemove);
+    }, [mouseIsDown]);
+    useEffect(() => {
+        if (!mouseIsMoving) return;
+        const previewBox = preview.current;
+        const e = mouseIsMoving;
+        const mouseX = e.clientX - previewBox.getBoundingClientRect().left;
+        const mouseY = e.clientY - previewBox.getBoundingClientRect().top;
+        setElementPosition({
+            x: mouseX - elementOffset.x,
+            y: mouseY - elementOffset.y
+        });
+    }, [mouseIsMoving, elementOffset]);
     return (
         <div>
             <label>Preview:</label>
-            <div className="previewBox">
-                <img src={image} ref={draggable} />
+            <div className="previewBox" ref={preview}>
+                <img
+                  alt="preview"
+                  src={src}
+                  ref={draggable}
+                  className="draggable"
+                  style={{
+                    transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
+                }} />
             </div>
         </div>
     );
