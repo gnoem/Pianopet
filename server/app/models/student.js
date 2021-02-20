@@ -12,7 +12,10 @@ const Student = mongoose.model(
         coins: Number,
         avatar: [String],
         closet: [String],
-        badges: [String]
+        badges: [{
+            id: String,
+            redeemed: Boolean
+        }]
     }),
     'students'
 );

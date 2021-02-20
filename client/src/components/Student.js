@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import Closet from './Closet';
 import Avatar from './Avatar';
@@ -255,22 +255,51 @@ function StudentCloset(props) {
 
 function StudentBadges(props) {
     const { student, badges } = props;
+    const badgesRef = useRef({});
     const generateBadgeList = () => {
         if (!student.badges) return "You haven't earned any badges yet!";
         return badges.map(badge => {
-            if (student.badges.includes(badge._id)) return (
+            const index = student.badges.findIndex(object => object.id === badge._id);
+            const studentHasBadge = index !== -1;
+            const badgeHasBeenRedeemed = () => {
+                if (!studentHasBadge) return;
+                if (student.badges[index].redeemed) return true;
+                return false;
+            }
+            const redeemBadge = async () => {
+                if (badgeHasBeenRedeemed()) return;
+                badgesRef.current[badge._id].classList.add('redeemed');
+                const response = await fetch(`/student/${student._id}/badge/redeemed`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        badgeId: badge._id,
+                        badgeValue: badge.value
+                    })
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log('no success response from server');
+                props.refreshData();
+            }
+            if (studentHasBadge) return (
                 <div
-                key={`badgeList-${badge._id}`}
-                className="badgeItem">
+                  key={`badgeList-${badge._id}`}
+                  ref={(el) => badgesRef.current[badge._id] = el}
+                  className={`badgeItem${badgeHasBeenRedeemed() ? ' redeemed' : ''}`}>
                     <img
                         className="badgeImage"
                         alt={badge.name}
                         src={badge.src} />
                     <span className="badgeName">{badge.name}</span>
-                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                    <span className="badgeValue">{badge.value}</span>
+                    <span onClick={redeemBadge}>
+                        <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                        <span className="badgeValue">{badge.value}</span>
+                    </span>
                 </div>
-            )
+            );
         });
     }
     return (

@@ -249,10 +249,14 @@ function Badges(props) {
                 <img
                   alt={badge.name}
                   src={badge.src}
+                  className="badgeImage"
                   onClick={() => awardBadge(badge._id)}
                   onContextMenu={(e) => editOrDeleteBadge(e, badge._id)} />
                 <span className="badgeName">{badge.name}</span>
-                <span className="badgeValue">{badge.value}</span>
+                <span>
+                    <img alt="coin icon" className="coin" src="assets/Coin_ico.png" />
+                    <span className="badgeValue">{badge.value}</span>
+                </span>
             </div>
         ));
     }
@@ -286,11 +290,14 @@ function AwardBadge(props) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ badge: badge._id })
+            body: JSON.stringify({ badgeId: badge._id })
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) {
+            setLoadingIcon(false);
+            return setError(body.error);
+        }
         props.updateModal(false);
         props.refreshData();
     }

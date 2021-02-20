@@ -423,17 +423,49 @@ module.exports = {
     },
     updateBadges: (req, res) => {
         const { id: _id } = req.params;
-        const { badge } = req.body;
+        const { badgeId } = req.body;
         Student.findOne({ _id }, (err, student) => {
             if (err) return console.error(`error finding student ${_id}`, err);
             if (!student) return console.log(`couldn't find student ${_id}`);
-            if (!student.badges) student.badges = [badge];
-            else if (student.badges.includes(badge)) return res.send({ success: true }); // ?
-            else student.badges.push(badge);
+            if (!student.badges) student.badges = [{
+                id: badgeId,
+                redeemed: false
+            }];
+            const alreadyHasBadge = () => {
+                const index = student.badges.findIndex(object => object.id === badgeId);
+                if (index === -1) return false;
+                return true;
+            }
+            if (alreadyHasBadge()) return res.send({
+                success: false,
+                error: 'This student already has this badge'
+            }); // ?
+            else student.badges.push({
+                id: badgeId,
+                redeemed: false
+            });
             student.save(err => {
-                if (err) console.error(`error saving student ${_id}`, err);
+                if (err) return console.error(`error saving student ${_id}`, err);
                 return res.send({ success: true });
             });
+        });
+    },
+    updateBadgeRedeemed: (req, res) => {
+        const { id: _id } = req.params;
+        const { badgeId, badgeValue } = req.body;
+        Student.findOne({ _id }, (err, student) => {
+            if (err) return console.error(`error finding student ${_id}`, err);
+            if (!student) return console.log(`couldn't find student ${_id}`);
+            if (!student.badges) return console.log(`student ${_id} doesn't have any badges`);
+            const index = student.badges.findIndex(object => object.id === badgeId);
+            const studentHasBadge = index !== -1;
+            if (!studentHasBadge) return console.log(`student ${_id} doesn't have badge ${badgeId}`);
+            student.badges[index].redeemed = true;
+            student.coins += badgeValue;
+            student.save(err => {
+                if (err) return console.error(`error saving student ${_id}`, err);
+                return res.send({ success: true });
+            })
         });
     },
     updateCloset: (req, res) => {
