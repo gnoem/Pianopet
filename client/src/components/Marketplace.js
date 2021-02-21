@@ -55,7 +55,7 @@ export default function Marketplace(props) {
         );
         props.updateContextMenu(e, content);
     }
-    const updatePreview = ({ category, _id, name, src, value }) => {
+    const updatePreview = ({ category, _id, name, src, value, image }) => {
         if (preview[category] && preview[category].name === name) {
             const previewObjectMinusCategory = (prevState) => {
                 const object = {...prevState};
@@ -69,7 +69,7 @@ export default function Marketplace(props) {
         }
         setPreview(prevState => ({
             ...prevState,
-            [category]: { _id, name, src, value }
+            [category]: { _id, name, src, value, image }
         }));
     }
     const addOrEditCategory = (e, originalName) => {
@@ -189,9 +189,27 @@ export default function Marketplace(props) {
         previewObject: (preview) => {
             const images = [];
             for (let category in preview) {
-                images.push(<img key={`marketplacePreview-${category}`} src={preview[category].src} className={category} />);
+                const thisWearable = preview[category];
+                const style = {
+                    top: `${thisWearable.image.y}%`,
+                    left: `${thisWearable.image.x}%`,
+                    width: `${thisWearable.image.w}%`
+                }
+                images.push(
+                    <img
+                      key={`marketplacePreview-${category}`}
+                      className={`previewWearable ${category}`}
+                      src={thisWearable.src}
+                      style={style}
+                    />
+                );
             }
-            return <div className="previewBox">{images}</div>;
+            return (
+                <div className="previewBox">
+                    <img alt="base" className="previewBase" src="https://i.imgur.com/RJ9U3wW.png" />
+                    {images}
+                </div>
+            );
         },
         previewDescription: (preview) => {
             if (viewingAsTeacher) return;
@@ -280,9 +298,9 @@ export function AddOrEditWearable(props) {
         src: wearable ? wearable.src : '',
         value: wearable ? wearable.value : '',
         image: {
-            w: wearable ? wearable.image.w : 50,
-            x: wearable ? wearable.image.x : 10,
-            y: wearable ? wearable.image.y : 40
+            w: wearable && wearable.image ? wearable.image.w : 50,
+            x: wearable && wearable.image ? wearable.image.x : 10,
+            y: wearable && wearable.image ? wearable.image.y : 40
         }
     });
     const updateFormData = (key, value) => {
@@ -449,19 +467,29 @@ function AddOrEditWearablePreview(props) {
             y: mouseY - elementOffset.y
         });
     }, [mouseIsMoving, elementOffset]);
+    const updateImageSize = (e) => {
+        e.preventDefault();
+        const percentage = parseInt(e.target.value) + 1;
+        const draggableObject = draggable.current;
+        draggableObject.style.width = percentage + '%';
+        props.updateImage({ w: percentage });
+    }
     return (
         <div>
             <label>Preview:</label>
             <div className="previewBox" ref={preview}>
+                <img alt="base" className="previewBase" src="https://i.imgur.com/RJ9U3wW.png" />
                 <img
                   alt="preview"
                   src={src}
                   ref={draggable}
-                  className="draggable"
+                  className={`draggable${mouseIsDown ? ' dragging' : ''}`}
                   style={{
-                    transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
-                }} />
+                      width: image.w + '%',
+                      transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
+                    }} />
             </div>
+            <input type="range" defaultValue={image.w - 1} min="0" max="99" onChange={updateImageSize} />
         </div>
     );
 }

@@ -314,9 +314,8 @@ module.exports = {
     },
     addWearable: (req, res) => {
         // todo validate name
-        const { teacherCode, name, category, src, value } = req.body;
-        if (!value) return console.log('invalid');
-        const newWearable = new Wearable({ teacherCode, name, category, src, value });
+        const { teacherCode, name, category, src, value, image } = req.body;
+        const newWearable = new Wearable({ teacherCode, name, category, src, value, image });
         newWearable.save(err => {
             if (err) return console.error('error saving wearable', err);
             res.send({ success: true });
