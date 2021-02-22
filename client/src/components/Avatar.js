@@ -4,19 +4,29 @@ export default function Avatar(props) {
     const { student, avatar } = props;
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;
-        if (!Object.keys(avatar).length) return (
-            <img alt={`${student.firstName}'s avatar`} src="assets/defaultpianopet.png" className="default" />
-        );
         return Object.keys(avatar).map(key => {
-            const { _id, src } = avatar[key]; 
+            const { _id, src, image } = avatar[key];
+            const style = {
+                top: `${image.y}%`,
+                left: `${image.x}%`,
+                width: `${image.w}%`
+            }
             return (
-                <img key={`studentAvatar-${key}-${_id}`} alt={src} src={src} className={key} />
+                <img
+                  key={`studentAvatar-${key}-${_id}`}
+                  className={`${key} avatarItem`}
+                  alt={src}
+                  src={src}
+                  style={style} />
             );
         });
     }
     return (
         <div className="Avatar">
-            {generateAvatar()}
+            <div className="avatarBox">
+                <img alt={`${student.firstName}'s avatar`} src="https://i.imgur.com/RJ9U3wW.png" className="previewBase" />
+                {generateAvatar()}
+            </div>
         </div>
     );
 }

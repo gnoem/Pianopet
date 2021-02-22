@@ -15,8 +15,8 @@ export default function Student(props) {
         // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
         const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
             const index = wearables.findIndex(element => element._id === id);
-            const { category, _id, src } = wearables[index];
-            obj[category] = { _id, src };
+            const { category, _id, src, image } = wearables[index];
+            obj[category] = { _id, src, image };
             return obj;
         }, {});
         setAvatar(createAvatarObject(student.avatar));

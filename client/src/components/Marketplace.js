@@ -4,8 +4,10 @@ import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Marketplace(props) {
-    const { viewingAsTeacher, student, teacher, wearables } = props;
-    const [preview, setPreview] = useState({});
+    const { viewingAsTeacher, student, avatar, teacher, wearables } = props;
+    const [preview, setPreview] = useState(() => {
+        return viewingAsTeacher ? {} : avatar
+    });
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
     const wearableRefs = useRef({});
     const editOrDeleteWearable = (e, _id) => {
@@ -252,22 +254,29 @@ export default function Marketplace(props) {
         },
         wearablesList: (category) => {
             const filteredList = wearables.filter(wearable => wearable.category === category);
-            return filteredList.map(wearable => (
-                <button
-                  ref={(el) => wearableRefs.current[wearable._id] = el}
-                  key={`${category}-wearable-${wearable.name}`}
-                  className="stealth wearableItem"
-                  onClick={() => updatePreview(wearable)}
-                  onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
-                    <img
-                        alt={wearable.name}
-                        src={wearable.src}
-                    />
-                    <span className="wearableName">{wearable.name}</span>
-                    <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                    <span className="wearableValue">{wearable.value}</span>
-                </button>
-            ));
+            return filteredList.map(wearable => {
+                const hasWearable = (() => {
+                    if (viewingAsTeacher) return false;
+                    if (student.closet.includes(wearable._id)) return true;
+                    return false;
+                })();
+                return (
+                    <button
+                      ref={(el) => wearableRefs.current[wearable._id] = el}
+                      key={`${category}-wearable-${wearable.name}`}
+                      className={`stealth wearableItem${hasWearable ? ' owned' : ''}`}
+                      onClick={() => updatePreview(wearable)}
+                      onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
+                        <img
+                            alt={wearable.name}
+                            src={wearable.src}
+                        />
+                        <span className="wearableName">{wearable.name}</span>
+                        <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
+                        <span className="wearableValue">{wearable.value}</span>
+                    </button>
+                )
+            });
         }    
     }
     return (

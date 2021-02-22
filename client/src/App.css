@@ -512,18 +512,24 @@ a:hover, button.link:hover {
     margin-left: -0.25rem;
 }
 .studentAvatar, .Avatar {
-    width: 14rem;
-    height: 14rem;
     padding: 2rem;
     background: #fff;
     border: 3px solid var(--dark-theme-color);
     border-radius: 999px;
-    position: relative;
+    overflow: hidden;
     text-align: center;
 }
-.Avatar .default {
+.avatarBox {
+    width: 11rem;
+    height: 11rem;
+    position: relative;
+}
+.Avatar .previewBase {
     width: 100%;
     height: 100%;
+}
+.Avatar .avatarItem {
+    position: absolute;
 }
 .Teacher.Dashboard .studentAvatar {
     width: 12rem;
@@ -908,6 +914,38 @@ ul.previewDescription img.coin {
     color: #333;
     font-size: 0.75rem;
     transition: 0.2s;
+    position: relative;
+}
+.marketplaceWearables button.wearableItem.owned {
+    opacity: 0.4;
+}
+.marketplaceWearables button.wearableItem.owned:hover {
+    opacity: 1;
+}
+.marketplaceWearables button.wearableItem.owned::before {
+    content: '\f00c';
+    font: 900 0.8em 'Font Awesome 5 Free';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    transform: 0.2s;
+}
+.marketplaceWearables button.wearableItem.owned::after {
+    content: '\f00c';
+    font: 900 0.6em 'Font Awesome 5 Free';
+    color: #fff;
+    background: var(--light-theme-color);
+    width: 0.8125rem;
+    height: 0.8125rem;
+    border-radius: 999px;
+    line-height: 0.8125rem;
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    display: none;
+}
+.marketplaceWearables button.wearableItem.owned span.wearableValue, .marketplaceWearables button.wearableItem.owned img.coin {
+    filter: grayscale();
 }
 .marketplaceWearables button.wearableItem.active, .closetWearables button.closetItem.active {
     border-color: #000;
