@@ -15,9 +15,9 @@ module.exports = (app) => {
         .post(validate.teacherSignup, controller.teacherSignup);
     app.route('/teacher/:id')
         .get(controller.getTeacher)
-        .put(controller.editTeacher);
+        .put(controller.editAccount);
     app.route('/teacher/:id/password')
-        .put(controller.editTeacherPassword);
+        .put(controller.editPassword);
     app.route('/teacher/:id/wearable-category')
         .post(controller.addWearableCategory)
         .put(controller.editWearableCategory);
@@ -34,6 +34,10 @@ module.exports = (app) => {
     
     // STUDENT
     app.post('/student', validate.studentSignup, controller.studentSignup);
+    app.route('/student/:id')
+        .put(controller.editAccount);
+    app.route('/student/:id/password')
+        .put(controller.editPassword);
     app.route('/student/:id/homework')
         .get(controller.getHomework)
         .post(controller.addHomework);

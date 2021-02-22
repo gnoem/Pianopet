@@ -8,6 +8,8 @@ const Student = mongoose.model(
         lastName: String,
         username: String,
         password: String,
+        email: String,
+        profilePic: String,
         teacherCode: String,
         coins: Number,
         avatar: [String],

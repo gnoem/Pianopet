@@ -6,6 +6,7 @@ import Marketplace from './Marketplace';
 import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
 import Button from './Button';
+import MyAccount from './MyAccount';
 
 export default function Student(props) {
     const { student, wearables } = props;
@@ -77,8 +78,8 @@ function StudentProfileDropdown(props) {
               updateContextMenu={() => setExpanded(false)}
               children={(
                 <ul>
-                    <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
-                    <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
+                    <li><button className="myAccount" onClick={() => props.updateView('account')}>My Account</button></li>
+                    <li><button className="settings" onClick={() => props.updateView('settings')}>Settings</button></li>
                     <li><button className="logout" onClick={props.logout}>Logout</button></li>
                 </ul>
             )} />
@@ -87,12 +88,13 @@ function StudentProfileDropdown(props) {
 }
 
 function Main(props) {
-    const { view } = props;
+    const { view, student } = props;
     switch (view) {
         case 'home': return <Homework {...props} />;
         case 'closet': return <StudentCloset {...props} />
         case 'marketplace': return <StudentMarketplace {...props} />;
         case 'badges': return <StudentBadges {...props} />;
+        case 'account': return <MyAccount {...props} userType="student" user={student} />;
         default: return <Homework {...props} />;
     }
 }

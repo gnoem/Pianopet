@@ -191,33 +191,37 @@ module.exports = {
             });
         });
     },
-    editTeacher: (req, res) => {
+    editAccount: (req, res) => {
         const { id: _id } = req.params;
         const formData = req.body;
-        Teacher.findOne({ _id }, (err, user) => {
-            if (err) return console.error(`error finding teacher ${_id}`, err);
-            if (!user) return console.log(`teacher ${_id} not found`);
+        const editAccount = (err, user) => {
+            if (err) return console.error(`error finding user ${_id}`, err);
+            if (!user) return console.log(`user ${_id} not found`);
             user = Object.assign(user, formData);
             user.save(err => {
                 if (err) return console.error(`error saving user ${_id}`, err);
                 res.send({ success: true });
                 return;
             });
-        });
+        }
+        if (formData.role === 'teacher') Teacher.findOne({ _id }, editAccount);
+        if (formData.role === 'student') Student.findOne({ _id }, editAccount);
     },
-    editTeacherPassword: (req, res) => {
+    editPassword: (req, res) => {
         const { id: _id } = req.params;
-        const { newPassword } = req.body;
-        Teacher.findOne({ _id }, (err, user) => {
-            if (err) return console.error(`error finding teacher ${_id}`, err);
-            if (!user) return console.log(`teacher ${_id} not found`);
+        const { role, newPassword } = req.body;
+        const editPassword = (err, user) => {
+            if (err) return console.error(`error finding user ${_id}`, err);
+            if (!user) return console.log(`user ${_id} not found`);
             user.password = bcrypt.hashSync(newPassword, 8);
             user.save(err => {
                 if (err) return console.error(`error saving user ${_id}`, err);
                 res.send({ success: true });
                 return;
             });
-        })
+        }
+        if (role === 'teacher') Teacher.findOne({ _id }, editPassword);
+        if (role === 'student') Student.findOne({ _id }, editPassword);
     },
     addHomework: (req, res) => {
         const { id } = req.params;
