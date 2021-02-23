@@ -13,7 +13,9 @@ const Wearable = mongoose.model(
             w: Number,
             x: Number,
             y: Number
-        }
+        },
+        ownedBy: [String]   // string of student IDs in case teacher wants to delete wearable
+                            // we know which students own this item and don't have to loop through all students to check
     }),
     'wearables'
 );

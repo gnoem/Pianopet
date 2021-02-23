@@ -7,7 +7,8 @@ const Badge = mongoose.model(
         teacherCode: String,
         name: String,
         src: String,
-        value: Number
+        value: Number,
+        awardedTo: [String] // string of student IDs
     }),
     'badges'
 );

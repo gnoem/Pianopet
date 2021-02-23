@@ -342,11 +342,30 @@ module.exports = {
         });
     },
     deleteWearable: (req, res) => {
-        const { _id } = req.params;
+        const { id: _id } = req.params;
         Wearable.findOneAndDelete({ _id }, (err, wearable) => {
             if (err) return console.error('error finding and deleting wearable', err);
-            if (!wearable) console.log(`no wearable with _id ${_id}`);
-            res.send({ success: true });
+            if (!wearable) return console.log(`no wearable with _id ${_id}`);
+            // deleting wearable from students' closets as well
+            if (wearable.ownedBy) { // if array exists and its length > 0
+                for (let [index, studentId] of wearable.ownedBy.entries()) {
+                    Student.findOne({ _id: studentId }, (err, student) => {
+                        if (err) return console.error(`error finding student ${studentId}`, err);
+                        if (!student) return console.log(`no student with id ${studentId}`);
+                        const removeWearable = (id, array) => {
+                            const index = array.indexOf(id);
+                            if (index !== -1) array.splice(index, 1);
+                        }
+                        removeWearable(_id, student.closet);
+                        removeWearable(_id, student.avatar);
+                        student.save(err => {
+                            if (err) return console.error(`error saving student ${studentId}`, err);
+                            console.log(`removed ${_id} from closet and avatar of student ${studentId}`);
+                            if (index === wearable.ownedBy.length - 1) res.send({ success: true }); // todo better please
+                        });
+                    });
+                }
+            }
         });
     },
     addBadge: (req, res) => {
@@ -379,7 +398,27 @@ module.exports = {
         const { id: _id } = req.params;
         Badge.findOneAndDelete({ _id }, (err, badge) => {
             if (err) return console.error('error finding and deleting badge', err);
-            if (!badge) console.log(`no badge with _id ${_id}`);
+            if (!badge) return console.log(`no badge with _id ${_id}`);
+            if (badge.awardedTo) {
+                for (let [index, studentId] of badge.awardedTo.entries()) {
+                    Student.findOne({ _id: studentId }, (err, student) => {
+                        if (err) return console.error(`error finding student ${studentId}`, err);
+                        if (!student) return console.log(`no student with id ${studentId}`);
+                        const removeBadge = (id, array) => {
+                            // student.badges array contains some object such that object.id === badge._id
+                            // find its index and splice it out
+                            const index = array.findIndex(object => object.id === id);
+                            if (index !== -1) array.splice(index, 1);
+                        }
+                        removeBadge(_id, student.badges);
+                        student.save(err => {
+                            if (err) return console.error(`error saving student ${studentId}`, err);
+                            console.log(`removed ${_id} from badgelist of student ${studentId}`);
+                            if (index + 1 === badge.awardedTo.length) res.send({ success: true }); // todo better please
+                        });
+                    });
+                }
+            }
             res.send({ success: true });
         });
     },
@@ -475,11 +514,22 @@ module.exports = {
             if (err) return console.error(`error finding student ${_id}`, err);
             if (!student) return console.log(`student ${_id} not found`);
             if (!student.closet) student.closet = [wearableId];
-            else if (!student.closet.includes(wearableId)) student.closet.push(wearableId);
-            student.coins -= wearableCost;
+            else if (!student.closet.includes(wearableId)) {
+                student.closet.push(wearableId);
+                student.coins -= wearableCost;
+            }
             student.save(err => {
                 if (err) return console.error(`error saving student ${_id}`, err);
-                return res.send({ success: true });
+                Wearable.findOne({ _id: wearableId }, (err, wearable) => {
+                    if (err) return console.error(`error finding wearable ${wearableId}`, err);
+                    if (!wearable) return console.log(`wearable ${wearableId} not found`);
+                    if (!wearable.ownedBy) wearable.ownedBy = [_id];
+                    else if (!wearable.ownedBy.includes(_id)) wearable.ownedBy.push(_id);
+                    wearable.save(err => {
+                        if (err) return console.error(`error saving wearable ${wearableId}`, err);
+                        return res.send({ success: true });
+                    });
+                });
             });
         });
     },
