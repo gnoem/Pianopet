@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const { MONGO_AUTH } = require('./vars');
 
-const auth = process.env.MONGO_AUTH || MONGO_AUTH;
+const auth = process.env.MONGO_AUTH || require('./vars').MONGO_AUTH;
 
 module.exports = async () => {
     mongoose.connect(`mongodb+srv://admin:${auth}@cluster0.nxvhj.mongodb.net/pianopet?retryWrites=true&w=majority`, {
