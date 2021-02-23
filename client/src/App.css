@@ -207,7 +207,8 @@ input[type=submit], button {
 button.secondary {
     font-size: 0.8rem;
     text-transform: uppercase;
-    padding: 0.5rem 1rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.5rem;
 }
 button.greyed {
     background: #aaa;
@@ -312,6 +313,7 @@ a:hover, button.link:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 1rem 2rem;
 }
 .Logo img {
     width: auto;
@@ -421,7 +423,12 @@ a:hover, button.link:hover {
     grid-area: main;
     color: #fff;
     overflow-y: auto;
+}
+.Student.Dashboard .Main {
     padding-right: 25%;
+}
+.Teacher.Dashboard .Main {
+    padding: 2rem 4rem 0 2rem;
 }
 .Nav {
     grid-area: nav;
@@ -448,15 +455,23 @@ a:hover, button.link:hover {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr auto;
+    grid-template: auto / 1fr auto;
+    grid-template-areas: 'main sidebar';
+}
+.viewStudentMain {
+    grid-area: main;
+    overflow: auto;
+    padding-right: 2rem;
+}
+.viewStudentSidebar {
+    grid-area: sidebar;
+    margin-left: 2rem;
 }
 .viewStudentHeader {
     display: flex;
     justify-content: space-between;
     grid-row: 1 / 2;
     grid-column: 1 / 2;
-    padding-bottom: 2rem;
 }
 .viewStudentHeader h1 {
     color: #fff;
@@ -470,16 +485,6 @@ a:hover, button.link:hover {
 }
 .viewStudentHeader button:hover {
     color: var(--light-theme-color);
-}
-.viewStudentSidebar {
-    grid-row: 1 / -1;
-    grid-column: 2 / -1;
-    margin-left: 3rem;
-}
-.viewStudentHomework {
-    grid-row: 2 / -1;
-    grid-column: 1 / 2;
-    overflow: auto;
 }
 .avatarContainer {
     font-size: 0;
@@ -513,6 +518,8 @@ a:hover, button.link:hover {
     width: 8rem;
     height: 8rem;
     position: relative;
+}
+.Student.Dashboard .avatarBox {
     cursor: pointer;
 }
 .Avatar .previewBase {
@@ -529,20 +536,23 @@ a:hover, button.link:hover {
 .StudentSidebar {
     text-align: center;
 }
-.StudentCoins {
+.StudentStats {
     display: grid;
     column-gap: 0.5rem;
     grid-template-rows: auto auto;
     grid-template-columns: auto 1fr auto;
 }
-.StudentCoins .coinsIcon {
+.StudentStats + .StudentStats {
+    margin-top: 0.5rem;
+}
+.StudentStats .statsIcon {
     display: flex;
     align-self: center;
     justify-self: end;
     grid-row: 1 / 2;
     grid-column: 1 / 2;
 }
-.StudentCoins .coinsCount {
+.StudentStats .statsLabel {
     display: flex;
     align-self: center;
     justify-self: start;
@@ -556,12 +566,14 @@ a:hover, button.link:hover {
     align-items: center;
     justify-items: start;
 }
-.coinsIcon img, img.statsIcon {
+img.statsIcon {
     width: 2rem;
     height: auto;
 }
 .statsLabel {
     font-weight: bold;
+}
+.Student.Dashboard .statsLabel {
     cursor: pointer;
 }
 .editCoinsButton {
@@ -570,7 +582,7 @@ a:hover, button.link:hover {
     grid-row: 1 / 2;
     grid-column: 3 / -1;
 }
-.StudentCoins button + button {
+.StudentStats button + button {
     margin-left: 0.5rem;
 }
 .confirmChangesButton {
@@ -1260,8 +1272,11 @@ form.divide > div.half {
     column-gap: 1rem;
     margin-bottom: 1.5rem;
 }
+.Dashboard .Main.MyAccount {
+    padding-bottom: 4rem;
+}
 .MyAccount form {
-    margin-top: 3rem;
+    margin-top: 2rem;
 }
 .MyAccount div.profilePic {
     display: grid;

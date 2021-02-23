@@ -1,7 +1,10 @@
 import Loading from './Loading';
 
 export default function Avatar(props) {
-    const { student, avatar } = props;
+    const { viewingAsTeacher, student, avatar } = props;
+    const handleClick = () => {
+        if (!viewingAsTeacher) props.updateView('closet');
+    }
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;
         return Object.keys(avatar).map(key => {
@@ -23,7 +26,7 @@ export default function Avatar(props) {
     }
     return (
         <div className="Avatar">
-            <div className="avatarBox" onClick={() => props.updateView('closet')}>
+            <div className="avatarBox" onClick={handleClick}>
                 <img alt={`${student.firstName}'s avatar`} src="https://i.imgur.com/RJ9U3wW.png" className="previewBase" />
                 {generateAvatar()}
             </div>

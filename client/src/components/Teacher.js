@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dashboard, Header, Sidebar } from './Dashboard';
+import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import ViewStudent from './ViewStudent';
 import Marketplace, { AddOrEditWearable } from './Marketplace';
 import Loading from './Loading';
@@ -50,7 +50,7 @@ export default function Teacher(props) {
         }));
         return (
             <Dropdown
-                style={{ minWidth: '12rem' }}
+                style={{ minWidth: '14rem' }}
                 restoreDefault={view.type !== 'student'}
                 defaultValue={{ value: null, display: 'Select one...' }}
                 listItems={studentList}
@@ -68,16 +68,17 @@ export default function Teacher(props) {
     }
     return (
         <Dashboard teacher={true}>
-            <TeacherProfileDropdown {...props} {...state} />
+            <Header>
+                <Nav>
+                    <button onClick={() => setView({ type: 'home' })} className="stealth link">Home</button>
+                    <button onClick={() => setView({ type: 'marketplace' })} className="stealth link">Marketplace</button>
+                    <button onClick={() => setView({ type: 'badges' })} className="stealth link">Badges</button>
+                </Nav>
+                <TeacherProfileDropdown {...props} {...state} />
+            </Header>
             <Sidebar>
                 <h2>Students</h2>
                 {generateStudentList()}
-                <hr />
-                <h2>Control Panel</h2>
-                <ul className="stealth">
-                    <li><button onClick={() => setView({ type: 'marketplace' })} className="stealth link">Marketplace</button></li>
-                    <li><button onClick={() => setView({ type: 'badges' })} className="stealth link">Badges</button></li>
-                </ul>
                 <hr />
                 <div className="teacherCode">
                     Teacher code:<br />
@@ -94,7 +95,7 @@ function TeacherProfileDropdown(props) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevState => !prevState);
     return (
-        <Header className={expanded ? 'expanded' : ''}>
+        <div className={`User${expanded ? ' expanded' : ''}`}>
             <button onClick={toggleExpanded}>
                 <span className="name">{teacher.firstName}</span>
                 <span className="caret"></span>
@@ -113,7 +114,7 @@ function TeacherProfileDropdown(props) {
                     <li><button className="logout" onClick={props.logout}>Logout</button></li>
                 </ul>
             )} />
-        </Header>
+        </div>
     )
 }
 
@@ -311,7 +312,7 @@ function AwardBadge(props) {
             <p>Choose a student to award this badge to:</p>
             <div style={{ textAlign: 'center' }}>
                 <Dropdown
-                    style={{ minWidth: '12rem', marginBottom: '0.2rem' }}
+                    style={{ minWidth: '15rem', marginBottom: '0.2rem' }}
                     defaultValue={{ value: null, display: 'Select one...' }}
                     listItems={studentList}
                     onChange={updateRecipient}/>

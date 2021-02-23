@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Loading from './Loading';
+import Avatar from './Avatar';
 import { prettifyDate } from '../utils';
 import dayjs from 'dayjs';
 import ContextMenu from './ContextMenu';
 
 export default function ViewStudent(props) {
-    const { student } = props;
+    const { student, wearables } = props;
     const [homework, setHomework] = useState([]);
+    const [avatar, setAvatar] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const state = { homework }
     const getHomework = async () => {
@@ -20,6 +22,14 @@ export default function ViewStudent(props) {
     useEffect(() => {
         setIsLoaded(false);
         getHomework();
+        // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
+        const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
+            const index = wearables.findIndex(element => element._id === id);
+            const { category, _id, name, src, image } = wearables[index];
+            obj[category] = { _id, name, src, image };
+            return obj;
+        }, {});
+        setAvatar(createAvatarObject(student.avatar));
     }, [student._id]);
     const addNewHomework = () => {
         let content = (
@@ -35,18 +45,22 @@ export default function ViewStudent(props) {
     return (
         <div className="Main">
             <div className="ViewStudent">
-                <div className="viewStudentHeader">
-                    <h1>{student.firstName}'s Homework Progress</h1>
-                    <button className="stealth" onClick={addNewHomework}><i className="fas fa-plus-circle"></i></button>
+                <div className="viewStudentMain">
+                    <div className="viewStudentHeader">
+                        <h1>{student.firstName}'s Homework Progress</h1>
+                        <button className="stealth" onClick={addNewHomework}><i className="fas fa-plus-circle"></i></button>
+                    </div>
+                    <ViewHomework {...props} {...state} refreshHomework={getHomework} />
                 </div>
                 <div className="viewStudentSidebar">
                     <div className="avatarContainer">
-                        <img alt="student avatar" className="studentAvatar" src="https://lh3.googleusercontent.com/ImpxcbOUkhCIrWcHgHIDHmmvuFznNSGn2y1mor_hLqpYjI6Q1J7XAVvpR-I24ZOJL3s" />
+                        <Avatar {...props} avatar={avatar} viewingAsTeacher={true} />
                     </div>
                     <StudentCoins {...props} />
-                </div>
-                <div className="viewStudentHomework">
-                    <ViewHomework {...props} {...state} refreshHomework={getHomework} />
+                    <div className="StudentStats">
+                        <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
+                        <span className="statsLabel">{student.badges.length}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,14 +69,14 @@ export default function ViewStudent(props) {
 
 function StudentCoins(props) {
     const { student } = props;
-    const [coinsCount, updateCoinsCount] = useState(student.coins);
-    const [makingChanges, updateMakingChanges] = useState(false);
+    const [coinsCount, setCoinsCount] = useState(student.coins);
+    const [makingChanges, setMakingChanges] = useState(false);
     useEffect(() => {
-        updateMakingChanges(false);
+        setMakingChanges(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [student._id]);
     useEffect(() => {
-        updateCoinsCount(student.coins);
+        setCoinsCount(student.coins);
     }, [student.coins]);
     const handleUpdateCoins = async () => {
         const response = await fetch(`/student/${student._id}/coins`, {
@@ -77,7 +91,7 @@ function StudentCoins(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success=true message from server');
-        updateMakingChanges(false);
+        setMakingChanges(false);
         props.refreshData();
     }
     const editCoinsButtons = () => {
@@ -89,20 +103,21 @@ function StudentCoins(props) {
         )
     }
     const addCoins = (amount) => {
-        updateCoinsCount(coinsCount + amount);
+        setCoinsCount(coinsCount + amount);
     }
+    const formatCoins = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return (
-        <div className="StudentCoins">
-            <div className="coinsIcon"><img alt="coin icon" src="assets/Coin_ico.png" /></div>
-            <span className="coinsCount">{coinsCount.toString()}</span>
+        <div className="StudentStats">
+            <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
+            <span className="statsLabel">{formatCoins(coinsCount)}</span>
             <div className="editCoinsButton">
-                {makingChanges ? editCoinsButtons() : <button className="stealth link" onClick={() => updateMakingChanges(true)}>Edit</button>}
+                {makingChanges ? editCoinsButtons() : <button className="stealth link" onClick={() => setMakingChanges(true)}>Edit</button>}
             </div>
             {makingChanges && <div className="confirmChangesButton">
                 <button className="secondary" onClick={() => handleUpdateCoins(student._id)}>Save</button>
                 <button className="secondary greyed" onClick={() => {
-                    updateMakingChanges(false);
-                    updateCoinsCount(student.coins);
+                    setMakingChanges(false);
+                    setCoinsCount(student.coins);
                 }}>Cancel</button>
             </div>}
         </div>
