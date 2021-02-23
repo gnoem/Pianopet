@@ -1,2 +1,2 @@
 node_modules/
-server/app/config/index.js
+server/app/config/vars.js

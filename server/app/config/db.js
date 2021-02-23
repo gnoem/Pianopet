@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { MONGO_AUTH } = require('./');
+const { MONGO_AUTH } = require('./vars');
 
 const auth = process.env.MONGO_AUTH || MONGO_AUTH;
 
