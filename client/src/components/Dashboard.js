@@ -15,10 +15,7 @@ function Header(props) {
                 <img src="assets/logo.svg" alt="pianopet logo" />
             </div>
             <div className="Header">
-                <h1>My Dashboard</h1>
-                <div className={`${props.className ? props.className : ''} User`}>
-                    {props.children}
-                </div>
+                {props.children}
             </div>
         </>
     )

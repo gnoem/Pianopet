@@ -23,7 +23,7 @@ export default function Avatar(props) {
     }
     return (
         <div className="Avatar">
-            <div className="avatarBox">
+            <div className="avatarBox" onClick={() => props.updateView('closet')}>
                 <img alt={`${student.firstName}'s avatar`} src="https://i.imgur.com/RJ9U3wW.png" className="previewBase" />
                 {generateAvatar()}
             </div>

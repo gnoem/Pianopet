@@ -169,19 +169,21 @@ export default function Marketplace(props) {
             let content = (options = {
                 loadingIcon: false
             }) => (
-                <div className="modalBox">
-                    <h2>Confirm purchase</h2>
-                    <img alt={name} src={src} style={{ float: 'right' }} />
-                    Are you sure you want to purchase <b>{name}</b> for <b>{value}</b>?
-                    <div className="buttons">
-                    {options.loadingIcon
-                        ?   <Loading />
-                        :   <form onSubmit={handleSubmit}>
-                                <button type="submit">Yes, I'm sure</button>
-                                <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                            </form>
-                        }
+                <div className="modalBox hasImage">
+                    <div>
+                        <h2>Confirm purchase</h2>
+                        Are you sure you want to purchase <b>{name}</b> for <span className="coins"><b>{value}</b>?</span>
+                        <div className="buttons">
+                            {options.loadingIcon
+                                ?   <Loading />
+                                :   <form onSubmit={handleSubmit}>
+                                        <button type="submit">Yes, I'm sure</button>
+                                        <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                                    </form>
+                                }
+                        </div>
                     </div>
+                    <div className="flex center"><img alt={name} src={src} /></div>
                 </div>
             );
             props.updateModal(content());
@@ -232,7 +234,7 @@ export default function Marketplace(props) {
             }
             return (
                 <ul className="previewDescription">
-                    <h3>Trying On:</h3>
+                    <h3>Previewing:</h3>
                     {previewItems}
                 </ul>
             );

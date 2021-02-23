@@ -77,6 +77,9 @@ html, body {
 p, h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
 }
+h1 {
+    line-height: normal;
+}
 hr {
     border: 0;
     background: rgba(255, 255, 255, 0.5);
@@ -156,6 +159,19 @@ span.error {
 span.error::before {
     content: '\f071';
     font: 900 1em 'Font Awesome 5 Free';
+    margin-right: 0.2rem;
+}
+.coins {
+    display: inline-block;
+}
+.coins::before {
+    content: '';
+    display: inline-block;
+    vertical-align: top;
+    width: 1.2em;
+    height: 1.2em;
+    background: url('assets/Coin_ico.png');
+    background-size: cover;
     margin-right: 0.2rem;
 }
 
@@ -280,24 +296,19 @@ a:hover, button.link:hover {
     height: 100%;
     overflow: hidden;
     grid-template-rows: auto 1fr;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     grid-template-areas:
-        'logo header header'
-        'sidebar main nav';
+        'logo header'
+        'sidebar main';
     line-height: 1.5rem;
 }
-.Logo, .Header {
+.Header, .Logo {
     background: var(--med-accent-color);
     color: var(--dark-theme-color);
     padding: 2rem;
 }
 .Logo {
     grid-area: logo;
-    text-align: center;
-    font-family: var(--display-font);
-    font-size: 1.5rem;
-    text-shadow: -0.1rem 0.1rem 0 #fff;
-    padding: 1rem 2rem 1rem 3rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -310,12 +321,13 @@ a:hover, button.link:hover {
     grid-area: header;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
 }
 .Header h1 {
     margin: 0;
 }
 .User {
+    grid-area: user;
     color: var(--dark-theme-color);
     display: flex;
     align-items: center;
@@ -397,7 +409,7 @@ a:hover, button.link:hover {
 .User .ContextMenu button.logout::before {
     content: '\f2f5';
 }
-.Sidebar, .Main, .Nav {
+.Sidebar, .Main {
     padding: 2rem;
 }
 .Sidebar {
@@ -409,45 +421,23 @@ a:hover, button.link:hover {
     grid-area: main;
     color: #fff;
     overflow-y: auto;
-}
-.Teacher.Dashboard .Main {
-    grid-column: 2 / -1;
-    margin-right: 3rem;
+    padding-right: 25%;
 }
 .Nav {
     grid-area: nav;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 4rem;
 }
 .Nav button {
-    display: block;
-    min-width: 10rem;
-    text-align: left;
     text-transform: uppercase;
-    color: var(--light-theme-color);
+    color: var(--dark-theme-color);
+}
+.Nav button:hover {
+    color: #000;
 }
 .Nav button + button {
-    margin-top: 1rem;
-}
-
-
-
-
-.SidebarOLD {
-    grid-row: 1 / -1;
-    grid-column: 1 / 2;
-    background: var(--med-theme-color);
-    padding: 2rem;
-    overflow: hidden;
-    color: #fff;
-}
-.Topbar {
-    padding: 0 2rem;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    grid-row: 1 / 2;
-    grid-column: 2 / -1;
-    background: #f7f7f7;
-    border-bottom: 1px solid #ddd;
+    margin-left: 3rem;
 }
 .Window {
     grid-row: 2 / -1;
@@ -520,9 +510,10 @@ a:hover, button.link:hover {
     text-align: center;
 }
 .avatarBox {
-    width: 11rem;
-    height: 11rem;
+    width: 8rem;
+    height: 8rem;
     position: relative;
+    cursor: pointer;
 }
 .Avatar .previewBase {
     width: 100%;
@@ -535,31 +526,43 @@ a:hover, button.link:hover {
     width: 12rem;
     height: 12rem;
 }
-.StudentCoins, .studentCoins {
+.StudentSidebar {
+    text-align: center;
+}
+.StudentCoins {
     display: grid;
     column-gap: 0.5rem;
     grid-template-rows: auto auto;
     grid-template-columns: auto 1fr auto;
 }
-.coinsIcon {
+.StudentCoins .coinsIcon {
     display: flex;
     align-self: center;
     justify-self: end;
     grid-row: 1 / 2;
     grid-column: 1 / 2;
 }
-.coinsIcon img {
-    width: auto;
-    height: 2rem;
-}
-.coinsCount {
+.StudentCoins .coinsCount {
     display: flex;
     align-self: center;
     justify-self: start;
     grid-row: 1 / 2;
     grid-column: 2 / 3;
+}
+.studentStats {
+    display: inline-grid;
+    gap: 0.5rem;
+    grid-template: auto / auto 1fr;
+    align-items: center;
+    justify-items: start;
+}
+.coinsIcon img, img.statsIcon {
+    width: 2rem;
+    height: auto;
+}
+.statsLabel {
     font-weight: bold;
-    color: #fff;
+    cursor: pointer;
 }
 .editCoinsButton {
     display: flex;
@@ -631,6 +634,9 @@ a:hover, button.link:hover {
 }
 .addHomework .addHomeworkAssignments {
     grid-area: assignments;
+}
+.ViewHomework {
+    margin: 2rem 0;
 }
 .Homework {
     display: grid;
@@ -761,6 +767,22 @@ a:hover, button.link:hover {
     position: relative;
     margin: auto;
 }
+.modalBox.hasImage {
+    display: grid;
+    grid-template: auto / 1fr minmax(auto, 5rem); 
+    column-gap: 1rem;
+}
+.modalBox.hasImage img {
+    width: 100%;
+    height: auto;
+}
+.flex {
+    display: flex;
+}
+.flex.center {
+    align-items: center;
+    justify-content: center;
+}
 .Modal button.exit {
     position: absolute;
     top: 1.5rem;
@@ -879,7 +901,6 @@ ul.previewDescription img.coin {
     height: 1rem;
     margin-right: 0.3rem;
 }
-
 .marketplaceCategories, .closetCategories {
     grid-area: nav;
     padding: 0.5rem;
@@ -903,7 +924,6 @@ ul.previewDescription img.coin {
 .wearablesGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, 7rem);
-    grid-template-rows: repeat(auto-fill, auto);
     gap: 1rem;
 }
 .marketplaceWearables button.wearableItem, .closetWearables button.closetItem {

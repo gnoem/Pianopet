@@ -16,8 +16,8 @@ export default function Student(props) {
         // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
         const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
             const index = wearables.findIndex(element => element._id === id);
-            const { category, _id, src, image } = wearables[index];
-            obj[category] = { _id, src, image };
+            const { category, _id, name, src, image } = wearables[index];
+            obj[category] = { _id, name, src, image };
             return obj;
         }, {});
         setAvatar(createAvatarObject(student.avatar));
@@ -27,6 +27,7 @@ export default function Student(props) {
         const thisWearable = wearables[index];
         return thisWearable;
     });
+    const formatCoins = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     const state = {
         view,
         avatar,
@@ -36,25 +37,29 @@ export default function Student(props) {
     }
     return (
         <Dashboard teacher={false}>
-            <StudentProfileDropdown {...props} {...state} />
+            <Header>
+                <Nav>
+                    <button className="stealth link" onClick={() => setView('home')}>Home</button>
+                    <button className="stealth link" onClick={() => setView('closet')}>Closet</button>
+                    <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
+                    <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
+                </Nav>
+                <StudentProfileDropdown {...props} {...state} />
+            </Header>
             <Sidebar>
                 <div className="StudentSidebar">
                     <div className="avatarContainer">
                         <Avatar {...props} {...state} />
                     </div>
-                    <div className="studentCoins">
-                        <div className="coinsIcon"><img alt="coin icon" src="assets/Coin_ico.png" /></div>
-                        <span className="coinsCount">{student.coins.toString()}</span>
+                    <div className="studentStats">
+                        <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
+                        <span className="statsLabel" onClick={() => setView('marketplace')}>{formatCoins(student.coins)}</span>
+                        <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
+                        <span className="statsLabel" onClick={() => setView('badges')}>{student.badges.length.toString()}</span>
                     </div>
                 </div>
             </Sidebar>
             <Main {...props} {...state} />
-            <Nav>
-                <button className="stealth link" onClick={() => setView('home')}>Homework</button>
-                <button className="stealth link" onClick={() => setView('closet')}>Closet</button>
-                <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
-                <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
-            </Nav>
         </Dashboard>
     );
 }
@@ -64,7 +69,7 @@ function StudentProfileDropdown(props) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevState => !prevState);
     return (
-        <Header className={expanded ? 'expanded' : ''}>
+        <div className={`User ${expanded ? ' expanded' : ''}`}>
             <button onClick={toggleExpanded}>
                 <span className="name">{student.firstName}</span>
                 <span className="caret"></span>
@@ -83,7 +88,7 @@ function StudentProfileDropdown(props) {
                     <li><button className="logout" onClick={props.logout}>Logout</button></li>
                 </ul>
             )} />
-        </Header>
+        </div>
     )
 }
 
@@ -121,7 +126,7 @@ function Homework(props) {
         <div className="Main">
             <h1>My Homework Tracker</h1>
             <div className="ViewHomework">
-                {homework ? generateHomeworkModules() : '...'}
+                {homework ? generateHomeworkModules() : ''}
             </div>
         </div>
     );
@@ -259,7 +264,7 @@ function StudentBadges(props) {
     const { student, badges } = props;
     const badgesRef = useRef({});
     const generateBadgeList = () => {
-        if (!student.badges) return "You haven't earned any badges yet!";
+        if (!student.badges.length) return "You haven't earned any badges yet!";
         return badges.map(badge => {
             const index = student.badges.findIndex(object => object.id === badge._id);
             const studentHasBadge = index !== -1;
