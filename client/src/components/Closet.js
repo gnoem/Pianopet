@@ -20,7 +20,7 @@ export default function Closet(props) {
             });
         },
         wearablesList: (category) => {
-            const previewWearable = ({ category, _id, src }) => {
+            const previewWearable = ({ category, _id, src, image }) => {
                 props.updateAvatar(prevState => {
                     if (prevState[category] && prevState[category]._id === _id) {
                         let prevStateMinusThisCategory = {...prevState};
@@ -29,7 +29,7 @@ export default function Closet(props) {
                     }
                     return ({
                         ...prevState,
-                        [category]: { _id, src }
+                        [category]: { _id, src, image }
                     });
                 });
             }
