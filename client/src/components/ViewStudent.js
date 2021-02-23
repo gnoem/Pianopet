@@ -229,7 +229,7 @@ function Assignment(props) {
     const coinsNumber = useRef(null);
     const addCoins = async (index, recorded = true) => {
         if (props.recorded) return;
-        const response = await fetch(`/student/homework/assignment/${homeworkId}/recorded`, {
+        const response = await fetch(`/assignment/${homeworkId}/recorded`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

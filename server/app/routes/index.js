@@ -44,8 +44,8 @@ module.exports = (app) => {
     app.route('/student/homework/:id')
         .put(controller.editHomework)
         .delete(controller.deleteHomework);
-    app.put('/student/homework/assignment/:id/progress', controller.updateProgress);
-    app.put('/student/homework/assignment/:id/recorded', controller.updateRecorded);
+    app.put('/assignment/:id/progress', controller.updateProgress);
+    app.put('/assignment/:id/recorded', controller.updateRecorded);
     app.put('/student/:id/coins', controller.updateCoins);
     app.put('/student/:id/badges', controller.updateBadges);
     app.route('/student/:id/badge/redeemed')
