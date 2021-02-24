@@ -1,27 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-}
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
 @keyframes slideUpIn {
     from {
         opacity: 0;
@@ -32,8 +11,16 @@
         transform: translate3d(0, 0, 0);
     }
 }
-.slideUpIn {
-    animation: slideUpIn 0.2s 1;
+@keyframes check {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes checkmark-shrink {
+    100% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0);
+    }
 }
 
 #demo {
@@ -48,6 +35,8 @@
     border-radius: 999px;
     z-index: 999999999999999999999999;
 }
+
+/* BASIC PAGE STYLE */
 * {
     box-sizing: border-box;
 }
@@ -70,15 +59,21 @@ html, body {
     margin: 0;
     overflow: hidden;
 }
-#root {
-    width: 100%;
-    height: 100%;
-}
 p, h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
 }
 h1 {
     line-height: normal;
+}
+a, a:visited, button.link, button.stealth.link {
+    font-weight: bold;
+    color: var(--med-theme-color);
+    text-decoration: none;
+    border-radius: 0;
+    transition: 0.2s;
+}
+a:hover, button.link:hover {
+    color: var(--light-theme-color);
 }
 hr {
     border: 0;
@@ -87,79 +82,42 @@ hr {
     height: 1px;
     margin: 2rem auto;
 }
+
+/* UTILS */
 ul.stealth {
     list-style: none;
     padding: 0;
 }
-label {
-    font-weight: bold;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    display: block;
-    text-align: left;
-    line-height: 0.7rem;
-    margin-bottom: 0.5rem;
-    user-select: none;
+.padme {
+    padding: 2rem;
 }
 .smol {
     font-weight: bold;
     font-size: 0.7rem;
     text-transform: uppercase;
 }
-input, select, textarea, button {
-    font-family: inherit;
-    font-size: inherit;
-    outline: none;
-    transition: 0.2s;
+.flex {
+    display: flex;
 }
-input[type=submit], button, input[type=range] {
-    cursor: pointer;
+.flex.center {
+    align-items: center;
+    justify-content: center;
 }
-input[type=text], input[type=password], input[type=number], input[type=date] {
-    border: 1px solid #ddd;
-    padding: 0 0.5rem;
-    overflow: visible;
+.slideUpIn {
+    animation: slideUpIn 0.2s 1;
 }
-input:not([type=submit]):not([type=range]) {
-    display: block;
-    width: 100%;
-    height: 3rem;
+.goodbye /* shrinking effect when deleting wearable or badge */ {
+    transform-origin: center;
+    transform: scale(0.7);
+    opacity: 0;
 }
-input:not([type=submit]):focus {
-    border-color: var(--med-theme-color);
-}
-input[type=submit]:disabled, button:disabled {
-    background: rgba(255, 255, 255, 0.1);
-    cursor: not-allowed;
-}
-/* input[type=text], input[type=password], input[type=number], input[type=date] {
+button.stealth {
+    color: inherit;
+    background: 0;
     border: 0;
-    padding: 0 0.5rem;
-    line-height: 3rem;
-    overflow: visible;
-}
-input:not([type=submit]) {
-    display: block;
-    width: 100%;
-    border-top: 1px solid #ddd;
-    border-bottom: 2px solid var(--med-theme-color);
-} */
-
-.Login form span.error, .Signup form span.error {
-    text-align: left;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-}
-span.error {
-    color: var(--caution);
-    display: block;
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-span.error::before {
-    content: '\f071';
-    font: 900 1em 'Font Awesome 5 Free';
-    margin-right: 0.2rem;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
 }
 .coins {
     display: inline-block;
@@ -175,25 +133,57 @@ span.error::before {
     margin-right: 0.2rem;
 }
 
-form.addHomeworkForm li {
+/* FORMS - LABELS, INPUTS, BUTTONS */
+form.dark input:not([type=submit]) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: transparent;
+    border-radius: 0.5rem;
+    color: #fff;
+}
+form.dark input:not([type=submit]):focus {
+    border-color: var(--med-theme-color);
+}
+form.divide > div.half {
     display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 0.5rem;
-    list-style: none;
-    place-items: center;
-    padding: 0;
-    margin-bottom: 0.5rem;
+    grid-template-columns: 50% 50%;
+    column-gap: 1rem;
+    margin-bottom: 1.5rem;
 }
-li .numBubble {
-    display: block;
-    width: 1.5rem;
-    height: 1.5rem;
+label {
     font-weight: bold;
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    display: block;
+    text-align: left;
+    line-height: 0.7rem;
+    margin-bottom: 0.5rem;
+    user-select: none;
 }
-.padme {
-    padding: 2rem;
+input, select, textarea, button {
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    transition: 0.2s;
+}
+input[type=submit], button, input[type=range] {
+    cursor: pointer;
+}
+input[type=text],
+input[type=password],
+input[type=number],
+input[type=date] {
+    border: 1px solid #ddd;
+    padding: 0 0.5rem;
+    overflow: visible;
+    display: block;
+    width: 100%;
+    height: 3rem;
+}
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=number]:focus,
+input[type=date]:focus {
+    border-color: var(--med-theme-color);
 }
 input[type=submit], button {
     border: 0;
@@ -204,6 +194,21 @@ input[type=submit], button {
     border-radius: 999px;
     line-height: 1.5rem;
 }
+input[type=submit]:disabled, button:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+}
+span.error {
+    color: var(--caution);
+    display: block;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+span.error::before {
+    content: '\f071';
+    font: 900 1em 'Font Awesome 5 Free';
+    margin-right: 0.2rem;
+}
 button.secondary {
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -213,20 +218,6 @@ button.secondary {
 button.greyed {
     background: #aaa;
 }
-button.stealth {
-    color: inherit;
-    background: 0;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-}
-button, a {
-    transition: 0.2s;
-}
-select {
-    border: 1px solid #ddd;
-}
 .buttons {
     margin-top: 1.5rem;
     text-align: center;
@@ -234,17 +225,35 @@ select {
 .buttons button + button {
     margin-left: 1rem;
 }
-.buttons svg {
+.buttons svg /* loading icon */ {
     height: 2.65rem;
 }
-a, a:visited, button.link {
-    font-weight: bold;
-    color: var(--med-theme-color);
-    text-decoration: none;
-    border-radius: 0;
+button.add::before {
+    content: '\f067';
+    font: 900 1em 'Font Awesome 5 Free';
 }
-a:hover, button.link:hover {
-    color: var(--light-theme-color);
+button.successAnimation svg {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2px;
+    stroke-dasharray: 2rem;
+    stroke-dashoffset: 2rem;
+    height: 100%;
+    transform-origin: center right;
+    transform: rotate(45deg) scale(1); /* translate3d(-25%, -25%, 0); */
+    animation: 1s check 1 forwards, 0.5s checkmark-shrink 1 forwards 1s;
+}
+button.loadingAnimation svg {
+    height: 1.5rem;
+}
+button.loadingAnimation svg * {
+    fill: #fff;
+}
+
+/* MAIN APP + DASHBOARD STRUCTURE */
+#root {
+    width: 100%;
+    height: 100%;
 }
 .App {
     position: relative;
@@ -252,44 +261,6 @@ a:hover, button.link:hover {
     height: 100%;
     background: var(--dark-theme-color);
     overflow: hidden;
-}
-.cornerButton {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    padding: 0.7rem 1.5rem;
-    border-radius: 999px;
-    background: #eee;
-    color: #888;
-}
-.Guest {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    place-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 4rem;
-    background: #fff;
-}
-.Guest input, form.pad input:not([type=submit]) {
-    margin-bottom: 1rem;
-}
-.Guest .hero {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-}
-.Guest .hero img {
-    width: 100%;
-}
-.Guest {
-    text-align: center;
-}
-.Guest label {
-    text-align: left;
-}
-.Signup input:not([type=submit]) {
-    line-height: 2.5rem;
 }
 .Dashboard {
     display: grid;
@@ -324,9 +295,6 @@ a:hover, button.link:hover {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-}
-.Header h1 {
-    margin: 0;
 }
 .User {
     grid-area: user;
@@ -446,46 +414,53 @@ a:hover, button.link:hover {
 .Nav button + button {
     margin-left: 3rem;
 }
-.Window {
-    grid-row: 2 / -1;
-    grid-column: 2 / -1;
-    overflow: auto;
+
+/* LOGIN + SIGNUP PAGES */
+.Guest .cornerButton {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 999px;
+    background: #eee;
+    color: #888;
 }
-.ViewStudent {
+.Guest {
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template: auto / 1fr auto;
-    grid-template-areas: 'main sidebar';
-}
-.viewStudentMain {
-    grid-area: main;
-    overflow: auto;
-    padding-right: 2rem;
-}
-.viewStudentSidebar {
-    grid-area: sidebar;
-    margin-left: 2rem;
-}
-.viewStudentHeader {
     display: flex;
-    justify-content: space-between;
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
+    place-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 4rem;
+    background: #fff;
 }
-.viewStudentHeader h1 {
-    color: #fff;
-    margin-bottom: 0;
+.Guest input, form.pad input:not([type=submit]) {
+    margin-bottom: 1rem;
 }
-.viewStudentHeader button {
-    font-size: 1.5rem;
-    color: var(--deep-theme-color);
-    transition: color 0.2s;
-    margin-left: 1rem;
+.Guest .hero {
+    display: inline-block;
+    margin-bottom: 1.5rem;
 }
-.viewStudentHeader button:hover {
-    color: var(--light-theme-color);
+.Guest .hero img {
+    width: 100%;
 }
+.Guest {
+    text-align: center;
+}
+.Guest label {
+    text-align: left;
+}
+.Guest span.error {
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+.Signup input:not([type=submit]) {
+    line-height: 2.5rem;
+}
+
+/* AVATAR */
 .avatarContainer {
     font-size: 0;
     line-height: 0;
@@ -532,6 +507,43 @@ a:hover, button.link:hover {
 .Teacher.Dashboard .studentAvatar {
     width: 12rem;
     height: 12rem;
+}
+
+/* HOMEWORK & STATS */
+.ViewStudent {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template: auto / 1fr auto;
+    grid-template-areas: 'main sidebar';
+}
+.viewStudentMain {
+    grid-area: main;
+    overflow: auto;
+    padding-right: 2rem;
+}
+.viewStudentSidebar {
+    grid-area: sidebar;
+    margin-left: 2rem;
+}
+.viewStudentHeader {
+    display: flex;
+    justify-content: space-between;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+}
+.viewStudentHeader h1 {
+    color: #fff;
+    margin-bottom: 0;
+}
+.viewStudentHeader button {
+    font-size: 1.5rem;
+    color: var(--deep-theme-color);
+    transition: color 0.2s;
+    margin-left: 1rem;
+}
+.viewStudentHeader button:hover {
+    color: var(--light-theme-color);
 }
 .StudentSidebar {
     text-align: center;
@@ -595,27 +607,6 @@ img.statsIcon {
 .teacherCode {
     text-align: center;
 }
-.Exp .ExpHeader {
-    font-size: 1.3rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    user-select: none;
-    cursor: pointer;
-}
-.Exp .ExpHeader::before {
-    content: '\f055';
-    font: 900 1em 'Font Awesome 5 Free';
-    color: var(--deep-theme-color);
-    padding-right: 0.5rem;
-}
-.Exp .ExpMain {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.2s;
-}
-.Exp.anded .ExpHeader::before {
-    content: '\f056';
-}
 .addHomeworkForm {
     text-align: center;
 }
@@ -626,6 +617,15 @@ img.statsIcon {
 .addHomeworkFform label {
     padding-bottom: 0.4rem;
     border-bottom: 1px solid #ccc;
+}
+.addHomeworkForm li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
+    list-style: none;
+    place-items: center;
+    padding: 0;
+    margin-bottom: 0.5rem;
 }
 .addHomework {
     display: grid;
@@ -721,87 +721,6 @@ img.statsIcon {
 .Homework .Body ul div.progress {
     margin-left: 40px;
 }
-.Homework input[type=range] {
-    display: inline-block;
-    vertical-align: middle;
-}
-.Homework .coinsEarned {
-    display: inline-flex;
-    vertical-align: middle;
-    place-items: center;
-    margin-left: 0.5rem;
-    color: #aaa;
-    cursor: pointer;
-}
-.Homework .coinsEarned .coinIcon {
-    height: 1rem;
-    margin-right: 0.2rem;
-    margin-left: 0.5rem;
-    filter: grayscale(100%);
-}
-.Homework .coinsEarned.coinsAdded {
-    color: inherit;
-    cursor: default;
-}
-.Homework .coinsEarned.coinsAdded .coinIcon {
-    filter: none;
-}
-.Loading {
-    display: grid;
-    width: 100%;
-    height: 100%;
-    place-items: center;
-}
-.Loading.mini svg {
-    width: auto;
-    height: 100%;
-}
-.Modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999999;
-}
-.modalContainer {
-    display: grid;
-    height: 100%;
-    padding: 2rem 0;
-}
-.modalContent {
-    width: 55%;
-    min-width: 300px;
-    background: #fff;
-    padding: 2.5rem;
-    border-radius: 1rem;
-    position: relative;
-    margin: auto;
-}
-.modalBox.hasImage {
-    display: grid;
-    grid-template: auto / 1fr minmax(auto, 5rem); 
-    column-gap: 1rem;
-}
-.modalBox.hasImage img {
-    width: 100%;
-    height: auto;
-}
-.flex {
-    display: flex;
-}
-.flex.center {
-    align-items: center;
-    justify-content: center;
-}
-.Modal button.exit {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    font-size: 1.5rem;
-    color: #666;
-}
 .Homework .progress button {
     display: inline-block;
     vertical-align: middle;
@@ -826,13 +745,29 @@ img.statsIcon {
     height: 100%;
     border-radius: 999px;
 }
-.StudentSidebar h2 {
-    text-align: center;
-    text-shadow: 2px 2px 0 var(--deep-theme-color);
+.Homework .coinsEarned {
+    display: inline-flex;
+    vertical-align: middle;
+    place-items: center;
+    margin-left: 0.5rem;
+    color: #aaa;
+    cursor: pointer;
 }
-.StudentSidebar .studentCoins {
-    grid-template-columns: auto auto;
+.Homework .coinsEarned .coinIcon {
+    height: 1rem;
+    margin-right: 0.2rem;
+    margin-left: 0.5rem;
+    filter: grayscale(100%);
 }
+.Homework .coinsEarned.coinsAdded {
+    color: inherit;
+    cursor: default;
+}
+.Homework .coinsEarned.coinsAdded .coinIcon {
+    filter: none;
+}
+
+/* MARKETPLACE & CLOSET */
 .Marketplace, .Closet {
     margin: 2rem 0;
     background: #fff;
@@ -938,6 +873,17 @@ ul.previewDescription img.coin {
     grid-template-columns: repeat(auto-fill, 7rem);
     gap: 1rem;
 }
+.marketplaceCategories button.add {
+    padding: 0.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    box-sizing: content-box;
+    display: inline-grid;
+    place-items: center;
+}
+.marketplaceCategories button.add::before {
+    line-height: 1.2rem;
+}
 .marketplaceWearables button.wearableItem, .closetWearables button.closetItem {
     padding: 0.5rem;
     text-align: center;
@@ -1002,6 +948,39 @@ ul.previewDescription img.coin {
     height: 1.5em;
     margin-right: 0.3rem;
 }
+
+/* ADD+EDIT WEARABLE FORM (DRAG&DROP) */
+.addWearableForm {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 1rem;
+}
+.addWearableForm .previewBox {
+    width: 14rem;
+    height: 14rem;
+    border: 1px solid #ddd;
+    position: relative;
+    overflow: hidden;
+}
+.addWearableForm .previewBox .previewBase {
+    width: 100%;
+    height: 100%;
+}
+.addWearableForm .previewBox .draggable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: grab;
+}
+.addWearableForm .previewBox .draggable.dragging {
+    cursor: grabbing;
+}
+.addWearableForm input[type=range] {
+    margin: 0.5rem auto 0;
+    display: block;
+}
+
+/* BADGES */
 .BadgeList {
     margin: 2rem 0;
     display: flex;
@@ -1052,6 +1031,82 @@ ul.previewDescription img.coin {
     cursor: default;
 }
 
+/* ACCOUNT SETTINGS */
+.Dashboard .Main.MyAccount {
+    padding-bottom: 4rem;
+}
+.MyAccount form {
+    margin-top: 2rem;
+}
+.MyAccount div.profilePic {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.MyAccount div.profilePic img {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 999px;
+    border: 3px solid #fff;
+    object-fit: cover;
+}
+
+/* LOADING ICON */
+.Loading {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+}
+.Loading.mini svg {
+    width: auto;
+    height: 100%;
+}
+
+/* MODAL */
+.Modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999999;
+}
+.modalContainer {
+    display: grid;
+    height: 100%;
+    padding: 2rem 0;
+}
+.modalContent {
+    width: 55%;
+    min-width: 300px;
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    position: relative;
+    margin: auto;
+}
+.modalBox.hasImage {
+    display: grid;
+    grid-template: auto / 1fr minmax(auto, 5rem); 
+    column-gap: 1rem;
+}
+.modalBox.hasImage img {
+    width: 100%;
+    height: auto;
+}
+.Modal button.exit {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    color: #666;
+}
+
+/* CONTEXT MENU */
 .ContextMenu {
     position: fixed;
     z-index: 999;
@@ -1102,6 +1157,7 @@ ul.previewDescription img.coin {
     content: '\f304';
 }
 
+/* DROPDOWN */
 .Dropdown {
     position: relative;
     display: inline-block;
@@ -1204,125 +1260,4 @@ ul.previewDescription img.coin {
     line-height: normal;
     display: block;
     margin-top: 0.2rem;
-}
-
-.marketplaceCategories button.add {
-    padding: 0.5rem;
-    width: 1.2rem;
-    height: 1.2rem;
-    box-sizing: content-box;
-    display: inline-grid;
-    place-items: center;
-}
-.marketplaceCategories button.add::before {
-    line-height: 1.2rem;
-}
-button.add::before {
-    content: '\f067';
-    font: 900 1em 'Font Awesome 5 Free';
-}
-.goodbye {
-    transform-origin: center;
-    transform: scale(0.7);
-    opacity: 0;
-}
-.addWearableForm {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: 1rem;
-}
-.addWearableForm .previewBox {
-    width: 14rem;
-    height: 14rem;
-    border: 1px solid #ddd;
-    position: relative;
-    overflow: hidden;
-}
-.addWearableForm .previewBox .previewBase {
-    width: 100%;
-    height: 100%;
-}
-.addWearableForm .previewBox .draggable {
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: grab;
-}
-.addWearableForm .previewBox .draggable.dragging {
-    cursor: grabbing;
-}
-.addWearableForm input[type=range] {
-    margin: 0.5rem auto 0;
-    display: block;
-}
-
-form.dark input:not([type=submit]) {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: transparent;
-    border-radius: 0.5rem;
-    color: #fff;
-}
-form.dark input:not([type=submit]):focus {
-    border-color: var(--med-theme-color);
-}
-
-form.divide > div.half {
-    display: grid;
-    grid-template-columns: 50% 50%;
-    column-gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-.Dashboard .Main.MyAccount {
-    padding-bottom: 4rem;
-}
-.MyAccount form {
-    margin-top: 2rem;
-}
-.MyAccount div.profilePic {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    column-gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-.MyAccount div.profilePic img {
-    width: 5rem;
-    height: 5rem;
-    border-radius: 999px;
-    border: 3px solid #fff;
-    object-fit: cover;
-}
-.successAnimation {
-    animation: 1s check 1;
-}
-
-@keyframes check {
-    100% {
-        stroke-dashoffset: 0;
-    }
-}
-
-@keyframes checkmark-shrink {
-    100% {
-        opacity: 0;
-        transform: rotate(45deg) scale(0);
-    }
-}
-
-button.successAnimation svg {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 2px;
-    stroke-dasharray: 2rem;
-    stroke-dashoffset: 2rem;
-    height: 100%;
-    transform-origin: center right;
-    transform: rotate(45deg) scale(1); /* translate3d(-25%, -25%, 0); */
-    animation: 1s check 1 forwards, 0.5s checkmark-shrink 1 forwards 1s;
-}
-button.loadingAnimation svg {
-    height: 1.5rem;
-}
-button.loadingAnimation svg * {
-    fill: #fff;
 }
