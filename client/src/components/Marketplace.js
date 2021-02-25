@@ -5,11 +5,12 @@ import Dropdown from './Dropdown';
 
 export default function Marketplace(props) {
     const { viewingAsTeacher, student, avatar, teacher, wearables } = props;
-    const [preview, setPreview] = useState(() => {
-        return viewingAsTeacher ? {} : avatar
-    });
+    const [preview, setPreview] = useState(null);
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
     const wearableRefs = useRef({});
+    useEffect(() => {
+        setPreview(avatar);
+    }, [avatar]);
     const editOrDeleteWearable = (e, _id) => {
         e.preventDefault();
         if (!viewingAsTeacher) return;
