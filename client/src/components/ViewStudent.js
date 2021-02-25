@@ -199,7 +199,7 @@ function Homework(props) {
     }
     return (
         <div className="Homework">
-            <div className="Header">
+            <div className="homeworkHeader">
                 <div>
                     <span className="date">{prettifyDate(date)}</span>
                     <h3>{headline}</h3>
@@ -209,7 +209,7 @@ function Homework(props) {
                     {showingMenu && showMenu()}
                 </div>
             </div>
-            <div className="Body">
+            <div className="homeworkBody">
                 <ul>
                     <li className="smol">
                         <div className="label">Assignments</div>

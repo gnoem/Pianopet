@@ -15,6 +15,7 @@ export default function App() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [contextMenu, setContextMenu] = useState(false);
+    const isMobile = window.innerWidth < 601;
     useEffect(() => {
         getData();
     }, []);
@@ -52,6 +53,7 @@ export default function App() {
     }
     const state = {
         modal,
+        isMobile,
         logout,
         updateModal: setModal,
         updateContextMenu

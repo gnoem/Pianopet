@@ -37,12 +37,12 @@ export default function Student(props) {
     }
     return (
         <Dashboard teacher={false}>
-            <Header>
+            <Header {...props} {...state}>
                 <Nav>
-                    <button className="stealth link" onClick={() => setView('home')}>Home</button>
-                    <button className="stealth link" onClick={() => setView('closet')}>Closet</button>
-                    <button className="stealth link" onClick={() => setView('marketplace')}>Marketplace</button>
-                    <button className="stealth link" onClick={() => setView('badges')}>Badges</button>
+                    <button className="stealth" onClick={() => setView('home')}>Home</button>
+                    <button className="stealth" onClick={() => setView('closet')}>Closet</button>
+                    <button className="stealth" onClick={() => setView('marketplace')}>Marketplace</button>
+                    <button className="stealth" onClick={() => setView('badges')}>Badges</button>
                 </Nav>
                 <StudentProfileDropdown {...props} {...state} />
             </Header>
@@ -141,17 +141,17 @@ function HomeworkModule(props) {
     }
     return (
         <div className="Homework">
-            <div className="Header">
+            <div className="homeworkHeader">
                 <div>
                     <span className="date">{prettifyDate(date)}</span>
                     <h3>{headline}</h3>
                 </div>
             </div>
-            <div className="Body">
+            <div className="homeworkBody">
                 <ul>
                     <li className="smol">
-                        <div className="label">Assignments</div>
-                        <div className="progress">Progress</div>
+                        <div>Assignments</div>
+                        <div>Progress</div>
                     </li>
                 </ul>
                 <ol>
@@ -183,15 +183,17 @@ function Assignment(props) {
     }
     return (
         <li>
-            <div className="label">{label}</div>
-            <div className="progress">
-                <button onClick={progress === 0 ? () => {} : () => updateHomeworkProgress(progress - 1)}
-                    className={`stealth${progress === 0 ? ' disabled' : ''}`}
-                    style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-minus-circle"></i></button>
-                <ProgressBar percentage={(100 * progress) / 4} />
-                <button onClick={progress === 4 ? () => {} : () => updateHomeworkProgress(progress + 1)}
-                    className={`stealth${progress === 4 ? ' disabled' : ''}`}
-                    style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
+            <div>
+                <div>{label}</div>
+                <div className="progress">
+                    <button onClick={progress === 0 ? () => {} : () => updateHomeworkProgress(progress - 1)}
+                        className={`stealth${progress === 0 ? ' disabled' : ''}`}
+                        style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-minus-circle"></i></button>
+                    <ProgressBar percentage={(100 * progress) / 4} />
+                    <button onClick={progress === 4 ? () => {} : () => updateHomeworkProgress(progress + 1)}
+                        className={`stealth${progress === 4 ? ' disabled' : ''}`}
+                        style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
+                </div>
             </div>
         </li>
     )
