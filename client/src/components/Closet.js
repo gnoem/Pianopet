@@ -49,7 +49,6 @@ export default function Closet(props) {
     }
     return (
         <div className="Closet">
-            <div id="demo" onClick={() => console.table(props.avatar)}></div>
             <div className="closetCategories">
                 {generate.categoriesList(closet)}
             </div>

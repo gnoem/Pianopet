@@ -506,9 +506,6 @@ button.loadingAnimation svg * {
         display: flex;
         align-items: center;
     }
-    .Student.Dashboard .Main {
-        padding-bottom: 12.5vh; /* 12.5vh is height of bottom bar */
-    }
 }
 
 /* LOGIN + SIGNUP PAGES */
@@ -922,7 +919,7 @@ img.statsIcon {
 }
 @media (max-width: 600px) {
     .ViewHomework {
-        margin: 1rem 0 0; /* 12.5vh is height of bottom bar, 2rem is padding on .Main */
+        margin: 1rem 0 calc(12.5vh - 2rem); /* 12.5vh is height of bottom bar, 2rem is padding on .Main */
     }
     .Homework + .Homework {
         margin-top: 1.5rem;
@@ -1140,8 +1137,34 @@ ul.previewDescription img.coin {
     margin-right: 0.3rem;
 }
 @media (max-width: 600px) {
-    .Closet {
+    .Marketplace, .Closet {
         margin: 0;
+        height: calc(50vh - 1rem); /* todo better */
+    }
+    .Marketplace {
+        grid-template-areas:
+            'nav nav'
+            'items items';
+    }
+    .marketplacePreview {
+        display: none;
+    }
+    .Closet + .buttons {
+        text-align: right;
+    }
+    .wearablesGrid {
+        grid-template-columns: repeat(auto-fill, minmax(5rem, auto));
+        gap: 0.7rem;
+    }
+    .marketplaceCategories button, .closetCategories button {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+    }
+    .marketplaceWearables, .closetWearables {
+        padding: 0.7rem;
+    }
+    .marketplaceWearables .wearableItem img, .closetWearables .closetItem img {
+        width: 3rem;
     }
 }
 

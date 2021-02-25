@@ -4,7 +4,7 @@ import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
 
 export default function Marketplace(props) {
-    const { viewingAsTeacher, student, avatar, teacher, wearables } = props;
+    const { viewingAsTeacher, student, avatar, teacher, wearables, isMobile } = props;
     const [preview, setPreview] = useState(null);
     const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
     const wearableRefs = useRef({});
@@ -59,21 +59,29 @@ export default function Marketplace(props) {
         props.updateContextMenu(e, content);
     }
     const updatePreview = ({ category, _id, name, src, value, image }) => {
-        if (preview[category] && preview[category].name === name) {
-            const previewObjectMinusCategory = (prevState) => {
-                const object = {...prevState};
-                delete object[category];
-                return object;
+        const updatePreviewFor = (object) => {
+            let setObject;
+            if (object === preview) setObject = setPreview;
+            if (object === avatar) setObject = props.updateAvatar;
+            if (object[category] && object[category].name === name) {
+                console.log('yo');
+                const previewObjectMinusCategory = (prevState) => {
+                    const object = {...prevState};
+                    delete object[category];
+                    return object;
+                }
+                setObject(prevState => ({
+                    ...previewObjectMinusCategory(prevState)
+                }));
+                return;
             }
-            setPreview(prevState => ({
-                ...previewObjectMinusCategory(prevState)
+            setObject(prevState => ({
+                ...prevState,
+                [category]: { _id, name, src, value, image }
             }));
-            return;
         }
-        setPreview(prevState => ({
-            ...prevState,
-            [category]: { _id, name, src, value, image }
-        }));
+        if (isMobile) updatePreviewFor(avatar);
+        else updatePreviewFor(preview);
     }
     const addOrEditCategory = (e, originalName) => {
         e.preventDefault();
@@ -192,6 +200,7 @@ export default function Marketplace(props) {
     }
     const generate = {
         previewObject: (preview) => {
+            if (isMobile) return null;
             const images = [];
             for (let category in preview) {
                 const thisWearable = preview[category];
@@ -217,7 +226,7 @@ export default function Marketplace(props) {
             );
         },
         previewDescription: (preview) => {
-            if (viewingAsTeacher) return;
+            if (viewingAsTeacher || isMobile) return;
             const previewItems = [];
             for (let category in preview) {
                 previewItems.push(
