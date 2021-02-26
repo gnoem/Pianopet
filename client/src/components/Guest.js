@@ -8,8 +8,10 @@ export default function Guest(props) {
             <div className="hero">
                 <img alt="pianopet logo" src="assets/logo.svg" />
             </div>
-            {view.action === 'login' && <Login {...view} {...props} updateView={updateView} />}
-            {view.action === 'signup' && <Signup {...view} {...props} updateView={updateView} />}
+            <div>
+                {view.action === 'login' && <Login {...view} {...props} updateView={updateView} />}
+                {view.action === 'signup' && <Signup {...view} {...props} updateView={updateView} />}
+            </div>
         </div>
     );
 }
@@ -92,8 +94,11 @@ function StudentLogin(props) {
                 {showError.password()}
                 <input type="submit" />
             </form>
-            Don't have an account? Click <button className="stealth link" onClick={() => props.updateView('student', 'signup')}>here</button> to sign up.
-            <button className="cornerButton" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
+            <span className="nowrap">Don't have an account?</span>
+            <span className="nowrap">
+                Click <button className="stealth link" onClick={() => props.updateView('student', 'signup')}>here</button> to sign up.
+            </span>
+            <button className="portalLink" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
         </div>
     );
 }
@@ -102,7 +107,6 @@ function TeacherLogin(props) {
     const { showError } = props;
     return (
         <div className="Login">
-            <div id="demo" onClick={() => console.table(props.formData)}></div>
             <h1>Teacher Login</h1>
             <form onSubmit={props.handleLogin} autoComplete="off">
                 <label htmlFor="username">Username:</label>
@@ -113,8 +117,11 @@ function TeacherLogin(props) {
                 {showError.password()}
                 <input type="submit" />
             </form>
-            Don't have an account? Click <button className="stealth link" onClick={() => props.updateView('teacher', 'signup')}>here</button> to sign up.
-            <button className="cornerButton" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
+            <span className="nowrap">Don't have an account?</span>
+            <span className="nowrap">
+                Click <button className="stealth link" onClick={() => props.updateView('teacher', 'signup')}>here</button> to sign up.
+            </span>
+            <button className="portalLink" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
         </div>
     )
 }
@@ -172,8 +179,11 @@ function StudentSignup(props) {
                 <input name="teacherCode" type="text" onChange={props.updateFormData} />
                 <input type="submit" />
             </form>
-            Already have an account? Click <button className="stealth link" onClick={() => props.updateView('student', 'login')}>here</button> to log in.
-            <button className="cornerButton" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
+            <span className="nowrap">Already have an account?</span>
+            <span className="nowrap">
+                Click <button className="stealth link" onClick={() => props.updateView('student', 'login')}>here</button> to log in.
+            </span>
+            <button className="portalLink" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
         </div>
     )
 }
@@ -193,8 +203,11 @@ function TeacherSignup(props) {
                 <input name="password" type="password" onChange={props.updateFormData} />
                 <input type="submit" />
             </form>
-            Already have an account? Click <button className="stealth link" onClick={() => props.updateView('teacher', 'login')}>here</button> to log in.
-            <button className="cornerButton" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
+            <span className="nowrap">Already have an account?</span>
+            <span className="nowrap">
+                Click <button className="stealth link" onClick={() => props.updateView('teacher', 'login')}>here</button> to log in.
+            </span>
+            <button className="portalLink" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
         </div>
     );
 }

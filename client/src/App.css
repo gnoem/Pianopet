@@ -62,6 +62,7 @@
     --dark-theme-color: #09172F;
     --light-accent-color: #eeeeee;
     --med-accent-color: #FF8772;
+    --deep-accent-color: #fc6f56;
     --caution: #aa0f0f;
 }
 html, body {
@@ -80,13 +81,13 @@ h1 {
 }
 a, a:visited, button.link, button.stealth.link {
     font-weight: bold;
-    color: var(--med-theme-color);
+    color: var(--light-theme-color);
     text-decoration: none;
     border-radius: 0;
     transition: 0.2s;
 }
 a:hover, button.link:hover {
-    color: var(--light-theme-color);
+    color: var(--med-theme-color);
 }
 hr {
     border: 0;
@@ -102,12 +103,13 @@ hr {
 }
 
 /* UTILS */
-ul.stealth {
-    list-style: none;
-    padding: 0;
-}
 .padme {
     padding: 2rem;
+}
+.nowrap {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 0 0.15em;
 }
 .smol {
     font-weight: bold;
@@ -128,6 +130,10 @@ ul.stealth {
     transform-origin: center;
     transform: scale(0.7);
     opacity: 0;
+}
+ul.stealth {
+    list-style: none;
+    padding: 0;
 }
 button.stealth {
     color: inherit;
@@ -152,15 +158,6 @@ button.stealth {
 }
 
 /* FORMS - LABELS, INPUTS, BUTTONS */
-form.dark input:not([type=submit]) {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: transparent;
-    border-radius: 0.5rem;
-    color: #fff;
-}
-form.dark input:not([type=submit]):focus {
-    border-color: var(--med-theme-color);
-}
 form.divide > div.half {
     display: grid;
     grid-template-columns: 50% 50%;
@@ -190,7 +187,10 @@ input[type=text],
 input[type=password],
 input[type=number],
 input[type=date] {
-    border: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    color: #fff;
     padding: 0 0.5rem;
     overflow: visible;
     display: block;
@@ -205,7 +205,7 @@ input[type=date]:focus {
 }
 input[type=submit], button {
     border: 0;
-    background: var(--med-theme-color);
+    background: var(--deep-theme-color);
     font-weight: bold;
     color: #fff;
     padding: 0.7rem 1.5rem;
@@ -512,48 +512,79 @@ button.loadingAnimation svg * {
 }
 
 /* LOGIN + SIGNUP PAGES */
-.Guest .cornerButton {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    padding: 0.7rem 1.5rem;
-    border-radius: 999px;
-    background: #eee;
-    color: #888;
-}
 .Guest {
     width: 100%;
     height: 100%;
-    display: flex;
-    place-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 4rem;
-    background: #fff;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    color: #fff;
+    overflow: hidden;
 }
-.Guest input, form.pad input:not([type=submit]) {
-    margin-bottom: 1rem;
+.Guest > div {
+    padding: 3rem;
 }
-.Guest .hero {
-    display: inline-block;
-    margin-bottom: 1.5rem;
+.Guest > div:first-of-type {
+    background: var(--med-accent-color);
+    text-align: right;
 }
-.Guest .hero img {
-    width: 100%;
+.Guest > div:first-of-type img {
+    width: 80%;
 }
-.Guest {
-    text-align: center;
+.Guest > div:nth-of-type(2) {
+    background: var(--dark-theme-color);
+    overflow: auto;
+}
+.Guest > div:nth-of-type(2) > div {
+    width: 50%;
+    text-align: left;
 }
 .Guest label {
     text-align: left;
+}
+.Guest input, form.pad input:not([type=submit]) {
+    margin-bottom: 1rem;
 }
 .Guest span.error {
     text-align: left;
     margin-top: -0.5rem;
     margin-bottom: 1rem;
 }
-.Signup input:not([type=submit]) {
-    line-height: 2.5rem;
+.Guest input[type=submit] {
+    margin-top: 0.5rem;
+}
+.Guest button.portalLink {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 0.5rem;
+    background: 0;
+    border: 1px solid #fff;
+}
+@media (max-width: 600px) {
+    .Guest {
+        grid-template: 12.5% 1fr / 100%;
+    }
+    .Guest > div:first-of-type {
+        text-align: center;
+        padding: 1rem;
+    }
+    .Guest > div:first-of-type img {
+        width: auto;
+        height: 100%;
+    }
+    .Guest > div:nth-of-type(2) {
+        padding: 2rem;
+    }
+    .Guest > div:nth-of-type(2) > div {
+        width: 100%;
+        text-align: center;
+    }
+    .Guest button.portalLink {
+        position: static;
+        margin-top: 2rem;
+    }    
 }
 
 /* AVATAR */
