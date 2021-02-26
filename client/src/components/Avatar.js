@@ -7,7 +7,7 @@ export default function Avatar(props) {
     const [color, setColor] = useState(null);
     useEffect(() => {
         if (!avatar) return;
-        setColor(avatar.color);
+        setColor(avatar.Color?.src);
     }, [avatar]);
     const handleClick = () => {
         if (!viewingAsTeacher) props.updateView('closet');
@@ -15,7 +15,7 @@ export default function Avatar(props) {
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;
         return Object.keys(avatar).map(key => {
-            if (key === 'color') return;
+            if (key === 'Color') return;
             const { _id, src, image } = avatar[key];
             const style = {
                 top: `${image.y}%`,

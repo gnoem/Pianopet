@@ -116,6 +116,10 @@ hr {
     font-size: 0.7rem;
     text-transform: uppercase;
 }
+.tip {
+    color: #666;
+    font-size: 0.8rem;
+}
 .flex {
     display: flex;
 }
@@ -643,6 +647,10 @@ button.loadingAnimation svg * {
 }
 .previewBase .st2 {
     fill: #111;
+}
+.previewBase.zoom path {
+    transform: scale(2.3);
+    transform-origin: center;
 }
 @media (max-width: 600px) {
     .avatarContainer {
@@ -1250,11 +1258,6 @@ img.statsIcon {
     display: flex;
     align-items: center;
 }
-.colorPicker > div:first-of-type > svg {
-    width: 290%;
-    height: 290%;
-    margin: -100%;
-}
 .colorPicker > div:first-of-type > input,
 .colorPicker > div:first-of-type > span {
     position: absolute;
@@ -1267,7 +1270,6 @@ img.statsIcon {
 .colorPicker > div:first-of-type > span {
     cursor: pointer;
 }
-
 
 /* ADD+EDIT WEARABLE FORM (DRAG&DROP) */
 .addWearableForm {

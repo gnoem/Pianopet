@@ -1,7 +1,7 @@
 export default function PianopetBase(props) {
-    const { color, style } = props;
+    const { color, style, zoom } = props;
     return (
-        <svg viewBox="0 0 3000 3000" className="previewBase" style={style}>
+        <svg viewBox="0 0 3000 3000" className={`previewBase${zoom ? ' zoom' : ''}`} style={style}>
             <path fill={color ?? '#5C76AE'} d="M1294.8,927.4c102.7-34.3,188-31.2,237.4-28.8c52.2,2.5,160.2,8.8,280.5,71c38.4,19.8,146.6,77.6,222.6,193.4
                 c133.6,203.5,101.2,484.8-24.5,672.1c-90.3,134.6-211.8,195.4-246.6,211.6c-34.1,15.9-153.3,67.9-313,53.7
                 c-41.6-3.7-164.4-17.7-290.8-101.5c-43.8-29-193.6-126.4-255.5-317.4c-75.5-232.5,20.8-474.4,159.4-612

@@ -43,12 +43,15 @@ export default function Marketplace(props) {
             const content = (<AddOrEditColor {...props} />);
             props.updateModal(content);
         },
-        editOrDeleteWearable: (e, _id) => {
+        editOrDeleteWearable: (e, _id, type) => {
             e.preventDefault();
             if (!viewingAsTeacher) return;
             const index = wearables.findIndex(wearable => wearable._id === _id);
             const thisWearable = wearables[index];
-            const editWearable = () => props.updateModal(<AddOrEditWearable {...props} wearable={thisWearable} />);
+            const dialog = type === 'color'
+                ? <AddOrEditColor {...props} wearable={thisWearable} />
+                : <AddOrEditWearable {...props} wearable={thisWearable} />;
+            const editWearable = () => props.updateModal(dialog);
             const deleteWearable = () => {
                 const handleDelete = async (e) => {
                     e.preventDefault();
@@ -139,6 +142,13 @@ export default function Marketplace(props) {
                     </form>
                 </div>
             );
+            if (originalName === 'Color') content = (
+                <div className="modalBox">
+                    <h2>Not allowed</h2>
+                    Sorry, this is a default category and can't be renamed.
+                    <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
+                </div>
+            )
             props.updateModal(content);
         },
         editCategory: (e, categoryName) => {
@@ -153,8 +163,9 @@ export default function Marketplace(props) {
         }
     }
     const studentOperations = {
-        buyWearable: ({ _id, name, src, value }) => {
+        buyWearable: ({ _id, name, src, value, image }) => {
             if (viewingAsTeacher) return;
+            const buyingColor = !image;
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 if (student.coins < value) {
@@ -193,7 +204,7 @@ export default function Marketplace(props) {
                 <div className="modalBox hasImage">
                     <div>
                         <h2>Confirm purchase</h2>
-                        Are you sure you want to purchase <b>{name}</b> for <span className="coins"><b>{value}</b>?</span>
+                        Are you sure you want to purchase {buyingColor && 'the color'} <b>{name}</b> for <span className="coins"><b>{value}</b>?</span>
                         <div className="buttons">
                             {options.loadingIcon
                                 ?   <Loading />
@@ -204,7 +215,12 @@ export default function Marketplace(props) {
                                 }
                         </div>
                     </div>
-                    <div className="flex center"><img alt={name} src={src} /></div>
+                    <div className="flex center">
+                        {buyingColor
+                            ? <PianopetBase color={src} zoom={true} />
+                            : <img alt={name} src={src} />
+                        }
+                    </div>
                 </div>
             );
             props.updateModal(content());
@@ -285,13 +301,14 @@ export default function Marketplace(props) {
                     if (student.closet.includes(wearable._id)) return true;
                     return false;
                 })();
+                const type = category === 'Color' ? 'color' : 'wearable';
                 return (
                     <button
                       ref={(el) => wearableRefs.current[wearable._id] = el}
                       key={`${category}-wearable-${wearable.name}`}
                       className={ownsWearable ? 'owned' : ''}
                       onClick={() => updatePreview(wearable)}
-                      onContextMenu={(e) => teacherOperations.editOrDeleteWearable(e, wearable._id)}>
+                      onContextMenu={(e) => teacherOperations.editOrDeleteWearable(e, wearable._id, type)}>
                         {wearable.category === 'Color'
                             ? <Splat color={wearable.src} />
                             : <img alt={wearable.name} src={wearable.src} />}
@@ -348,9 +365,11 @@ function AddOrEditColor(props) {
         teacherCode: teacher._id,
         name: wearable ? wearable.name : '',
         category: 'Color',
-        src: wearable ? wearable.src : '#' + Math.floor(Math.random()*16777215).toString(16)
+        src: wearable ? wearable.src : '#' + Math.floor(Math.random()*16777215).toString(16),
+        value: wearable ? wearable.value : ''
     });
     const colorInput = useRef(null);
+    const addingColor = !wearable;
     const updateFormData = (e) => {
         setFormData(prevState => ({
             ...prevState,
@@ -377,11 +396,11 @@ function AddOrEditColor(props) {
     return (
         <div className="modalBox">
             <form onSubmit={handleSubmit} autoComplete="off">
-                <h2>Add a color</h2>
-                Add a new color by clicking on the Pianopet icon:
+                <h2>{addingColor ? 'Add a new' : 'Edit this'} color</h2>
+                {addingColor ? 'Add a new' : 'Edit this'} color by clicking on the Pianopet icon below.
                 <div className="colorPicker">
                     <div>
-                        <PianopetBase color={formData.src} />
+                        <PianopetBase color={formData.src} zoom={true} />
                         <input name="src" type="color" defaultValue={formData.src} onChange={updateFormData} ref={colorInput} />
                         <span onClick={() => colorInput.current.click()}></span>
                     </div>
@@ -399,6 +418,7 @@ function AddOrEditColor(props) {
                         <input name="value" type="text" defaultValue={formData.value} onChange={updateFormData} />
                     </div>
                 </div>
+                {addingColor || <div className="tip" style={{ marginTop: '1rem' }}>Tip: Clear the text box to see color name suggestions!</div>}
                 {loadingIcon
                     ?   <Loading />
                     :   <div className="buttons">
