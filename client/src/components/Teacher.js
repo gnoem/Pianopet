@@ -70,9 +70,9 @@ export default function Teacher(props) {
         <Dashboard teacher={true}>
             <Header>
                 <Nav>
-                    <button onClick={() => setView({ type: 'home' })} className="stealth link">Home</button>
-                    <button onClick={() => setView({ type: 'marketplace' })} className="stealth link">Marketplace</button>
-                    <button onClick={() => setView({ type: 'badges' })} className="stealth link">Badges</button>
+                    <button onClick={() => setView({ type: 'home' })}>Home</button>
+                    <button onClick={() => setView({ type: 'marketplace' })}>Marketplace</button>
+                    <button onClick={() => setView({ type: 'badges' })}>Badges</button>
                 </Nav>
                 <TeacherProfileDropdown {...props} {...state} />
             </Header>

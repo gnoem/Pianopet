@@ -12,7 +12,6 @@ export default function Closet(props) {
                 if (someClosetItemHasCategory) return (
                     <button
                       key={`closet-wearableCategories-${category}`}
-                      className="stealth"
                       onClick={() => setCategory(category)}>
                           {category}
                     </button>
@@ -38,10 +37,10 @@ export default function Closet(props) {
                 if (wearable.category === category) return (
                     <button
                       key={`closetItem-${category}-${wearable._id}`}
-                      className={`stealth closetItem${currentlyPreviewing ? ' active' : ''}`} // if currently previewing, add light green background or something
+                      className={currentlyPreviewing ? 'active' : ''} // if currently previewing, add light green background or something
                       onClick={() => previewWearable(wearable)}>
                         <img alt={wearable.name} src={wearable.src} />
-                        <span className="wearableName">{wearable.name}</span>
+                        <span>{wearable.name}</span>
                     </button>
                 );
             });
@@ -49,11 +48,11 @@ export default function Closet(props) {
     }
     return (
         <div className="Closet">
-            <div className="closetCategories">
+            <div className="wearableCategories">
                 {generate.categoriesList(closet)}
             </div>
-            <div className="closetWearables">
-                <div className="wearablesGrid">
+            <div className="wearablesList">
+                <div>
                     {generate.wearablesList(category)}
                 </div>
             </div>

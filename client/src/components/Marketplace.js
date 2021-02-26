@@ -11,60 +11,12 @@ export default function Marketplace(props) {
     useEffect(() => {
         setPreview(avatar);
     }, [avatar]);
-    const editOrDeleteWearable = (e, _id) => {
-        e.preventDefault();
-        if (!viewingAsTeacher) return;
-        const index = wearables.findIndex(wearable => wearable._id === _id);
-        const thisWearable = wearables[index];
-        const editWearable = () => props.updateModal(<AddOrEditWearable {...props} wearable={thisWearable} />);
-        const deleteWearable = () => {
-            const handleDelete = async (e) => {
-                e.preventDefault();
-                props.updateModal(content({ loadingIcon: true }));
-                const response = await fetch(`/wearable/${_id}`, { method: 'DELETE' });
-                const body = await response.json();
-                if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no success response from server');
-                shrinkit(wearableRefs.current[_id], true);
-                props.refreshTeacher();
-                props.refreshData();
-                props.updateModal(false);
-            }
-            let content = (options = {
-                loadingIcon: false
-            }) => (
-                <div className="modalBox">
-                    <h2>Are you sure?</h2>
-                    <img alt={thisWearable.name} src={thisWearable.src} style={{ float: 'right' }} />
-                    Are you sure you want to delete the wearable "{thisWearable.name}"? This action cannot be undone.
-                    <div className="buttons">
-                        {options.loadingIcon
-                            ?   <Loading />
-                            :   <form onSubmit={handleDelete}>
-                                    <button type="submit">Yes, I'm sure</button>
-                                    <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                                </form>
-                            }
-                    </div>
-                </div>
-            )
-            props.updateModal(content());
-        }
-        let content = (
-            <ul className="editDelete">
-                <li><button onClick={editWearable}>Edit</button></li>
-                <li><button onClick={deleteWearable}>Delete</button></li>
-            </ul>
-        );
-        props.updateContextMenu(e, content);
-    }
     const updatePreview = ({ category, _id, name, src, value, image }) => {
         const updatePreviewFor = (object) => {
             let setObject;
-            if (object === preview) setObject = setPreview;
-            if (object === avatar) setObject = props.updateAvatar;
+            if (object === 'preview') setObject = setPreview;
+            if (object === 'avatar') setObject = props.updateAvatar;
             if (object[category] && object[category].name === name) {
-                console.log('yo');
                 const previewObjectMinusCategory = (prevState) => {
                     const object = {...prevState};
                     delete object[category];
@@ -80,65 +32,118 @@ export default function Marketplace(props) {
                 [category]: { _id, name, src, value, image }
             }));
         }
-        if (isMobile) updatePreviewFor(avatar);
-        else updatePreviewFor(preview);
+        if (isMobile) updatePreviewFor('avatar');
+        else updatePreviewFor('preview');
     }
-    const addOrEditCategory = (e, originalName) => {
-        e.preventDefault();
-        if (!viewingAsTeacher) return;
-        const editingCategory = teacher.wearableCategories.includes(originalName);
-        const handleAddOrEditCategory = async (e, categoryName) => {
+    const teacherOperations = {
+        editOrDeleteWearable: (e, _id) => {
             e.preventDefault();
-            props.updateModal(content({ loadingIcon: true }));
-            const fromDropdown = !!categoryName;
-            const formData = editingCategory
-                ?   { originalName, updatedName: e.target[0].value }
-                :   { categoryName: fromDropdown ? categoryName : e.target[0].value }
-            const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-            const body = await response.json();
-            if (!body) return console.log('no response from server');
-            if (!body.success) return console.log('no success response from server');
-            props.refreshTeacher();
-            if (editingCategory) {
-                props.refreshData(); // in case any wearables were affected by category name change
-                if (category === originalName) setCategory(e.target[0].value);
-            }
-            props.updateModal(false);
-        }
-        let content = (options = {
-            loadingIcon: false
-        }) => (
-            <div className="modalBox">
-                <h2>{editingCategory ? 'Edit' : 'Add new'} category</h2>
-                <form onSubmit={handleAddOrEditCategory} autoComplete="off">
-                    <label htmlFor="categoryName">Category name:</label>
-                    <input type="text" name="categoryName" defaultValue={editingCategory ? originalName : ''} />
-                    <div className="buttons">
-                        {options.loadingIcon
-                            ? <Loading />
-                            : <input type="submit" />
-                        }
+            if (!viewingAsTeacher) return;
+            const index = wearables.findIndex(wearable => wearable._id === _id);
+            const thisWearable = wearables[index];
+            const editWearable = () => props.updateModal(<AddOrEditWearable {...props} wearable={thisWearable} />);
+            const deleteWearable = () => {
+                const handleDelete = async (e) => {
+                    e.preventDefault();
+                    props.updateModal(content({ loadingIcon: true }));
+                    const response = await fetch(`/wearable/${_id}`, { method: 'DELETE' });
+                    const body = await response.json();
+                    if (!body) return console.log('no response from server');
+                    if (!body.success) return console.log('no success response from server');
+                    shrinkit(wearableRefs.current[_id], true);
+                    props.refreshTeacher();
+                    props.refreshData();
+                    props.updateModal(false);
+                }
+                let content = (options = {
+                    loadingIcon: false
+                }) => (
+                    <div className="modalBox hasImage">
+                        <div>
+                            <h2>Are you sure?</h2>
+                            Are you sure you want to delete the wearable "{thisWearable.name}"? This action cannot be undone.
+                            <div className="buttons">
+                                {options.loadingIcon
+                                    ?   <Loading />
+                                    :   <form onSubmit={handleDelete}>
+                                            <button type="submit">Yes, I'm sure</button>
+                                            <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                                        </form>
+                                    }
+                            </div>
+                        </div>
+                        <div className="flex center">
+                            <img alt={thisWearable.name} src={thisWearable.src} />
+                        </div>
                     </div>
-                </form>
-            </div>
-        );
-        props.updateModal(content);
-    }
-    const editCategory = (e, categoryName) => {
-        if (!viewingAsTeacher) return;
-        e.preventDefault();
-        let content = (
-            <ul className="editDelete">
-                <li><button onClick={(e) => addOrEditCategory(e, categoryName)}>Edit</button></li>
-            </ul>
-        );
-        props.updateContextMenu(e, content);
+                )
+                props.updateModal(content());
+            }
+            let content = (
+                <ul className="editDelete">
+                    <li><button onClick={editWearable}>Edit</button></li>
+                    <li><button onClick={deleteWearable}>Delete</button></li>
+                </ul>
+            );
+            props.updateContextMenu(e, content);
+        },
+        addOrEditCategory: (e, originalName) => {
+            e.preventDefault();
+            if (!viewingAsTeacher) return;
+            const editingCategory = teacher.wearableCategories.includes(originalName);
+            const handleAddOrEditCategory = async (e, categoryName) => {
+                e.preventDefault();
+                props.updateModal(content({ loadingIcon: true }));
+                const fromDropdown = !!categoryName;
+                const formData = editingCategory
+                    ?   { originalName, updatedName: e.target[0].value }
+                    :   { categoryName: fromDropdown ? categoryName : e.target[0].value }
+                const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log('no success response from server');
+                props.refreshTeacher();
+                if (editingCategory) {
+                    props.refreshData(); // in case any wearables were affected by category name change
+                    if (category === originalName) setCategory(e.target[0].value);
+                }
+                props.updateModal(false);
+            }
+            let content = (options = {
+                loadingIcon: false
+            }) => (
+                <div className="modalBox">
+                    <h2>{editingCategory ? 'Edit' : 'Add new'} category</h2>
+                    <form onSubmit={handleAddOrEditCategory} autoComplete="off">
+                        <label htmlFor="categoryName">Category name:</label>
+                        <input type="text" name="categoryName" defaultValue={editingCategory ? originalName : ''} />
+                        <div className="buttons">
+                            {options.loadingIcon
+                                ? <Loading />
+                                : <input type="submit" />
+                            }
+                        </div>
+                    </form>
+                </div>
+            );
+            props.updateModal(content);
+        },
+        editCategory: (e, categoryName) => {
+            if (!viewingAsTeacher) return;
+            e.preventDefault();
+            let content = (
+                <ul className="editDelete">
+                    <li><button onClick={(e) => teacherOperations.addOrEditCategory(e, categoryName)}>Edit</button></li>
+                </ul>
+            );
+            props.updateContextMenu(e, content);
+        }
     }
     const studentOperations = {
         buyWearable: ({ _id, name, src, value }) => {
@@ -243,7 +248,7 @@ export default function Marketplace(props) {
                 )
             }
             return (
-                <ul className="previewDescription">
+                <ul>
                     <h3>Previewing:</h3>
                     {previewItems}
                 </ul>
@@ -253,21 +258,20 @@ export default function Marketplace(props) {
             const array = categories.map(category => (
                 <button
                   key={`wearableCategories-toolbar-${category}`}
-                  className="stealth"
                   onClick={() => setCategory(category)}
-                  onContextMenu={(e) => editCategory(e, category)}>
+                  onContextMenu={(e) => teacherOperations.editCategory(e, category)}>
                     {category}
                 </button>
             ))
             if (viewingAsTeacher) array.push(
-                <button key="wearableCategories-toolbar-addNew" className="add" onClick={addOrEditCategory}></button>
+                <button key="wearableCategories-toolbar-addNew" className="add" onClick={teacherOperations.addOrEditCategory}></button>
             );
             return array;
         },
         wearablesList: (category) => {
             const filteredList = wearables.filter(wearable => wearable.category === category);
             return filteredList.map(wearable => {
-                const hasWearable = (() => {
+                const ownsWearable = (() => {
                     if (viewingAsTeacher) return false;
                     if (student.closet.includes(wearable._id)) return true;
                     return false;
@@ -276,16 +280,15 @@ export default function Marketplace(props) {
                     <button
                       ref={(el) => wearableRefs.current[wearable._id] = el}
                       key={`${category}-wearable-${wearable.name}`}
-                      className={`stealth wearableItem${hasWearable ? ' owned' : ''}`}
+                      className={ownsWearable ? 'owned' : ''}
                       onClick={() => updatePreview(wearable)}
-                      onContextMenu={(e) => editOrDeleteWearable(e, wearable._id)}>
-                        <img
-                            alt={wearable.name}
-                            src={wearable.src}
-                        />
-                        <span className="wearableName">{wearable.name}</span>
-                        <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                        <span className="wearableValue">{wearable.value}</span>
+                      onContextMenu={(e) => teacherOperations.editOrDeleteWearable(e, wearable._id)}>
+                        <img alt={wearable.name} src={wearable.src} />
+                        <span>{wearable.name}</span>
+                        <span>
+                            <img alt="coin icon" src="assets/Coin_ico.png" />
+                            <span>{wearable.value}</span>
+                        </span>
                     </button>
                 )
             });
@@ -297,11 +300,11 @@ export default function Marketplace(props) {
                 {generate.previewObject(preview)}
                 {generate.previewDescription(preview)}
             </div>
-            <div className="marketplaceCategories">
+            <div className="wearableCategories">
                 {generate.categoriesList(teacher.wearableCategories)}
             </div>
-            <div className="marketplaceWearables">
-                <div className="wearablesGrid">
+            <div className="wearablesList">
+                <div>
                     {generate.wearablesList(category)}
                 </div>
             </div>
