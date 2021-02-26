@@ -148,7 +148,8 @@ module.exports = {
         const newTeacher = new Teacher({
             username: username,
             password: bcrypt.hashSync(password, 8),
-            students: []
+            students: [],
+            wearableCategories: ['Color']
         });
         newTeacher.save(err => {
             if (err) {
@@ -319,7 +320,9 @@ module.exports = {
     addWearable: (req, res) => {
         // todo validate name
         const { teacherCode, name, category, src, value, image } = req.body;
-        const newWearable = new Wearable({ teacherCode, name, category, src, value, image });
+        const newWearable = category === 'color'
+            ? new Wearable({ teacherCode, name, category, src, value })
+            : new Wearable({ teacherCode, name, category, src, value, image });
         newWearable.save(err => {
             if (err) return console.error('error saving wearable', err);
             res.send({ success: true });
@@ -424,7 +427,7 @@ module.exports = {
     },
     addWearableCategory: (req, res) => {
         const { id: _id } = req.params;
-        // todo validate name
+        // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)
         const { categoryName } = req.body;
         Teacher.findOne({ _id }, (err, user) => {
             if (err) return console.error(`error finding user ${_id}`, err);

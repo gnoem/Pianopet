@@ -1,7 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Loading from './Loading';
 import { shrinkit } from '../utils';
 import Dropdown from './Dropdown';
+import PianopetBase from './PianopetBase';
+import Splat from './Splat';
+import { ntc } from '../utils/ntc';
 
 export default function Marketplace(props) {
     const { viewingAsTeacher, student, avatar, teacher, wearables, isMobile } = props;
@@ -36,6 +39,10 @@ export default function Marketplace(props) {
         else updatePreviewFor('preview');
     }
     const teacherOperations = {
+        addColor: () => {
+            const content = (<AddOrEditColor {...props} />);
+            props.updateModal(content);
+        },
         editOrDeleteWearable: (e, _id) => {
             e.preventDefault();
             if (!viewingAsTeacher) return;
@@ -208,24 +215,26 @@ export default function Marketplace(props) {
             if (isMobile) return null;
             const images = [];
             for (let category in preview) {
-                const thisWearable = preview[category];
-                const style = {
-                    top: `${thisWearable.image.y}%`,
-                    left: `${thisWearable.image.x}%`,
-                    width: `${thisWearable.image.w}%`
+                if (category !== 'Color') {
+                    const thisWearable = preview[category];
+                    const style = {
+                        top: `${thisWearable.image.y}%`,
+                        left: `${thisWearable.image.x}%`,
+                        width: `${thisWearable.image.w}%`
+                    }
+                    images.push(
+                        <img
+                          key={`marketplacePreview-${category}`}
+                          className={`previewWearable ${category}`}
+                          src={thisWearable.src}
+                          style={style}
+                        />
+                    );
                 }
-                images.push(
-                    <img
-                      key={`marketplacePreview-${category}`}
-                      className={`previewWearable ${category}`}
-                      src={thisWearable.src}
-                      style={style}
-                    />
-                );
             }
             return (
                 <div className="previewBox">
-                    <img alt="base" className="previewBase" src="https://i.imgur.com/RJ9U3wW.png" />
+                    <PianopetBase color={preview?.Color?.src} />
                     {images}
                 </div>
             );
@@ -270,7 +279,7 @@ export default function Marketplace(props) {
         },
         wearablesList: (category) => {
             const filteredList = wearables.filter(wearable => wearable.category === category);
-            return filteredList.map(wearable => {
+            const list = filteredList.map(wearable => {
                 const ownsWearable = (() => {
                     if (viewingAsTeacher) return false;
                     if (student.closet.includes(wearable._id)) return true;
@@ -283,7 +292,9 @@ export default function Marketplace(props) {
                       className={ownsWearable ? 'owned' : ''}
                       onClick={() => updatePreview(wearable)}
                       onContextMenu={(e) => teacherOperations.editOrDeleteWearable(e, wearable._id)}>
-                        <img alt={wearable.name} src={wearable.src} />
+                        {wearable.category === 'Color'
+                            ? <Splat color={wearable.src} />
+                            : <img alt={wearable.name} src={wearable.src} />}
                         <span>{wearable.name}</span>
                         <span>
                             <img alt="coin icon" src="assets/Coin_ico.png" />
@@ -292,7 +303,25 @@ export default function Marketplace(props) {
                     </button>
                 )
             });
-        }    
+            if (viewingAsTeacher && category === 'Color') list.push(
+                <button key="color-wearable-addNew" className="add" onClick={teacherOperations.addColor}></button>
+            );
+            if (category === 'Color') list.splice(0, 0, (
+                <button
+                    ref={(el) => wearableRefs.current['default'] = el}
+                    key={`${category}-wearable-defaultColor`}
+                    className={viewingAsTeacher ? null : "owned"}
+                    onClick={() => updatePreview({ category: 'Color', src: '#5C76AE' })}>
+                    <Splat color="#5C76AE" />
+                    <span>Default</span>
+                    <span>
+                        <img alt="coin icon" src="assets/Coin_ico.png" />
+                        <span>0</span>
+                    </span>
+                </button>
+            ));
+            return list;
+        }
     }
     return (
         <div className="Marketplace">
@@ -304,10 +333,80 @@ export default function Marketplace(props) {
                 {generate.categoriesList(teacher.wearableCategories)}
             </div>
             <div className="wearablesList">
-                <div>
+                <div className={category === 'Color' ? 'blobs' : null}>
                     {generate.wearablesList(category)}
                 </div>
             </div>
+        </div>
+    );
+}
+
+function AddOrEditColor(props) {
+    const { teacher, wearable } = props;
+    const [loadingIcon, setLoadingIcon] = useState(false);
+    const [formData, setFormData] = useState({
+        teacherCode: teacher._id,
+        name: wearable ? wearable.name : '',
+        category: 'Color',
+        src: wearable ? wearable.src : '#' + Math.floor(Math.random()*16777215).toString(16)
+    });
+    const colorInput = useRef(null);
+    const updateFormData = (e) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [e.target.name]: e.target.value
+        }));
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoadingIcon(true);
+        const ROUTE = wearable ? `/wearable/${wearable._id}` : '/wearable';
+        const response = await fetch(ROUTE, {
+            method: wearable ? 'PUT' : 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const body = await response.json();
+        if (!body) return console.log('no response from server');
+        if (!body.success) return console.log('no success response from server');
+        props.updateModal(false);
+        props.refreshData();
+    }
+    return (
+        <div className="modalBox">
+            <form onSubmit={handleSubmit} autoComplete="off">
+                <h2>Add a color</h2>
+                Add a new color by clicking on the Pianopet icon:
+                <div className="colorPicker">
+                    <div>
+                        <PianopetBase color={formData.src} />
+                        <input name="src" type="color" defaultValue={formData.src} onChange={updateFormData} ref={colorInput} />
+                        <span onClick={() => colorInput.current.click()}></span>
+                    </div>
+                    <div>
+                        <label htmlFor="name">Color name:</label>
+                        <input
+                            name="name"
+                            type="text"
+                            placeholder={`How about ${ntc.name(formData.src)[1]}?`}
+                            defaultValue={formData.name}
+                            onChange={updateFormData} />
+                    </div>
+                    <div>
+                        <label htmlFor="value">Cost:</label>
+                        <input name="value" type="text" defaultValue={formData.value} onChange={updateFormData} />
+                    </div>
+                </div>
+                {loadingIcon
+                    ?   <Loading />
+                    :   <div className="buttons">
+                            <button type="submit">Submit</button>
+                            <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                        </div>
+                    }
+            </form>
         </div>
     );
 }
@@ -501,17 +600,19 @@ function AddOrEditWearablePreview(props) {
     return (
         <div>
             <label>Preview:</label>
-            <div className="previewBox" ref={preview}>
-                <img alt="base" className="previewBase" src="https://i.imgur.com/RJ9U3wW.png" />
-                <img
-                  alt="preview"
-                  src={src}
-                  ref={draggable}
-                  className={`draggable${mouseIsDown ? ' dragging' : ''}`}
-                  style={{
-                      width: image.w + '%',
-                      transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
-                    }} />
+            <div className="previewBox">
+                <div ref={preview}>
+                    <PianopetBase />
+                    <img
+                    alt="preview"
+                    src={src}
+                    ref={draggable}
+                    className={`draggable${mouseIsDown ? ' dragging' : ''}`}
+                    style={{
+                        width: image.w + '%',
+                        transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
+                        }} />
+                </div>
             </div>
             <input type="range" defaultValue={image.w - 1} min="0" max="99" onChange={updateImageSize} />
         </div>

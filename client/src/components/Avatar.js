@@ -1,13 +1,21 @@
+import { useState, useEffect } from 'react';
 import Loading from './Loading';
+import PianopetBase from './PianopetBase';
 
 export default function Avatar(props) {
-    const { viewingAsTeacher, student, avatar } = props;
+    const { viewingAsTeacher, avatar } = props;
+    const [color, setColor] = useState(null);
+    useEffect(() => {
+        if (!avatar) return;
+        setColor(avatar.color);
+    }, [avatar]);
     const handleClick = () => {
         if (!viewingAsTeacher) props.updateView('closet');
     }
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;
         return Object.keys(avatar).map(key => {
+            if (key === 'color') return;
             const { _id, src, image } = avatar[key];
             const style = {
                 top: `${image.y}%`,
@@ -16,18 +24,18 @@ export default function Avatar(props) {
             }
             return (
                 <img
-                  key={`studentAvatar-${key}-${_id}`}
-                  className={`${key} avatarItem`}
-                  alt={src}
-                  src={src}
-                  style={style} />
+                    key={`studentAvatar-${key}-${_id}`}
+                    className={`${key} avatarItem`}
+                    alt={src}
+                    src={src}
+                    style={style} />
             );
         });
     }
     return (
         <div className="Avatar">
             <div className="avatarBox" onClick={handleClick}>
-                <img alt={`${student.firstName}'s avatar`} src="https://i.imgur.com/RJ9U3wW.png" className="previewBase" />
+                <PianopetBase color={color} />
                 {generateAvatar()}
             </div>
         </div>

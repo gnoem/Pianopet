@@ -19,6 +19,23 @@ export default function Closet(props) {
             });
         },
         wearablesList: (category) => {
+            if (category === 'color') {
+                const previewColor = (hex) => {
+                    props.updateAvatar(prevState => ({
+                        ...prevState,
+                        color: hex
+                    }));
+                }
+                const colorArray = ['#5C76AE', '#926692'];
+                return colorArray.map(color => (
+                    <button
+                        key={`closetItem-color-${color}`}
+                        className="colorBlob"
+                        style={{ background: color }}
+                        onClick={() => previewColor(color)}>
+                    </button>
+                ));
+            }
             const previewWearable = ({ category, _id, src, image }) => {
                 props.updateAvatar(prevState => {
                     if (prevState[category] && prevState[category]._id === _id) {
@@ -49,10 +66,11 @@ export default function Closet(props) {
     return (
         <div className="Closet">
             <div className="wearableCategories">
+                <button onClick={() => setCategory('color')}>Color</button>
                 {generate.categoriesList(closet)}
             </div>
             <div className="wearablesList">
-                <div>
+                <div className={category === 'color' ? 'blobs' : null}>
                     {generate.wearablesList(category)}
                 </div>
             </div>
