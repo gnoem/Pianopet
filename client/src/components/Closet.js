@@ -10,13 +10,14 @@ export default function Closet(props) {
         categoriesList: (closet) => {
             return teacher.wearableCategories.map(category => {
                 const someClosetItemHasCategory = closet.some(wearable => wearable.category === category);
-                if (someClosetItemHasCategory) return (
+                if (!someClosetItemHasCategory) return null;
+                return (
                     <button
                       key={`closet-wearableCategories-${category}`}
                       onClick={() => setCategory(category)}>
                           {category}
                     </button>
-                )
+                );
             });
         },
         wearablesList: (category) => {
@@ -42,7 +43,8 @@ export default function Closet(props) {
             }
             const list = closet.map(wearable => {
                 const currentlyPreviewing = avatar[wearable.category] && avatar[wearable.category]._id === wearable._id;
-                if (wearable.category === category) return (
+                if (wearable.category !== category) return null;
+                return (
                     <button
                       key={`closetItem-${category}-${wearable._id}`}
                       className={currentlyPreviewing ? 'active' : ''} // if currently previewing, add light green background or something

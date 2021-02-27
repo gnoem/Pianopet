@@ -5,7 +5,6 @@ import Avatar from './Avatar';
 import Marketplace from './Marketplace';
 import ContextMenu from './ContextMenu';
 import { prettifyDate } from '../utils';
-import Button from './Button';
 import MyAccount from './MyAccount';
 
 export default function Student(props) {
@@ -277,7 +276,8 @@ function StudentBadges(props) {
                 if (!body.success) return console.log('no success response from server');
                 props.refreshData();
             }
-            if (studentHasBadge) return (
+            if (!studentHasBadge) return null;
+            return (
                 <div
                   key={`badgeList-${badge._id}`}
                   ref={(el) => badgesRef.current[badge._id] = el}

@@ -240,10 +240,11 @@ export default function Marketplace(props) {
                     }
                     images.push(
                         <img
-                          key={`marketplacePreview-${category}`}
-                          className={`previewWearable ${category}`}
-                          src={thisWearable.src}
-                          style={style}
+                            alt={thisWearable.name}
+                            key={`marketplacePreview-${category}`}
+                            className={`previewWearable ${category}`}
+                            src={thisWearable.src}
+                            style={style}
                         />
                     );
                 }

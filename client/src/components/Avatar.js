@@ -15,7 +15,7 @@ export default function Avatar(props) {
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;
         return Object.keys(avatar).map(key => {
-            if (key === 'Color') return;
+            if (key === 'Color') return null;
             const { _id, src, image } = avatar[key];
             const style = {
                 top: `${image.y}%`,
