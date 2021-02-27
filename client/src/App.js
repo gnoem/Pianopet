@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Loading from './components/Loading';
 import Guest from './components/Guest';
 import Student from './components/Student';
@@ -15,10 +15,17 @@ export default function App() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [contextMenu, setContextMenu] = useState(false);
-    const isMobile = window.innerWidth < 601;
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+    const resize = useCallback(() => { // todo figure out if I am doing this right???
+        if (!isMobile && window.innerWidth <= 900) return setIsMobile(true);
+        if (isMobile && window.innerWidth > 900) return setIsMobile(false);
+        // not debouncing since setIsMobile is called conditionally
+    }, [isMobile]);
     useEffect(() => {
         getData();
-    }, []);
+        window.addEventListener('resize', resize);
+        return () => window.addEventListener('resize', resize); // who knows if this is necessary for App.js but it can't hurt
+    }, [resize]);
     const getData = async () => {
         const response = await fetch('/auth');
         const body = await response.json();

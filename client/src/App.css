@@ -96,7 +96,7 @@ hr {
     height: 1px;
     margin: 2rem auto;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     h1 {
         font-size: 1.7rem;
     }
@@ -271,7 +271,7 @@ button.loadingAnimation svg {
 button.loadingAnimation svg * {
     fill: #fff;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     form.divide > div.half {
         display: block;
         margin-bottom: 1rem;
@@ -447,7 +447,7 @@ button.loadingAnimation svg * {
 .Nav button + button {
     margin-left: 3rem;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .Dashboard {
         grid-template: 12.5% 75% 12.5% / auto 1fr;
         grid-template-areas:
@@ -566,7 +566,7 @@ button.loadingAnimation svg * {
     background: 0;
     border: 1px solid #fff;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .Guest {
         grid-template: 12.5% 1fr / 100%;
     }
@@ -652,7 +652,7 @@ button.loadingAnimation svg * {
     transform: scale(2.3);
     transform-origin: center;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .avatarContainer {
         position: absolute;
         bottom: 0;
@@ -730,7 +730,7 @@ img.statsIcon {
     grid-row: 2 / -1;
     grid-column: 1 / -1;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .StudentSidebar {
         padding-left: 10rem; /* based on width/translation of .avatarBox */
     }
@@ -975,7 +975,7 @@ img.statsIcon {
 .Homework .coinsEarned.coinsAdded .coinIcon {
     filter: none;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .ViewHomework {
         margin: 1rem 0 calc(12.5vh - 2rem); /* 12.5vh is height of bottom bar, 2rem is padding on .Main */
     }
@@ -1211,7 +1211,7 @@ img.statsIcon {
     height: 1.5em;
     margin-right: 0.3rem;
 }
-@media (max-width: 600px) {
+@media (max-width: 900px) {
     .Marketplace, .Closet {
         margin: 0;
         height: calc(50vh - 1rem); /* todo better */
