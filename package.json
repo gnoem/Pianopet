@@ -10,7 +10,8 @@
       "start": "cd server && npm install && node server.js",
       "heroku-postbuild": "cd client && npm install && npm run build",
       "test": "echo \"Error: no test specified\" && exit 1",
-      "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+      "devserver": "nodemon ./server/server.js",
+      "dev": "concurrently --kill-others-on-fail \"npm run devserver\" \"npm run client\""
     },
     "author": "",
     "license": "ISC",
