@@ -250,7 +250,7 @@ export default function Marketplace(props) {
             }
             return (
                 <div className="previewBox">
-                    <PianopetBase color={preview?.Color?.src} />
+                    {preview && <PianopetBase color={preview.Color.src} />}
                     {images}
                 </div>
             );
