@@ -537,7 +537,6 @@ module.exports = {
         });
     },
     updateAvatar: (req, res) => {
-        console.dir('hiiiiii');
         const { id: _id } = req.params;
         const { avatar } = req.body;
         Student.findOne({ _id }, (err, student) => {

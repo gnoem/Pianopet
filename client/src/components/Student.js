@@ -220,16 +220,17 @@ function StudentMarketplace(props) {
 }
 
 function StudentCloset(props) {
-    const { student, avatar } = props;
-    const handleUpdateAvatar = async () => {
-        const updatedAvatar = Object.keys(avatar).map(key => avatar[key]._id);
+    const { student } = props;
+    const handleUpdateAvatar = async (updatedAvatar) => {
+        props.updateAvatar(updatedAvatar); // go ahead and update UI - we are assuming api call will be successful
+        const formData = Object.keys(updatedAvatar).map(key => updatedAvatar[key]._id);
         const response = await fetch(`student/${student._id}/avatar`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                avatar: updatedAvatar
+                avatar: formData
             })
         });
         const body = await response.json();
@@ -237,27 +238,10 @@ function StudentCloset(props) {
         if (!body.success) return console.log('no success response from server');
         props.refreshData();
     }
-    const unsavedChanges = () => {
-        // there has got to be a better way todo this
-        const previewAvatar = Object.keys(avatar).map(key => avatar[key]._id);
-        const trueAvatar = student.avatar;
-        if (trueAvatar.length !== previewAvatar.length) return true;
-        const trueAvatarObject = {};
-        const previewAvatarObject = {};
-        for (let id of trueAvatar) trueAvatarObject[id] = true;
-        for (let id of previewAvatar) previewAvatarObject[id] = true;
-        // checking if the two arrays have equal contents (regardless of order)
-        if ((previewAvatar.every(string => trueAvatarObject[string]))
-        && (trueAvatar.every(string => previewAvatarObject[string]))) {
-            return false;
-        }
-        else return true;
-    }
     return (
         <div className="Main">
             <h1>Closet</h1>
-            <Closet {...props} />
-            {unsavedChanges() && <div className="buttons"><Button onClick={handleUpdateAvatar} className="slideUpIn">Save Changes</Button></div>}
+            <Closet {...props} handleUpdateAvatar={handleUpdateAvatar} />
         </div>
     );
 }

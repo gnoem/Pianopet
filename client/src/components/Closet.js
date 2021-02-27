@@ -20,25 +20,25 @@ export default function Closet(props) {
             });
         },
         wearablesList: (category) => {
-            const previewWearable = ({ category, _id, name, src, image }) => {
+            const handleClick = ({ category, _id, name, src, image }) => {
                 if (!image) { // if this is a color, not a clothing item
-                    props.updateAvatar(prevState => ({
-                        ...prevState,
+                    props.handleUpdateAvatar({
+                        ...avatar,
                         Color: { _id, name, src }
-                    }));
+                    });
                     return;
                 }
-                props.updateAvatar(prevState => {
-                    if (prevState[category] && prevState[category]._id === _id) {
-                        let prevStateMinusThisCategory = {...prevState};
+                props.handleUpdateAvatar((() => {
+                    if (avatar[category] && avatar[category]._id === _id) {
+                        let prevStateMinusThisCategory = {...avatar};
                         delete prevStateMinusThisCategory[category];
                         return prevStateMinusThisCategory;
                     }
                     return ({
-                        ...prevState,
+                        ...avatar,
                         [category]: { _id, name, src, image }
                     });
-                });
+                })());
             }
             const list = closet.map(wearable => {
                 const currentlyPreviewing = avatar[wearable.category] && avatar[wearable.category]._id === wearable._id;
@@ -46,7 +46,7 @@ export default function Closet(props) {
                     <button
                       key={`closetItem-${category}-${wearable._id}`}
                       className={currentlyPreviewing ? 'active' : ''} // if currently previewing, add light green background or something
-                      onClick={() => previewWearable(wearable)}>
+                      onClick={() => handleClick(wearable)}>
                         {category === 'Color'
                             ? <Splat color={wearable.src} />
                             : <img alt={wearable.name} src={wearable.src} />}
@@ -59,7 +59,7 @@ export default function Closet(props) {
                 <button
                     key={`closetItem-${category}-defaultColor`}
                     className={hasDefaultColor ? 'active' : ''}
-                    onClick={() => previewWearable({ category: 'Color', src: '#5C76AE' })}>
+                    onClick={() => handleClick({ category: 'Color', src: '#5C76AE' })}>
                     <Splat color="#5C76AE" />
                     <span>Default</span>
                 </button>
