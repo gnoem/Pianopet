@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import Closet from './Closet';
 import Avatar from './Avatar';
@@ -20,6 +20,9 @@ export default function Student(props) {
             return obj;
         }, {});
         setAvatar(createAvatarObject(student.avatar));
+    // 'wearables' will not change during the lifetime of this component, so it is safe to omit from dep array
+    // or should I actually include it since there is no harm in including it?? todo figure out
+    // eslint-disable-next-line
     }, [student.avatar, view]);
     const closet = student.closet.map(_id => { // converting student.closet, which is an array of string IDs, to an array of objects
         const index = wearables.findIndex(element => element._id === _id);
@@ -106,16 +109,19 @@ function Main(props) {
 function Homework(props) {
     const { student } = props;
     const [homework, setHomework] = useState(null);
-    const getHomework = async () => {
+    const getHomework = useCallback(async () => {
         const response = await fetch(`/student/${student._id}/homework`);
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
         setHomework(body.homework);
-    }
+    // student._id won't change during the lifetime of this component
+    // does that mean i should omit it or include it? figure this out
+    // eslint-disable-next-line
+    }, []);
     useEffect(() => {
         getHomework();
-    }, []);
+    }, [getHomework]);
     const generateHomeworkModules = () => {
         return homework.map(homework => (
             <HomeworkModule key={`homeworkModule-${homework._id}`} {...props} {...homework} refreshHomework={getHomework} />

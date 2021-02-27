@@ -33,7 +33,9 @@ export default function Dropdown(props) {
     }, [addingNew]);
     useEffect(() => {
         if (restoreDefault) setDisplay(defaultValue.display);
-    }, [restoreDefault]);
+    // defaultValue is guaranteed to stay the same during the lifetime of this component so I think it's safe to include here?
+    // but maybe read up on if it's better to eslint-disable-next-line instead
+    }, [restoreDefault, defaultValue.display]);
     const toggleIsOpen = () => setIsOpen(prevState => !prevState);
     const handleClick = (e) => {
         setDisplay(e.target.innerHTML);

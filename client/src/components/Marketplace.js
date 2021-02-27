@@ -567,7 +567,8 @@ function AddOrEditWearablePreview(props) {
             draggableObject.removeEventListener('mousedown', mousedown);
             window.removeEventListener('mouseup', mouseup);
         }
-    }, []);
+    // eslint-disable-next-line
+    }, []); // want this to run ONLY when the function mounts, not if/when image.x and image.y change (which they will)
     useEffect(() => {
         const previewBox = preview.current;
         const mousemove = (e) => {
@@ -585,7 +586,7 @@ function AddOrEditWearablePreview(props) {
             previewBox.removeEventListener('mousemove', mousemove);
             return;
         }
-        const e = mouseIsDown;
+        const e = mouseIsDown; // mouseIsDown will have been set to the actual DOM mousedown event
         const calculateElementOffset = (e) => {
             const mouseX = e.clientX - previewBox.getBoundingClientRect().left;
             const mouseY = e.clientY - previewBox.getBoundingClientRect().top;
@@ -599,7 +600,8 @@ function AddOrEditWearablePreview(props) {
         calculateElementOffset(e);
         previewBox.addEventListener('mousemove', mousemove);
         return () => previewBox.removeEventListener('mousemove', mousemove);
-    }, [mouseIsDown]);
+    // eslint-disable-next-line
+    }, [mouseIsDown]); // todo double check eslint disable
     useEffect(() => {
         if (!mouseIsMoving) return;
         const previewBox = preview.current;

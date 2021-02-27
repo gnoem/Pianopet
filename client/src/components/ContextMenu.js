@@ -13,7 +13,8 @@ export default function ContextMenu(props) {
         }
         window.addEventListener('click', closeContextMenu);
         return () => window.removeEventListener('click', closeContextMenu);
-    }, []);
+    // eslint-disable-next-line
+    }, []); // pretty sure closeContextMenu and its own dependencies will never change during the lifetime of this component
     return (
         <div className="ContextMenu" style={props.position}>
             {props.children}

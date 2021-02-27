@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Loading from './Loading';
 import Avatar from './Avatar';
 import { prettifyDate } from '../utils';
@@ -11,14 +11,14 @@ export default function ViewStudent(props) {
     const [avatar, setAvatar] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const state = { homework }
-    const getHomework = async () => {
+    const getHomework = useCallback(async () => {
         const response = await fetch(`/student/${student._id}/homework`);
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no { success: true } response from server');
         setHomework(body.homework);
         setIsLoaded(true);
-    }
+    }, [student._id]);
     useEffect(() => {
         setIsLoaded(false);
         getHomework();
@@ -30,7 +30,10 @@ export default function ViewStudent(props) {
             return obj;
         }, {});
         setAvatar(createAvatarObject(student.avatar));
-    }, [student._id]);
+    // wearables and student.avatar won't change during the lifetime of this component
+    // so should I omit them or include them? todo figure it out
+    // eslint-disable-next-line
+    }, [student._id, getHomework]);
     const addNewHomework = () => {
         let content = (
             <div className="modalBox">
