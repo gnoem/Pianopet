@@ -7,22 +7,23 @@ import Splat from './Splat';
 import { ntc } from '../utils/ntc';
 
 export default function Marketplace(props) {
-    const { viewingAsTeacher, student, avatar, teacher, wearables, isMobile } = props;
+    const { viewingAsTeacher, student, avatar, teacher, wearables, categories, isMobile } = props;
     const [preview, setPreview] = useState(null);
-    const [category, setCategory] = useState(() => teacher.wearableCategories[0]);
+    const [category, setCategory] = useState(() => categories[0]);
     const wearableRefs = useRef({});
     useEffect(() => {
         setPreview(avatar);
     }, [avatar]);
     const updatePreview = ({ category, _id, name, src, value, image }) => {
         const updatePreviewFor = (object) => {
+            const categoryName = categories.find(item => item._id === category)?.name || category; // in case of default
             let setObject;
             if (object === 'preview') setObject = setPreview;
             if (object === 'avatar') setObject = props.updateAvatar;
-            if (object[category] && object[category].name === name) {
+            if (object[categoryName] && object[categoryName].name === name) {
                 const previewObjectMinusCategory = (prevState) => {
                     const object = {...prevState};
-                    delete object[category];
+                    delete object[categoryName];
                     return object;
                 }
                 setObject(prevState => ({
@@ -32,7 +33,7 @@ export default function Marketplace(props) {
             }
             setObject(prevState => ({
                 ...prevState,
-                [category]: { _id, name, src, value, image }
+                [categoryName]: { _id, name, src, value, image }
             }));
         }
         if (isMobile) updatePreviewFor('avatar');
@@ -97,10 +98,11 @@ export default function Marketplace(props) {
             );
             props.updateContextMenu(e, content);
         },
-        addOrEditCategory: (e, originalName) => {
+        addOrEditCategory: (e, category) => {
             e.preventDefault();
             if (!viewingAsTeacher) return;
-            const editingCategory = teacher.wearableCategories.includes(originalName);
+            const originalName = category?.name;
+            const editingCategory = !!category;
             const handleAddOrEditCategory = async (e, categoryName) => {
                 e.preventDefault();
                 props.updateModal(content({ loadingIcon: true }));
@@ -251,7 +253,7 @@ export default function Marketplace(props) {
             }
             return (
                 <div className="previewBox">
-                    {preview && <PianopetBase color={preview.Color.src} />}
+                    {<PianopetBase color={preview?.Color?.src} />}
                     {images}
                 </div>
             );
@@ -283,10 +285,10 @@ export default function Marketplace(props) {
         categoriesList: (categories) => {
             const array = categories.map(category => (
                 <button
-                  key={`wearableCategories-toolbar-${category}`}
+                  key={`wearableCategories-toolbar-${category.name}`}
                   onClick={() => setCategory(category)}
                   onContextMenu={(e) => teacherOperations.editCategory(e, category)}>
-                    {category}
+                    {category.name}
                 </button>
             ))
             if (viewingAsTeacher) array.push(
@@ -295,22 +297,22 @@ export default function Marketplace(props) {
             return array;
         },
         wearablesList: (category) => {
-            const filteredList = wearables.filter(wearable => wearable.category === category);
+            const filteredList = wearables.filter(wearable => wearable.category === category._id);
             const list = filteredList.map(wearable => {
                 const ownsWearable = (() => {
                     if (viewingAsTeacher) return false;
                     if (student.closet.includes(wearable._id)) return true;
                     return false;
                 })();
-                const type = category === 'Color' ? 'color' : 'wearable';
+                const type = category.name === 'Color' ? 'color' : 'wearable';
                 return (
                     <button
                       ref={(el) => wearableRefs.current[wearable._id] = el}
-                      key={`${category}-wearable-${wearable.name}`}
+                      key={`${category.name}-wearable-${wearable.name}`}
                       className={ownsWearable ? 'owned' : ''}
                       onClick={() => updatePreview(wearable)}
                       onContextMenu={(e) => teacherOperations.editOrDeleteWearable(e, wearable._id, type)}>
-                        {wearable.category === 'Color'
+                        {category.name === 'Color'
                             ? <Splat color={wearable.src} />
                             : <img alt={wearable.name} src={wearable.src} />}
                         <span>{wearable.name}</span>
@@ -321,13 +323,13 @@ export default function Marketplace(props) {
                     </button>
                 )
             });
-            if (viewingAsTeacher && category === 'Color') list.push(
+            if (viewingAsTeacher && category.name === 'Color') list.push(
                 <button key="color-wearable-addNew" className="add" onClick={teacherOperations.addColor}></button>
             );
-            if (category === 'Color') list.splice(0, 0, (
+            if (category.name === 'Color') list.splice(0, 0, (
                 <button
                     ref={(el) => wearableRefs.current['default'] = el}
-                    key={`${category}-wearable-defaultColor`}
+                    key={`Color-wearable-defaultColor`}
                     className={viewingAsTeacher ? null : "owned"}
                     onClick={() => updatePreview({ category: 'Color', src: '#5C76AE' })}>
                     <Splat color="#5C76AE" />
@@ -343,15 +345,16 @@ export default function Marketplace(props) {
     }
     return (
         <div className="Marketplace">
+            <div id="demo" onClick={() => console.dir(preview)}></div>
             <div className="marketplacePreview">
                 {generate.previewObject(preview)}
                 {generate.previewDescription(preview)}
             </div>
             <div className="wearableCategories">
-                {generate.categoriesList(teacher.wearableCategories)}
+                {generate.categoriesList(categories)}
             </div>
             <div className="wearablesList">
-                <div className={category === 'Color' ? 'blobs' : null}>
+                <div className={category?.name === 'Color' ? 'blobs' : null}>
                     {generate.wearablesList(category)}
                 </div>
             </div>
@@ -433,12 +436,12 @@ function AddOrEditColor(props) {
 }
 
 export function AddOrEditWearable(props) {
-    const { teacher, wearable } = props;
+    const { teacher, wearable, categories } = props;
     const [loadingIcon, setLoadingIcon] = useState(false);
     const [formData, setFormData] = useState({
         teacherCode: wearable ? wearable.teacherCode : teacher._id,
         name: wearable ? wearable.name : '',
-        category: wearable ? wearable.category : teacher.wearableCategories[0],
+        category: wearable ? wearable.category : categories[0]._id,
         src: wearable ? wearable.src : '',
         value: wearable ? wearable.value : '',
         image: {
@@ -494,13 +497,24 @@ export function AddOrEditWearable(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
         props.refreshTeacher();
+        props.refreshData(); // not working todo figure out
     }
-    const dropdownListItems = () => {
-        const listItems = teacher.wearableCategories.map(item => ({
-            value: item,
-            display: item
-        }));
-        return listItems;
+    const dropdownItems = {
+        defaultValue: () => {
+            const categoryName = (wearable)
+                ? categories.find(item => item._id === wearable.category).name
+                : categories[0].name;
+            return {
+                value: categoryName,
+                display: categoryName
+            }
+        },
+        listItems: () => {
+            return categories.map(item => ({
+                value: item.name,
+                display: item.name
+            }));
+        }
     }
     return (
         <div className="modalBox">
@@ -516,8 +530,8 @@ export function AddOrEditWearable(props) {
                         <label htmlFor="value">Category:</label>
                         <Dropdown
                             minWidth="10rem"
-                            defaultValue={{ value: formData.category, display: formData.category }}
-                            listItems={dropdownListItems()}
+                            defaultValue={dropdownItems.defaultValue()}
+                            listItems={dropdownItems.listItems()}
                             addNew={addCategory}
                             onChange={(value) => updateFormData('category', value)} />
                         <label htmlFor="src">Image link:</label>

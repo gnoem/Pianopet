@@ -8,18 +8,24 @@ import { prettifyDate } from '../utils';
 import MyAccount from './MyAccount';
 
 export default function Student(props) {
-    const { student, wearables } = props;
+    const { student, wearables, categories } = props;
     const [view, setView] = useState('home');
     const [avatar, setAvatar] = useState(null);
     useEffect(() => {
         // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
-        const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
-            const index = wearables.findIndex(element => element._id === id);
-            const { category, _id, name, src, image } = wearables[index];
-            obj[category] = { _id, name, src, image };
-            return obj;
-        }, {});
+        const createAvatarObject = (avatarArray) => {
+            // get rid of any null values (e.g. if avatar has default color 'null' will be among the array values)
+            const filteredArray = avatarArray.filter(word => word);
+            return filteredArray.reduce((obj, id) => {
+                const index = wearables.findIndex(element => element._id === id);
+                const { category, _id, name, src, image } = wearables[index];
+                const categoryName = categories.find(item => item._id === category).name;
+                obj[categoryName] = { _id, name, src, image };
+                return obj;
+            }, {});
+        }
         setAvatar(createAvatarObject(student.avatar));
+        console.dir(createAvatarObject(student.avatar));
     // 'wearables' will not change during the lifetime of this component, so it is safe to omit from dep array
     // or should I actually include it since there is no harm in including it?? todo figure out
     // eslint-disable-next-line

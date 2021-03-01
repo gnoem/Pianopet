@@ -11,6 +11,7 @@ export default function App() {
     const [student, setStudent] = useState(false);
     const [teacher, setTeacher] = useState(false);
     const [wearables, setWearables] = useState(false);
+    const [categories, setCategories] = useState(false);
     const [badges, setBadges] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [modal, setModal] = useState(false);
@@ -35,6 +36,7 @@ export default function App() {
             setStudent(body.student);
             setTeacher(body.teacher);
             setWearables(body.wearables);
+            setCategories(body.categories);
             setBadges(body.badges);
             setIsLoaded(true);
             return;
@@ -69,6 +71,7 @@ export default function App() {
         student,
         teacher,
         wearables,
+        categories,
         badges
     }
     const app = () => {

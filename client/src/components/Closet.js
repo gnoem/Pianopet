@@ -2,26 +2,27 @@ import { useState } from 'react';
 import Splat from './Splat';
 
 export default function Closet(props) {
-    const { closet, avatar, teacher } = props;
+    const { closet, avatar, categories } = props;
     const [category, setCategory] = useState(() => {
-        return teacher.wearableCategories.find(category => closet.some(wearable => wearable.category === category));
+        return categories.find(category => closet.some(wearable => wearable.category === category._id));
     });
     const generate = {
         categoriesList: (closet) => {
-            return teacher.wearableCategories.map(category => {
-                const someClosetItemHasCategory = closet.some(wearable => wearable.category === category);
+            return categories.map(category => {
+                const someClosetItemHasCategory = closet.some(wearable => wearable.category === category._id);
                 if (!someClosetItemHasCategory) return null;
                 return (
                     <button
-                      key={`closet-wearableCategories-${category}`}
+                      key={`closet-wearableCategories-${category.name}`}
                       onClick={() => setCategory(category)}>
-                          {category}
+                          {category.name}
                     </button>
                 );
             });
         },
         wearablesList: (category) => {
-            const handleClick = ({ category, _id, name, src, image }) => {
+            const { _id: categoryId, name: categoryName } = category;
+            const handleClick = ({ _id, name, src, image }) => {
                 if (!image) { // if this is a color, not a clothing item
                     props.handleUpdateAvatar({
                         ...avatar,
@@ -30,26 +31,26 @@ export default function Closet(props) {
                     return;
                 }
                 props.handleUpdateAvatar((() => {
-                    if (avatar[category] && avatar[category]._id === _id) {
+                    if (avatar[categoryName] && avatar[categoryName]._id === _id) {
                         let prevStateMinusThisCategory = {...avatar};
-                        delete prevStateMinusThisCategory[category];
+                        delete prevStateMinusThisCategory[categoryName];
                         return prevStateMinusThisCategory;
                     }
                     return ({
                         ...avatar,
-                        [category]: { _id, name, src, image }
+                        [categoryName]: { _id, name, src, image }
                     });
                 })());
             }
             const list = closet.map(wearable => {
-                const currentlyPreviewing = avatar[wearable.category] && avatar[wearable.category]._id === wearable._id;
-                if (wearable.category !== category) return null;
+                const currentlyPreviewing = avatar[categoryName] && avatar[categoryName]._id === wearable._id;
+                if (wearable.category !== categoryId) return null;
                 return (
                     <button
-                      key={`closetItem-${category}-${wearable._id}`}
+                      key={`closetItem-${categoryName}-${wearable._id}`}
                       className={currentlyPreviewing ? 'active' : ''} // if currently previewing, add light green background or something
                       onClick={() => handleClick(wearable)}>
-                        {category === 'Color'
+                        {categoryName === 'Color'
                             ? <Splat color={wearable.src} />
                             : <img alt={wearable.name} src={wearable.src} />}
                         <span>{wearable.name}</span>
@@ -57,9 +58,9 @@ export default function Closet(props) {
                 );
             });
             const hasDefaultColor = !avatar['Color'] || avatar['Color'].src === '#5C76AE';
-            if (category === 'Color') list.splice(0, 0, (
+            if (categoryName === 'Color') list.splice(0, 0, (
                 <button
-                    key={`closetItem-${category}-defaultColor`}
+                    key={`closetItem-${categoryName}-defaultColor`}
                     className={hasDefaultColor ? 'active' : ''}
                     onClick={() => handleClick({ category: 'Color', src: '#5C76AE' })}>
                     <Splat color="#5C76AE" />

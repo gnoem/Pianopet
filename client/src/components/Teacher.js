@@ -13,6 +13,7 @@ export default function Teacher(props) {
     const [view, setView] = useState({ type: 'home' });
     const [students, setStudents] = useState([]);
     const [wearables, setWearables] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [badges, setBadges] = useState([]);
     const getTeacherData = async () => {
         const response = await fetch(`/teacher/${teacher._id}`);
@@ -21,6 +22,7 @@ export default function Teacher(props) {
         if (!body.success) return console.log('no success response from server');
         setStudents(body.students);
         setWearables(body.wearables);
+        setCategories(body.categories);
         setBadges(body.badges);
         if (view.type === 'student') {
             const refreshCurrentStudent = (prevView) => {
@@ -62,6 +64,7 @@ export default function Teacher(props) {
         view,
         students,
         wearables,
+        categories,
         badges,
         updateView: setView,
         refreshData: getTeacherData
