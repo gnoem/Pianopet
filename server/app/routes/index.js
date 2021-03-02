@@ -18,9 +18,10 @@ module.exports = (app) => {
         .put(controller.editAccount);
     app.route('/teacher/:id/password')
         .put(controller.editPassword);
-    app.route('/teacher/:id/wearable-category')
+    app.route('/teacher/:id/wearable-category') // todo fix route name hierarchy
         .post(controller.addWearableCategory)
-        .put(controller.editWearableCategory);
+        .put(controller.editWearableCategory)
+        .delete(controller.deleteWearableCategory);
     app.route('/wearable')
         .post(controller.addWearable);
     app.route('/wearable/:id')

@@ -477,6 +477,35 @@ module.exports = {
             });
         });
     },
+    deleteWearableCategory: (req, res) => {
+        const { id: teacherCode } = req.params;
+        const { _id, reassignWearables } = req.body;
+        Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
+            if (err) return console.error(`error finding teacher ${teacherCode}`, err);
+            if (!teacher) return console.log(`teacher ${teacherCode} not found`);
+            const index = teacher.wearableCategories.indexOf(_id);
+            if (index === -1) return console.log(`category ${_id} doesn't appear to belong to teacher ${teacherCode}`);
+            teacher.wearableCategories.splice(index, 1);
+            Wearable.find({ category: _id }, (err, wearables) => {
+                if (err) return console.error(`error finding wearables`, err);
+                if (!wearables || !wearables.length) console.log(`no wearables to reassign`);
+                else for (let [index, wearable] of wearables.entries()) {
+                    wearable.category = reassignWearables;
+                    wearable.save(err => {
+                        if (err) return console.error(`error saving wearable ${index} (${wearable._id})`, err);
+                    });
+                }
+                Category.findOneAndDelete({ _id, teacherCode }, (err, category) => {
+                    if (err) return console.error(`error finding category`, err);
+                    if (!category) return console.log(`category "${_id}" with teacherCode "${teacherCode}" not found`);
+                    teacher.save(err => {
+                        if (err) return console.error(`error saving teacher`, err);
+                        res.send({ success: true });
+                    });//
+                });
+            });
+        });
+    },
     updateBadges: (req, res) => {
         const { id: _id } = req.params;
         const { badgeId } = req.body;
