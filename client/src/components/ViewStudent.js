@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import ContextMenu from './ContextMenu';
 
 export default function ViewStudent(props) {
-    const { student, wearables } = props;
+    const { student, wearables, categories } = props;
     const [homework, setHomework] = useState([]);
     const [avatar, setAvatar] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -26,7 +26,8 @@ export default function ViewStudent(props) {
         const createAvatarObject = (avatarArray) => avatarArray.reduce((obj, id) => {
             const index = wearables.findIndex(element => element._id === id);
             const { category, _id, name, src, image } = wearables[index];
-            obj[category] = { _id, name, src, image };
+            const categoryName = categories.find(item => item._id === category)?.name;
+            obj[categoryName] = { _id, name, src, image };
             return obj;
         }, {});
         setAvatar(createAvatarObject(student.avatar));

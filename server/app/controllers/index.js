@@ -456,7 +456,10 @@ module.exports = {
                 // actually there might be a point, this can be the list order of categories (as opposed to layer order)
                 user.save(err => {
                     if (err) return console.error('error saving user', err);
-                    res.send({ success: true });
+                    res.send({
+                        success: true,
+                        newCategory
+                    });
                 });
             });
         });

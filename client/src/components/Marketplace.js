@@ -13,17 +13,18 @@ export default function Marketplace(props) {
     const wearableRefs = useRef({});
     useEffect(() => {
         if (avatar) setPreview(avatar);
+        else setPreview({});
     }, [avatar]);
     useEffect(() => {
         // this useEffect is for when the teacher is editing a wearable (e.g. updating image source/coords, color hex) while previewing that
         // same wearable in the preview box - when 'wearables' array is refetched after submit, we loop through the preview object and update it
         // with the most recent information
-        if (!viewingAsTeacher || !preview) return;
+        const previewIsEmpty = !preview || preview && Object.keys(preview).length === 0;
+        if (!viewingAsTeacher || previewIsEmpty) return;
         const updatedPreviewObject = (preview) => {
             const updatedObject = {};
             for (let categoryName in preview) {
                 const wearableId = preview[categoryName]._id;
-                // todo check if category has changed and do something about it!!!
                 const getWearableObjectFromId = (id) => {
                     const wearable = wearables.find(item => item._id === id);
                     return wearable;
@@ -294,10 +295,12 @@ export default function Marketplace(props) {
             if (viewingAsTeacher || isMobile) return;
             const previewItems = [];
             for (let category in preview) {
+                if (!preview[category]._id) break; // default color _id is undefined
+                const isOwned = student.closet.includes(preview[category]._id);
                 previewItems.push(
                     <li key={`marketplacePreviewDescription-${category}`}>
                         <span className="wearableName">{preview[category].name}</span>
-                        {!viewingAsTeacher && student.closet.includes(preview[category]._id)
+                        {!viewingAsTeacher && isOwned
                             ?   <span className="owned"></span>
                             :   <button onClick={() => studentOperations.buyWearable(preview[category])}>
                                     <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
@@ -482,6 +485,12 @@ export function AddOrEditWearable(props) {
             y: wearable && wearable.image ? wearable.image.y : 40
         }
     });
+    const [categoriesList, setCategoriesList] = useState(() => {
+        return categories.map(item => ({
+            value: item._id,
+            display: item.name
+        }));
+    });
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
             ...prevState,
@@ -500,13 +509,39 @@ export function AddOrEditWearable(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
+        // if added new category via dropdown, need to set formData.category to new category ID bc right now it's set to category name!!!!
+        // refreshData() from addCategory() has already been called but updated 'categories' array isn't available here because we're inside the
+        // modal and the state is set... god dammit... ok temporary workaround
+        // first check if formData.category is among existing categories, in which case we can skip this whole charade
+        // if it is a new category, then find it by name (display) in the categoriesList array [{ value, display }] and replace it with its _id
+        let dataToSend = formData;
+        const isExistingCategory = (() => {
+            const index = categories.findIndex(item => item._id === formData.category);
+            return index !== -1;
+        })();
+        if (!isExistingCategory) {
+            const isValidCategory = (() => {
+                const obj = categoriesList.find(item => item.display === formData.category);
+                return obj; // can't imagine this would return undefined but just in case
+            })();
+            if (!isValidCategory) return;
+            let newCategory = isValidCategory;
+            dataToSend = {
+                ...formData,
+                category: newCategory.value
+            }
+        }
+        // by the way another reason we need a separate categoriesList array is to update the actual dropdown with the new option added
+        // since we're inside modal and the state of 'modal', all the way up in App.js, is set to this until updateModal() is called again
+        // what a fucking pain
+        // todo fix this shit
         const ROUTE = wearable ? `/wearable/${wearable._id}` : '/wearable';
         const response = await fetch(ROUTE, {
             method: wearable ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(dataToSend)
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
@@ -515,6 +550,7 @@ export function AddOrEditWearable(props) {
         props.refreshData();
     }
     const addCategory = async (categoryName) => {
+        // this is happening first, then formData gets updated
         const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
             method: 'POST',
             headers: {
@@ -528,6 +564,11 @@ export function AddOrEditWearable(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
+        const { _id, name } = body.newCategory;
+        setCategoriesList(prevState => {
+            prevState.push({ value: _id, display: name });
+            return prevState;
+        });
         props.refreshData();
     }
     const dropdownItems = {
@@ -539,12 +580,7 @@ export function AddOrEditWearable(props) {
                 display: categoryName
             }
         },
-        listItems: () => {
-            return categories.map(item => ({
-                value: item._id,
-                display: item.name
-            }));
-        }
+        listItems: categoriesList
     }
     return (
         <div className="modalBox">
@@ -561,7 +597,7 @@ export function AddOrEditWearable(props) {
                         <Dropdown
                             minWidth="10rem"
                             defaultValue={dropdownItems.defaultValue()}
-                            listItems={dropdownItems.listItems()}
+                            listItems={dropdownItems.listItems}
                             addNew={addCategory}
                             onChange={(value) => updateFormData('category', value)} />
                         <label htmlFor="src">Image link:</label>
