@@ -6,6 +6,7 @@ const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const Homework = require('../models/homework');
 const Wearable = require('../models/wearable');
+const Category = require('../models/category');
 const Badge = require('../models/badge');
 
 module.exports = {
@@ -32,7 +33,10 @@ module.exports = {
                         res.send({ success: false });
                         return;
                     } // LOGOUT!!!!!
-                    return res.send({ success: true, teacher: teacher });
+                    return res.send({
+                        success: true,
+                        teacher
+                    });
                 });
                 return;
             }
@@ -44,15 +48,20 @@ module.exports = {
                 Wearable.find({ teacherCode }, (err, wearables) => {
                     if (err) return console.error(`error finding wearables w/ teacherCode ${teacherCode}`, err);
                     if (!wearables || !wearables.length) console.log(`did not find any wearables w/ teacherCode ${teacherCode}`);
-                    Badge.find({ teacherCode }, (err, badges) => {
-                        if (err) return console.error(`error finding badges w/ teacherCode ${teacherCode}`, err);
-                        if (!badges || !badges.length) console.log(`did not find any badges w/ teacherCode ${teacherCode}`);
-                        return res.send({
-                            success: true,
-                            student,
-                            teacher,
-                            wearables,
-                            badges
+                    Category.find({ teacherCode }, (err, categories) => {
+                        if (err) return console.error(`error finding categories w/ teacherCode ${teacherCode}`, err);
+                        if (!categories || !categories.length) console.log(`did not find any categories w/ teacherCode ${teacherCode}`);
+                        Badge.find({ teacherCode }, (err, badges) => {
+                            if (err) return console.error(`error finding badges w/ teacherCode ${teacherCode}`, err);
+                            if (!badges || !badges.length) console.log(`did not find any badges w/ teacherCode ${teacherCode}`);
+                            return res.send({
+                                success: true,
+                                student,
+                                teacher,
+                                wearables,
+                                categories,
+                                badges
+                            });
                         });
                     });
                 });
@@ -179,14 +188,19 @@ module.exports = {
             Wearable.find({ teacherCode: id }, (err, wearables) => {
                 if (err) return console.error('error finding wearables', err);
                 if (!wearables || !wearables.length) console.log('this teacher hasnt uploaded any wearables');
-                Badge.find({ teacherCode: id }, (err, badges) => {
-                    if (err) return console.error('error finding badges', err);
-                    if (!badges || !badges.length) console.log('this teacher hasnt uploaded any badges');
-                    res.send({
-                        success: true,
-                        students,
-                        wearables,
-                        badges
+                Category.find({ teacherCode: id }, (err, categories) => {
+                    if (err) return console.error('error finding categories', err);
+                    if (!categories || !categories.length) console.log('this teacher hasnt created any categories');
+                    Badge.find({ teacherCode: id }, (err, badges) => {
+                        if (err) return console.error('error finding badges', err);
+                        if (!badges || !badges.length) console.log('this teacher hasnt uploaded any badges');
+                        res.send({
+                            success: true,
+                            students,
+                            wearables,
+                            categories,
+                            badges
+                        });
                     });
                 });
             });
@@ -432,34 +446,31 @@ module.exports = {
         Teacher.findOne({ _id }, (err, user) => {
             if (err) return console.error(`error finding user ${_id}`, err);
             if (!user) return console.log(`user ${_id} not found`);
-            user.wearableCategories.push(categoryName);
-            user.save(err => {
-                if (err) return console.error('error saving user', err);
-                res.send({ success: true });
+            const newCategory = new Category({
+                teacherCode: _id,
+                name: categoryName
             });
-        });
-    },
-    editWearableCategory: (req, res) => {
-        const { id: _id } = req.params;
-        const { originalName, updatedName } = req.body;
-        Teacher.findOne({ _id }, (err, user) => {
-            if (err) return console.error(`error finding user ${_id}`, err);
-            if (!user) return console.log(`user ${_id} not found`);
-            const index = user.wearableCategories.indexOf(originalName);
-            user.wearableCategories.splice(index, 1, updatedName);
-            Wearable.find({ teacherCode: _id, category: originalName }, (err, wearables) => {
-                if (err) return console.error(`error finding wearables with teacherCode ${_id} and category ${originalName}`, err);
-                if (!wearables || !wearables.length) console.log(`no wearables with the category "${originalName}" found`);
-                for (let wearable of wearables) {
-                    wearable.category = updatedName;
-                    wearable.save(err => {
-                        if (err) console.log(`Error saving wearable ${_id} "${wearable.name}"`)
-                    });
-                }
+            newCategory.save(err => {
+                if (err) return console.error('error saving new category', err);
+                user.wearableCategories.push(newCategory._id); // not sure if there is a point to this anymore
+                // actually there might be a point, this can be the list order of categories (as opposed to layer order)
                 user.save(err => {
                     if (err) return console.error('error saving user', err);
                     res.send({ success: true });
                 });
+            });
+        });
+    },
+    editWearableCategory: (req, res) => {
+        const { id: teacherCode } = req.params;
+        const { _id, categoryName } = req.body;
+        Category.findOne({ _id, teacherCode }, (err, category) => {
+            if (err) return console.error(`error finding category`, err);
+            if (!category) return console.log(`category "${_id}" with teacherCode "${teacherCode}" not found`);
+            category.name = categoryName;
+            category.save(err => {
+                if (err) return console.error('error saving user', err);
+                res.send({ success: true });
             });
         });
     },

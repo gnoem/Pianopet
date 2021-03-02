@@ -1435,9 +1435,9 @@ img.statsIcon {
     color: #000;
     background: #fff;
 }
-.Modal button:not(.greyed):not(.exit), .Modal input[type=submit] {
+/* .Modal button:not(.greyed):not(.exit), .Modal input[type=submit] {
     background: var(--med-theme-color);
-}
+} */
 
 /* CONTEXT MENU */
 .ContextMenu {
