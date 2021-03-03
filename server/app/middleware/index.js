@@ -1,8 +1,7 @@
-const { check } = require('express-validator');
-const Student = require('../models/student');
-const Teacher = require('../models/teacher');
+import { check } from 'express-validator';
+import { Student, Teacher } from '../models/index.js';
 
-const validate = {
+export const validate = {
     studentSignup: [
         check('username')
             .isAlphanumeric().withMessage('Username cannot contain any special characters')
@@ -28,5 +27,3 @@ const validate = {
             .isLength({ min: 6, max: 15 }).withMessage('Password must be between 6 and 15 characters')
     ]
 }
-
-module.exports = { validate }

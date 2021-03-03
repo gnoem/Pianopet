@@ -1,9 +1,7 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const auth = process.env.MONGO_AUTH || require('./vars').MONGO_AUTH;
-
-module.exports = async () => {
-    mongoose.connect(`mongodb+srv://admin:${auth}@cluster0.nxvhj.mongodb.net/pianopet?retryWrites=true&w=majority`, {
+export default async () => {
+    mongoose.connect(`mongodb+srv://admin:${process.env.MONGO_AUTH}@cluster0.nxvhj.mongodb.net/pianopet?retryWrites=true&w=majority`, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false

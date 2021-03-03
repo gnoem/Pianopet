@@ -1,3 +1,4 @@
 node_modules/
 server/app/config/vars.js
 .vscode
+.env

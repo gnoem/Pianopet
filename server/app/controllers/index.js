@@ -1,20 +1,18 @@
-const { validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const config = require('../config/secret');
-const Student = require('../models/student');
-const Teacher = require('../models/teacher');
-const Homework = require('../models/homework');
-const Wearable = require('../models/wearable');
-const Category = require('../models/category');
-const Badge = require('../models/badge');
+import { validationResult } from 'express-validator';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { Student, Teacher, Homework, Wearable, Category, Badge } from '../models/index.js';
 
-module.exports = {
-    custom: (req, res) => {},
+const secretKey = process.env.SECRET_KEY;
+
+export default {
+    custom: (req, res) => {
+        console.log('hi');
+    },
     auth: (req, res) => {
         const accessToken = req.cookies.auth;
         if (!accessToken) return res.send({ student: false, teacher: false });
-        const decoded = jwt.verify(accessToken, config.secret);
+        const decoded = jwt.verify(accessToken, secretKey);
         Student.findOne({ _id: decoded.id }, (err, student) => {
             if (err) {
                 console.error('error', err);
@@ -91,7 +89,7 @@ module.exports = {
                 });
                 return;
             }
-            const accessToken = jwt.sign({ id: user.id }, config.secret, {
+            const accessToken = jwt.sign({ id: user.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
             res.cookie('auth', accessToken, {
@@ -130,7 +128,7 @@ module.exports = {
                 teacher.students.push(newStudent._id);
                 teacher.save(err => {
                     if (err) return console.error('error saving teacher...', err);
-                    const accessToken = jwt.sign({ id: newStudent.id }, config.secret, {
+                    const accessToken = jwt.sign({ id: newStudent.id }, secretKey, {
                         expiresIn: 86400 // 24 hours
                     });
                     res.cookie('auth', accessToken, {
@@ -166,7 +164,7 @@ module.exports = {
                 res.send({ success: false });
                 return;
             }
-            const accessToken = jwt.sign({ id: newTeacher.id }, config.secret, {
+            const accessToken = jwt.sign({ id: newTeacher.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
             res.cookie('auth', accessToken, {

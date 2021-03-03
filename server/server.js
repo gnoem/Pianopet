@@ -1,6 +1,9 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+import './app/config/index.js';
+import express from 'express';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import db from './app/config/db.js';
+import init from './app/routes/index.js';
 
 const app = express();
 
@@ -15,8 +18,8 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-require('./app/config/db')();
-require('./app/routes')(app);
+db();
+init(app);
 
 const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => {

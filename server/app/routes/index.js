@@ -1,8 +1,7 @@
-const controller = require('../controllers/index');
-const { validate } = require('../middleware');
+import controller from '../controllers/index.js';
+import { validate } from '../middleware/index.js';
 
-module.exports = (app) => {
-
+export default function (app) {
     app.post('/custom', controller.custom);
 
     // COMMON

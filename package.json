@@ -1,31 +1,33 @@
 {
-    "name": "pianopet",
-    "version": "1.0.0",
-    "description": "",
-    "main": "server.js",
-    "proxy": "http://localhost:6000",
-    "scripts": {
-      "server": "node ./server/server.js",
-      "client": "npm start --prefix ./client",
-      "start": "cd server && npm install && node server.js",
-      "heroku-postbuild": "cd client && npm install && npm run build",
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "devserver": "nodemon ./server/server.js",
-      "dev": "concurrently --kill-others-on-fail \"npm run devserver\" \"npm run client\""
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-      "bcryptjs": "^2.4.3",
-      "body-parser": "^1.19.0",
-      "cookie-parser": "^1.4.5",
-      "express": "^4.17.1",
-      "express-validator": "^6.8.0",
-      "jsonwebtoken": "^8.5.1",
-      "mongoose": "^5.11.5"
-    },
-    "devDependencies": {
-      "concurrently": "^5.3.0",
-      "nodemon": "^2.0.6"
-    }
-} 
+  "name": "pianopet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./server/server.js",
+  "type": "module",
+  "proxy": "http://localhost:6000",
+  "scripts": {
+    "server": "node ./server/server.js",
+    "client": "npm start --prefix ./client",
+    "start": "cd server && npm install && node server.js",
+    "heroku-postbuild": "cd client && npm install && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devserver": "nodemon ./server/server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run devserver\" \"npm run client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.8.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.5"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.6"
+  }
+}
