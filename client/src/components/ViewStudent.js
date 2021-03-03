@@ -93,6 +93,7 @@ function StudentCoins(props) {
             })
         });
         const body = await response.json();
+        console.dir(body);
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success=true message from server');
         setMakingChanges(false);
@@ -268,7 +269,7 @@ function Assignment(props) {
         updateCoins();
     }
     const updateHomeworkProgress = async (index, value) => {
-        const response = await fetch(`/student/homework/assignment/${homeworkId}/progress`, {
+        const response = await fetch(`/assignment/${homeworkId}/progress`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -302,7 +303,7 @@ function Assignment(props) {
     )
 }
 
-function AddHomeworkForm(props) {
+function AddHomeworkForm(props) { // todo better
     const { student } = props;
     const [formData, updateFormData] = useState({
         date: dayjs().format('YYYY-MM-DD'),

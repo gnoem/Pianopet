@@ -244,6 +244,7 @@ function StudentCloset(props) {
             })
         });
         const body = await response.json();
+        console.dir(body);
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
         props.refreshData();

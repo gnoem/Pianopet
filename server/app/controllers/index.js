@@ -5,6 +5,46 @@ import { Student, Teacher, Homework, Wearable, Category, Badge } from '../models
 
 const secretKey = process.env.SECRET_KEY;
 
+const Resource = {
+    create: async({ Model, body }) => {
+        const newThing = new Model(body);
+        const success = await newThing.save();
+        if (!success) throw new Error(`Error saving new ${Model.modelName}`);
+        return success;
+    },
+    get: async ({ Model, params }) => {
+        let resource = await Model.findOne(params);
+        if (!resource) throw new Error(`${Model.modelName} {${JSON.stringify(params)}} not found`);
+        return resource;
+    },
+    edit: async (resource, formData) => {
+        resource = Object.assign(resource, formData);
+        const success = await resource.save();
+        if (!success) throw new Error(`Error saving resource`);
+        return success;
+    },
+    delete: async ({ Model, params }) => {
+        let success = await Model.deleteOne(params);
+        if (!success) throw new Error(`Error deleting resources`);
+        return success;
+    }
+}
+
+/*
+patterns:
+- update array - e.g. student.badges.findIndex(callback) then student.badges[index] = someValue;
+    but throw error if index === -1
+- every mongoose crud function ends the same way:
+    .then(success => {
+        res.send({ success });
+    }).catch(err => {
+        res.send({
+            success: false,
+            error: err.message
+        });
+    });
+*/
+
 export default {
     custom: (req, res) => {
         console.log('hi');
@@ -237,15 +277,18 @@ export default {
         if (role === 'student') Student.findOne({ _id }, editPassword);
     },
     addHomework: (req, res) => {
-        const { id } = req.params;
-        const homework = {...req.body};
-        const newHomework = new Homework({
-            studentId: id,
-            ...homework
-        });
-        newHomework.save(err => {
-            if (err) return console.error('error saving homework', err);
-            res.send({ success: true });
+        const { id: studentId } = req.params;
+        const newHomework = { studentId, ...req.body };
+        Resource.create({
+            Model: Homework,
+            body: newHomework
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
+            });
         });
     },
     deleteHomework: (req, res) => {
@@ -274,58 +317,64 @@ export default {
     editHomework: (req, res) => {
         const { id: _id } = req.params;
         const { date, headline, assignments } = req.body;
-        Homework.findOne({ _id }, (err, homework) => {
-            if (err) return console.error('error finding homework', err);
-            if (!homework) return console.log(`homework ${_id} not found!`);
-            homework.date = date;
-            homework.headline = headline;
-            homework.assignments = assignments;
-            homework.save(err => {
-                if (err) return console.error('error saving homework', err);
-                res.send({ success: true });
-                return;
+        Homework.findOne({ _id }).then(homework => {
+            if (!homework) throw new Error(`Homework ${_id} not found`);
+            homework = Object.assign(homework, { date, headline, assignments });
+            return homework.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
     updateProgress: (req, res) => {
         const { id: _id } = req.params;
         const { index, value } = req.body;
-        Homework.findOne({ _id }, (err, homework) => {
-            if (err) return console.error('error finding homework', err);
-            if (!homework) return console.log(`homework ${_id} not found`);
+        Homework.findOne({ _id }).then(homework => {
+            if (!homework) throw new Error(`Homework ${_id} not found`);
             homework.assignments[index].progress = value;
-            homework.save(err => {
-                if (err) return console.error('error saving homework', err);
-                res.send({ success: true });
-                return;
+            return homework.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
     updateRecorded: (req, res) => {
         const { id: _id } = req.params;
         const { index, recorded } = req.body;
-        Homework.findOne({ _id }, (err, homework) => {
-            if (err) return console.error('error finding homework', err);
-            if (!homework) return console.log(`homework ${_id} not found`);
+        Homework.findOne({ _id }).then(homework => {
+            if (!homework) throw new Error(`Homework ${_id} not found`);
             homework.assignments[index].recorded = recorded;
-            homework.save(err => {
-                if (err) return console.error('error saving homework', err);
-                res.send({ success: true });
-                return;
+            return homework.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
     updateCoins: (req, res) => {
         const { id: _id } = req.params;
         const { coins } = req.body;
-        Student.findOne({ _id }, (err, student) => {
-            if (err) return console.error('error finding student', err);
-            if (!student) return console.log('no student with that ID');
-            student.coins = coins;
-            student.save(err => {
-                if (err) return console.error('error saving student', err);
-                res.send({ success: true });
-                console.log(`success; student coins is ${student.coins}`);
+        Student.findOne({ _id }).then(student => {
+            if (!student) throw new Error(`Student ${_id} not found`);
+            student = Object.assign(student, coins);
+            return student.save() // todo handle error
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
@@ -333,26 +382,33 @@ export default {
         // todo validate name
         const { teacherCode, name, category, src, value, image } = req.body;
         const newWearable = category === 'color'
-            ? new Wearable({ teacherCode, name, category, src, value })
-            : new Wearable({ teacherCode, name, category, src, value, image });
-        newWearable.save(err => {
-            if (err) return console.error('error saving wearable', err);
-            res.send({ success: true });
-            console.log(`successfully added ${newWearable}`);
-        }); // */
+            ? { teacherCode, name, category, src, value }
+            : { teacherCode, name, category, src, value, image };
+        Resource.create({
+            Model: Wearable,
+            body: newWearable
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
+            });
+        });
     },
     editWearable: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        const formData = req.body;
-        Wearable.findOne({ _id }, (err, wearable) => {
-            if (err) return console.error('error finding wearable', wearable);
-            if (!wearable) return console.log(`wearable ${_id} not found`);
-            wearable = Object.assign(wearable, formData);
-            wearable.save(err => {
-                if (err) return console.error('error saving wearable', err);
-                res.send({ success: true });
-                console.log(`successfully edited wearable ${_id}`);
+        Wearable.findOne({ _id }).then(wearable => {
+            if (!wearable) throw new Error(`Wearable ${_id} not found`);
+            wearable = Object.assign(wearable, req.body);
+            return wearable.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
@@ -386,26 +442,32 @@ export default {
     addBadge: (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
-        const newBadge = new Badge({ teacherCode, name, src, value });
-        newBadge.save(err => {
-            if (err) return console.error('error saving badge', err);
-            res.send({ success: true });
-            console.log(`successfully added ${newBadge}`);
-        }); // */
+        const newBadge = { teacherCode, name, src, value };
+        Resource.create({
+            Model: Badge,
+            body: newBadge
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
+            });
+        });
     },
     editBadge: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        const { name, src, value } = req.body;
-        Badge.findOne({ _id }, (err, badge) => {
-            if (err) return console.error('error finding badge', badge);
-            if (!badge) return console.log(`badge ${_id} not found`);
-            badge.name = name;
-            badge.src = src;
-            badge.value = value;
-            badge.save(err => {
-                if (err) return console.error('error saving badge', err);
-                res.send({ success: true });
+        Badge.findOne({ _id }).then(badge => {
+            if (!badge) throw new Error(`Badge ${_id} not found`);
+            badge = Object.assign(badge, req.body);
+            return badge.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
@@ -440,44 +502,80 @@ export default {
     addWearableCategory: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)
+        return console.log('add wearable category is udner construction');
         const { categoryName } = req.body;
-        Teacher.findOne({ _id }, (err, user) => {
-            if (err) return console.error(`error finding user ${_id}`, err);
-            if (!user) return console.log(`user ${_id} not found`);
-            const newCategory = new Category({
+        const newCategory = new Category({
+            teacherCode: _id,
+            name: categoryName
+        });
+        newCategory.save(err => {
+            if (err) return console.error(err);
+            res.send({
+                success: true
+            });
+        });
+        return;
+        Resource.get({
+            Model: Teacher,
+            params: { _id }
+        }).then(teacher => {
+
+            teacher.wearableCategories.push(newCategory._id);
+            return teacher.save(); // todo handle error
+        }).then(() => {
+            const newCategoryBody = {
                 teacherCode: _id,
                 name: categoryName
+            }
+            return Resource.create({ // todo handle error
+                Model: Category,
+                body: newCategoryBody
             });
-            newCategory.save(err => {
-                if (err) return console.error('error saving new category', err);
-                user.wearableCategories.push(newCategory._id); // not sure if there is a point to this anymore
-                // actually there might be a point, this can be the list order of categories (as opposed to layer order)
-                user.save(err => {
-                    if (err) return console.error('error saving user', err);
-                    res.send({
-                        success: true,
-                        newCategory
-                    });
-                });
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
     editWearableCategory: (req, res) => {
         const { id: teacherCode } = req.params;
         const { _id, categoryName } = req.body;
-        Category.findOne({ _id, teacherCode }, (err, category) => {
-            if (err) return console.error(`error finding category`, err);
-            if (!category) return console.log(`category "${_id}" with teacherCode "${teacherCode}" not found`);
-            category.name = categoryName;
-            category.save(err => {
-                if (err) return console.error('error saving user', err);
-                res.send({ success: true });
+        // todo validate name
+        Category.findOne({ _id }).then(category => {
+            if (!category) throw new Error(`Category ${_id} not found`);
+            category = Object.assign(category, { name: categoryName });
+            return category.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
-    deleteWearableCategory: (req, res) => {
+    deleteWearableCategory: async (req, res) => {
         const { id: teacherCode } = req.params;
         const { _id, reassignWearables } = req.body;
+        return console.log('delete category is under construction');
+        Category.findOneAndRemove({ _id }).then(category => {
+            return Teacher.findOne({ _id: category.teacherCode });
+        }).then(teacher => {
+            const index = teacher.wearableCategories.indexOf(_id);
+            if (index === -1) throw new Error(`Category ${_id} does not belong to teacher ${teacherCode}`);
+            teacher.wearableCategories.splice(index, 1);
+            return teacher.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
+            });
+        });
         Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
             if (err) return console.error(`error finding teacher ${teacherCode}`, err);
             if (!teacher) return console.log(`teacher ${teacherCode} not found`);
@@ -536,58 +634,62 @@ export default {
     updateBadgeRedeemed: (req, res) => {
         const { id: _id } = req.params;
         const { badgeId, badgeValue } = req.body;
-        Student.findOne({ _id }, (err, student) => {
-            if (err) return console.error(`error finding student ${_id}`, err);
-            if (!student) return console.log(`couldn't find student ${_id}`);
-            if (!student.badges) return console.log(`student ${_id} doesn't have any badges`);
+        Student.findOne({ _id }).then(student => {
+            if (!student) throw new Error(`Student ${_id} not found`);
             const index = student.badges.findIndex(object => object.id === badgeId);
             const studentHasBadge = index !== -1;
-            if (!studentHasBadge) return console.log(`student ${_id} doesn't have badge ${badgeId}`);
+            if (!studentHasBadge) throw new Error(`Student doesn't have this badge`);
             student.badges[index].redeemed = true;
             student.coins += badgeValue;
-            student.save(err => {
-                if (err) return console.error(`error saving student ${_id}`, err);
-                return res.send({ success: true });
-            })
+            return student.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
+            });
         });
     },
     updateCloset: (req, res) => {
         const { id: _id } = req.params;
         const { wearableId, wearableCost } = req.body;
-        Student.findOne({ _id }, (err, student) => {
-            if (err) return console.error(`error finding student ${_id}`, err);
-            if (!student) return console.log(`student ${_id} not found`);
+        Student.findOne({ _id }).then(student => {
             if (!student.closet) student.closet = [wearableId];
-            else if (!student.closet.includes(wearableId)) {
-                student.closet.push(wearableId);
-                student.coins -= wearableCost;
-            }
-            student.save(err => {
-                if (err) return console.error(`error saving student ${_id}`, err);
-                Wearable.findOne({ _id: wearableId }, (err, wearable) => {
-                    if (err) return console.error(`error finding wearable ${wearableId}`, err);
-                    if (!wearable) return console.log(`wearable ${wearableId} not found`);
-                    if (!wearable.ownedBy) wearable.ownedBy = [_id];
-                    else if (!wearable.ownedBy.includes(_id)) wearable.ownedBy.push(_id);
-                    wearable.save(err => {
-                        if (err) return console.error(`error saving wearable ${wearableId}`, err);
-                        return res.send({ success: true });
-                    });
-                });
+            if (student.closet.includes(wearableId))
+                throw new Error(`Student already owns this wearable`);
+            student.closet.push(wearableId);
+            student.coins -= wearableCost;
+            return student.save();
+        }).then(() => {
+            return Wearable.findOne({ _id: wearableId });
+        }).then(wearable => {
+            if (!wearable.ownedBy) wearable.ownedBy = [_id];
+            wearable.ownedBy.push(_id);
+            return wearable.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
         });
     },
     updateAvatar: (req, res) => {
         const { id: _id } = req.params;
         const { avatar } = req.body;
-        Student.findOne({ _id }, (err, student) => {
-            if (err) return console.error(`error finding student ${_id}`, err);
-            if (!student) return console.log(`student ${_id} not found`);
-            student.avatar = avatar;
-            student.save(err => {
-                if (err) return console.error(`error saving student ${_id}`, err);
-                return res.send({ success: true });
+        Student.findOne({ _id }).then(student => {
+            if (!student) throw new Error(`Student ${_id} not found`);
+            student = Object.assign(student, { avatar });
+            return student.save();
+        }).then(success => {
+            res.send({ success });
+        }).catch(err => {
+            res.send({
+                success: false,
+                error: err.message
             });
-        })
+        });
     }
 }

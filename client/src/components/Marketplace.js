@@ -151,6 +151,7 @@ export default function Marketplace(props) {
                     body: JSON.stringify(formData)
                 });
                 const body = await response.json();
+                console.dir(body);
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
                 props.refreshData();
@@ -587,8 +588,7 @@ export function AddOrEditWearable(props) {
             body: JSON.stringify(dataToSend)
         });
         const body = await response.json();
-        if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) return console.error(body.error);
         props.updateModal(false);
         props.refreshData();
     }
