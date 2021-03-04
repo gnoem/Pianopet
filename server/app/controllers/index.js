@@ -45,6 +45,12 @@ patterns:
     });
 */
 
+const handle = (promise) => {
+    return promise
+        .then(data => ([data, undefined]))
+        .catch(err => Promise.resolve([undefined, err]));
+}
+
 export default {
     custom: (req, res) => {
         console.log('hi');
@@ -152,59 +158,16 @@ export default {
         const { firstName, lastName, username, password, teacherCode } = req.body;
         const errors = validationResult(req);
         if (!errors.isEmpty()) return console.log('errors found...', errors);
-        const newStudent = new Student({
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            password: bcrypt.hashSync(password, 8),
-            teacherCode: teacherCode,
-            coins: 0
-        });
-        newStudent.save(err => {
-            if (err) return console.error('error saving student...', err);
-            Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
-                if (err) return console.error('error finding teacher...', err);
-                if (!teacher) return console.log('teacher code is invalid');
-                teacher.students.push(newStudent._id);
-                teacher.save(err => {
-                    if (err) return console.error('error saving teacher...', err);
-                    const accessToken = jwt.sign({ id: newStudent.id }, secretKey, {
-                        expiresIn: 86400 // 24 hours
-                    });
-                    res.cookie('auth', accessToken, {
-                        httpOnly: true,
-                        secure: false,
-                        maxAge: 3600000 // 1,000 hours
-                    });
-                    res.send({
-                        success: true,
-                        accessToken: accessToken
-                    });
-                });
-            });
-        });
-    },
-    teacherSignup: (req, res) => {
-        const { username, password } = req.body;
-        const errors = validationResult(req);
-        if (!errors.isEmpty) {
-            console.log('errors found...', errors);
-            res.send({ success: false });
-            return;
-        }
-        const newTeacher = new Teacher({
-            username: username,
-            password: bcrypt.hashSync(password, 8),
-            students: [],
-            wearableCategories: ['Color']
-        });
-        newTeacher.save(err => {
-            if (err) {
-                console.error('error saving...', err);
-                res.send({ success: false });
-                return;
-            }
-            const accessToken = jwt.sign({ id: newTeacher.id }, secretKey, {
+        const run = async () => {
+            const [student, studentError] = await handle(Student.create({
+                firstName,
+                lastName,
+                username,
+                password: bcrypt.hashSync(password, 8),
+                teacherCode
+            }));
+            if (studentError) throw new Error(`Error creating new student`);
+            const accessToken = jwt.sign({ id: student.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
             res.cookie('auth', accessToken, {
@@ -213,10 +176,38 @@ export default {
                 maxAge: 3600000 // 1,000 hours
             });
             res.send({
-                success: true,
-                accessToken: accessToken
+                success: student,
+                accessToken
             });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
+    },
+    teacherSignup: (req, res) => {
+        const { username, password } = req.body;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return console.log('errors found...', errors);
+        const run = async () => {
+            const [teacher, teacherError] = await handle(Teacher.create({
+                firstName,
+                lastName,
+                username,
+                password: bcrypt.hashSync(password, 8)
+            }));
+            if (teacherError) throw new Error(`Error creating new student`);
+            const accessToken = jwt.sign({ id: teacher.id }, secretKey, {
+                expiresIn: 86400 // 24 hours
+            });
+            res.cookie('auth', accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 3600000 // 1,000 hours
+            });
+            res.send({
+                success: teacher,
+                accessToken
+            });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     getTeacher: (req, res) => {
         const { id } = req.params;
@@ -278,26 +269,21 @@ export default {
     },
     addHomework: (req, res) => {
         const { id: studentId } = req.params;
-        const newHomework = { studentId, ...req.body };
-        Resource.create({
-            Model: Homework,
-            body: newHomework
-        }).then(success => {
-            res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        const run = async () => {
+            const [homework, homeworkError] = await handle(Homework.create({ studentId, ...req.body }));
+            if (homeworkError) throw new Error(`Error creating new homework`);
+            res.send({ success: homework });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     deleteHomework: (req, res) => {
         const { id: _id } = req.params;
-        Homework.findOneAndDelete({ _id }, (err, homework) => {
-            if (err) return console.error('error deleting homework', err);
-            if (!homework) return console.log(`homework ${_id} not found`);
-            res.send({ success: true });
-        });
+        const run = async () => {
+            const [homework, homeworkError] = await handle(Homework.findOneAndDelete({ _id }));
+            if (homeworkError) throw new Error(`Error deleting homework ${_id}`);
+            res.send({ success: homework });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     getHomework: (req, res) => {
         const { id: studentId } = req.params;
@@ -317,100 +303,85 @@ export default {
     editHomework: (req, res) => {
         const { id: _id } = req.params;
         const { date, headline, assignments } = req.body;
-        Homework.findOne({ _id }).then(homework => {
+        const run = async () => {
+            let [homework, homeworkError] = await handle(Homework.findOne({ _id }));
+            if (homeworkError) throw new Error(`Error finding homework ${_id}`);
             if (!homework) throw new Error(`Homework ${_id} not found`);
             homework = Object.assign(homework, { date, headline, assignments });
-            return homework.save();
-        }).then(success => {
+            const [success, saveError] = await handle(homework.save());
+            if (saveError) throw new Error(`Error saving homework`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateProgress: (req, res) => {
         const { id: _id } = req.params;
         const { index, value } = req.body;
-        Homework.findOne({ _id }).then(homework => {
+        const run = async () => {
+            let [homework, homeworkError] = await handle(Homework.findOne({ _id }));
+            if (homeworkError) throw new Error(`Error finding homework ${_id}`);
             if (!homework) throw new Error(`Homework ${_id} not found`);
             homework.assignments[index].progress = value;
-            return homework.save();
-        }).then(success => {
+            const [success, saveError] = await handle(homework.save());
+            if (saveError) throw new Error(`Error saving homework`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
-    updateRecorded: (req, res) => {
+    updateRecorded: (req, res) => { // todo maybe combine this one and update progress? difference is literally one line
         const { id: _id } = req.params;
         const { index, recorded } = req.body;
-        Homework.findOne({ _id }).then(homework => {
+        const run = async () => {
+            let [homework, homeworkError] = await handle(Homework.findOne({ _id }));
+            if (homeworkError) throw new Error(`Error finding homework ${_id}`);
             if (!homework) throw new Error(`Homework ${_id} not found`);
             homework.assignments[index].recorded = recorded;
-            return homework.save();
-        }).then(success => {
+            const [success, saveError] = await handle(homework.save());
+            if (saveError) throw new Error(`Error saving homework`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateCoins: (req, res) => {
         const { id: _id } = req.params;
         const { coins } = req.body;
-        Student.findOne({ _id }).then(student => {
+        const run = async () => {
+            let [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
             if (!student) throw new Error(`Student ${_id} not found`);
-            student = Object.assign(student, coins);
-            return student.save() // todo handle error
-        }).then(success => {
+            student = Object.assign(student, { coins });
+            const [success, saveError] = await handle(student.save());
+            if (saveError) throw new Error(`Error saving student`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     addWearable: (req, res) => {
         // todo validate name
         const { teacherCode, name, category, src, value, image } = req.body;
-        const newWearable = category === 'color'
-            ? { teacherCode, name, category, src, value }
-            : { teacherCode, name, category, src, value, image };
-        Resource.create({
-            Model: Wearable,
-            body: newWearable
-        }).then(success => {
-            res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        const run = async () => {
+            const [wearable, wearableError] = await handle(Wearable.create({
+                teacherCode, name, category, src, value, image
+            }));
+            if (wearableError) throw new Error(`Error creating new wearable`);
+            res.send({ success: wearable });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editWearable: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        Wearable.findOne({ _id }).then(wearable => {
+        const { name, category, src, value, image } = req.body;
+        const run = async () => {
+            let [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
+            if (wearableError) throw new Error(`Error finding wearable ${_id}`);
             if (!wearable) throw new Error(`Wearable ${_id} not found`);
-            wearable = Object.assign(wearable, req.body);
-            return wearable.save();
-        }).then(success => {
+            wearable = Object.assign(wearable, { name, category, src, value, image });
+            const [success, saveError] = await handle(wearable.save());
+            if (saveError) throw new Error(`Error saving wearable`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     deleteWearable: (req, res) => {
         const { id: _id } = req.params;
@@ -442,34 +413,26 @@ export default {
     addBadge: (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
-        const newBadge = { teacherCode, name, src, value };
-        Resource.create({
-            Model: Badge,
-            body: newBadge
-        }).then(success => {
-            res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        const run = async () => {
+            const [badge, badgeError] = await handle(Badge.create({ teacherCode, name, src, value }));
+            if (badgeError) throw new Error(`Error creating new badge`);
+            res.send({ success: badge });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editBadge: (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        Badge.findOne({ _id }).then(badge => {
+        const run = async () => {
+            let [badge, badgeError] = await handle(Badge.findOne({ _id }));
+            if (badgeError) throw new Error(`Error finding badge ${_id}`);
             if (!badge) throw new Error(`Badge ${_id} not found`);
             badge = Object.assign(badge, req.body);
-            return badge.save();
-        }).then(success => {
+            const [success, saveError] = await handle(badge.save());
+            if (saveError) throw new Error(`Error saving badge`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     deleteBadge: (req, res) => {
         const { id: _id } = req.params;
@@ -500,107 +463,46 @@ export default {
         });
     },
     addWearableCategory: (req, res) => {
-        const { id: _id } = req.params;
+        const { id: teacherCode } = req.params;
         // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)
-        return console.log('add wearable category is udner construction');
         const { categoryName } = req.body;
-        const newCategory = new Category({
-            teacherCode: _id,
-            name: categoryName
-        });
-        newCategory.save(err => {
-            if (err) return console.error(err);
-            res.send({
-                success: true
-            });
-        });
-        return;
-        Resource.get({
-            Model: Teacher,
-            params: { _id }
-        }).then(teacher => {
-
-            teacher.wearableCategories.push(newCategory._id);
-            return teacher.save(); // todo handle error
-        }).then(() => {
-            const newCategoryBody = {
-                teacherCode: _id,
-                name: categoryName
-            }
-            return Resource.create({ // todo handle error
-                Model: Category,
-                body: newCategoryBody
-            });
-        }).then(success => {
-            res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        const run = async () => {
+            let [success, createError] = await handle(Category.create({
+                name: categoryName,
+                teacherCode
+            }));
+            if (createError) throw new Error(`Error creating new category`);
+            res.send({ success: success });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editWearableCategory: (req, res) => {
         const { id: teacherCode } = req.params;
         const { _id, categoryName } = req.body;
         // todo validate name
-        Category.findOne({ _id }).then(category => {
+        const run = async () => {
+            let [category, categoryError] = await handle(Category.findOne({ _id }));
+            if (categoryError) throw new Error(`Error finding category ${_id}`);
             if (!category) throw new Error(`Category ${_id} not found`);
             category = Object.assign(category, { name: categoryName });
-            return category.save();
-        }).then(success => {
+            const [success, saveError] = await handle(category.save());
+            if (saveError) throw new Error(`Error saving category`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     deleteWearableCategory: async (req, res) => {
         const { id: teacherCode } = req.params;
-        const { _id, reassignWearables } = req.body;
-        return console.log('delete category is under construction');
-        Category.findOneAndRemove({ _id }).then(category => {
-            return Teacher.findOne({ _id: category.teacherCode });
-        }).then(teacher => {
-            const index = teacher.wearableCategories.indexOf(_id);
-            if (index === -1) throw new Error(`Category ${_id} does not belong to teacher ${teacherCode}`);
-            teacher.wearableCategories.splice(index, 1);
-            return teacher.save();
-        }).then(success => {
-            res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
-        Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
-            if (err) return console.error(`error finding teacher ${teacherCode}`, err);
-            if (!teacher) return console.log(`teacher ${teacherCode} not found`);
-            const index = teacher.wearableCategories.indexOf(_id);
-            if (index === -1) return console.log(`category ${_id} doesn't appear to belong to teacher ${teacherCode}`);
-            teacher.wearableCategories.splice(index, 1);
-            Wearable.find({ category: _id }, (err, wearables) => {
-                if (err) return console.error(`error finding wearables`, err);
-                if (!wearables || !wearables.length) console.log(`no wearables to reassign`);
-                else for (let [index, wearable] of wearables.entries()) {
-                    wearable.category = reassignWearables;
-                    wearable.save(err => {
-                        if (err) return console.error(`error saving wearable ${index} (${wearable._id})`, err);
-                    });
-                }
-                Category.findOneAndDelete({ _id, teacherCode }, (err, category) => {
-                    if (err) return console.error(`error finding category`, err);
-                    if (!category) return console.log(`category "${_id}" with teacherCode "${teacherCode}" not found`);
-                    teacher.save(err => {
-                        if (err) return console.error(`error saving teacher`, err);
-                        res.send({ success: true });
-                    });//
-                });
-            });
-        });
+        const { _id, newCategory } = req.body;
+        const run = async () => {
+            let [category, categoryError] = await handle(Category.findOneAndDelete({ _id }));
+            if (categoryError) throw new Error(`Error deleting category ${_id}`);
+            if (!category) throw new Error(`Category ${_id} not found`);
+            let [wearables, wearablesError] = await handle(Wearable.updateMany({ category: _id }, { category: newCategory }));
+            if (wearablesError) throw new Error(`Error updating wearables`);
+            res.send({ success: { category, wearables } });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateBadges: (req, res) => {
         const { id: _id } = req.params;
@@ -634,62 +536,51 @@ export default {
     updateBadgeRedeemed: (req, res) => {
         const { id: _id } = req.params;
         const { badgeId, badgeValue } = req.body;
-        Student.findOne({ _id }).then(student => {
+        const run = async () => {
+            let [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
             if (!student) throw new Error(`Student ${_id} not found`);
             const index = student.badges.findIndex(object => object.id === badgeId);
             const studentHasBadge = index !== -1;
             if (!studentHasBadge) throw new Error(`Student doesn't have this badge`);
             student.badges[index].redeemed = true;
             student.coins += badgeValue;
-            return student.save();
-        }).then(success => {
+            const [success, saveError] = await handle(student.save());
+            if (saveError) throw new Error(`Error saving student`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateCloset: (req, res) => {
         const { id: _id } = req.params;
         const { wearableId, wearableCost } = req.body;
-        Student.findOne({ _id }).then(student => {
+        const run = async () => {
+            let [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
+            if (!student) throw new Error(`Student ${_id} not found`);
             if (!student.closet) student.closet = [wearableId];
             if (student.closet.includes(wearableId))
                 throw new Error(`Student already owns this wearable`);
             student.closet.push(wearableId);
             student.coins -= wearableCost;
-            return student.save();
-        }).then(() => {
-            return Wearable.findOne({ _id: wearableId });
-        }).then(wearable => {
-            if (!wearable.ownedBy) wearable.ownedBy = [_id];
-            wearable.ownedBy.push(_id);
-            return wearable.save();
-        }).then(success => {
+            const [success, saveError] = await handle(student.save());
+            if (saveError) throw new Error(`Error saving student`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateAvatar: (req, res) => {
         const { id: _id } = req.params;
         const { avatar } = req.body;
-        Student.findOne({ _id }).then(student => {
+        const run = async () => {
+            let [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
             if (!student) throw new Error(`Student ${_id} not found`);
             student = Object.assign(student, { avatar });
-            return student.save();
-        }).then(success => {
+            const [success, saveError] = await handle(student.save());
+            if (saveError) throw new Error(`Error saving student`);
             res.send({ success });
-        }).catch(err => {
-            res.send({
-                success: false,
-                error: err.message
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     }
 }

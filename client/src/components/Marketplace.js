@@ -424,7 +424,6 @@ export default function Marketplace(props) {
     }
     return (
         <div className="Marketplace">
-            <div id="demo" onClick={() => console.dir(preview)}></div>
             <div className="marketplacePreview">
                 {generate.previewObject(preview)}
                 {generate.previewDescription(preview)}
@@ -524,11 +523,14 @@ export function AddOrEditWearable(props) {
         src: wearable ? wearable.src : '',
         value: wearable ? wearable.value : '',
         image: {
-            w: wearable && wearable.image ? wearable.image.w : 50,
-            x: wearable && wearable.image ? wearable.image.x : 10,
-            y: wearable && wearable.image ? wearable.image.y : 40
+            w: wearable?.image ? wearable.image.w : 50,
+            x: wearable?.image ? wearable.image.x : 10,
+            y: wearable?.image ? wearable.image.y : 40
         }
     });
+    useEffect(() => {
+        console.dir(formData);
+    }, [])
     const [categoriesList, setCategoriesList] = useState(() => {
         return categories.map(item => ({
             value: item._id,
@@ -563,6 +565,7 @@ export function AddOrEditWearable(props) {
             const index = categories.findIndex(item => item._id === formData.category);
             return index !== -1;
         })();
+        console.dir(formData);
         if (!isExistingCategory) {
             const isValidCategory = (() => {
                 const obj = categoriesList.find(item => item.display === formData.category);
@@ -663,7 +666,7 @@ export function AddOrEditWearable(props) {
 
 function AddOrEditWearablePreview(props) {
     const { src, image } = props;
-    const [mouseIsDown, setMouseIsDown] = useState(false);
+    const [mouseIsDown, setMouseIsDown] = useState(null);
     const [mouseIsMoving, setMouseIsMoving] = useState(false);
     const [elementPosition, setElementPosition] = useState({
         x: 0,
@@ -698,8 +701,8 @@ function AddOrEditWearablePreview(props) {
             e.preventDefault();
             setMouseIsMoving(e);
         }
+        if (mouseIsDown === null) return;  // do not want this firing on first render otherwise image coords get set to 0, 0!
         if (!mouseIsDown) {
-            setMouseIsDown(false);
             setMouseIsMoving(false);
             const calculateImageCoords = () => ({
                 x: (elementPosition.x * 100) / previewBox.scrollWidth,
@@ -750,13 +753,13 @@ function AddOrEditWearablePreview(props) {
                 <div ref={preview}>
                     <PianopetBase />
                     <img
-                    alt="preview"
-                    src={src}
-                    ref={draggable}
-                    className={`draggable${mouseIsDown ? ' dragging' : ''}`}
-                    style={{
-                        width: image.w + '%',
-                        transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
+                        alt="preview"
+                        src={src}
+                        ref={draggable}
+                        className={`draggable${mouseIsDown ? ' dragging' : ''}`}
+                        style={{
+                            width: image.w + '%',
+                            transform: `translate3d(${elementPosition.x}px, ${elementPosition.y}px, 0)`
                         }} />
                 </div>
             </div>
