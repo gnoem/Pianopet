@@ -189,10 +189,9 @@ export default function Marketplace(props) {
         },
         confirmDeleteCategory: (category) => {
             // check if empty
-            let content;
-            const handleDelete = async (e, reassignWearables = false) => {
+            const handleDelete = async (e, newCategory = false) => {
                 e.preventDefault();
-                props.updateModal(content({ loadingIcon: true }));
+                if (!newCategory) props.updateModal(content({ loadingIcon: true }));
                 const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
                     method: 'DELETE',
                     headers: {
@@ -200,7 +199,7 @@ export default function Marketplace(props) {
                     },
                     body: JSON.stringify({
                         _id: category._id,
-                        reassignWearables
+                        newCategory
                     })
                 });
                 const body = await response.json();
@@ -211,22 +210,23 @@ export default function Marketplace(props) {
                 props.updateModal(false);
             }
             const categoryIsEmpty = (() => !wearables.some(wearable => wearable.category === category._id))();
-            if (categoryIsEmpty) content = (options = {
+            let content = (options = {
                 loadingIcon: false
-            }) => (
-                <div className="modalBox">
-                    <h2>Delete this category</h2>
-                    Are you sure you want to delete the category "{category.name}"?
-                    {options.loadingIcon
-                        ?   <Loading />
-                        :   <form className="buttons" onSubmit={handleDelete}>
-                                <button type="submit">Yes, I'm sure</button>
-                                <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                            </form>
-                        }
-                </div>
-            );
-            else content = () => <div>you need to move the contents to a different category then</div>;
+            }) => {
+                if (categoryIsEmpty) return (
+                    <div className="modalBox">
+                        <h2>Delete this category</h2>
+                        Are you sure you want to delete the category "{category.name}"?
+                        {options.loadingIcon
+                            ?   <Loading />
+                            :   <form className="buttons" onSubmit={handleDelete}>
+                                    <button type="submit">Yes, I'm sure</button>
+                                    <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                                </form>
+                            }
+                    </div>
+                ); else return <DeleteWearableCategory {...props} category={category} loading={options.loadingIcon} handleDelete={handleDelete}  />
+            }
             props.updateModal(content());
         },
         editOrDeleteCategory: (e, category) => {
@@ -767,8 +767,10 @@ function AddOrEditWearablePreview(props) {
 }
 
 function DeleteWearableCategory(props) {
-    const { category, categories, teacher } = props; // props.handleDelete
-    const [formData, setFormData] = useState({});
+    const { category, categories, teacher, loadingIcon } = props; // props.handleDelete
+    const [formData, setFormData] = useState({
+        category: categories[0]._id
+    });
     const [categoriesList, setCategoriesList] = useState(() => {
         const array = categories.filter(item => item._id !== category._id);
         return array.map(item => ({
@@ -776,6 +778,7 @@ function DeleteWearableCategory(props) {
             display: item.name
         }));
     });
+    const getCategoryName = (id) => categoriesList.find(item => item.value === id).display;
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
             ...prevState,
@@ -787,6 +790,10 @@ function DeleteWearableCategory(props) {
         listItems: categoriesList
     }
     const addCategory = async (categoryName) => {
+        setCategoriesList(prevState => {
+            prevState.push({ value: categoryName, display: categoryName });
+            return prevState;
+        });
         const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
             method: 'POST',
             headers: {
@@ -802,7 +809,8 @@ function DeleteWearableCategory(props) {
         if (!body.success) return console.log('no success response from server');
         const { _id, name } = body.newCategory;
         setCategoriesList(prevState => {
-            prevState.push({ value: _id, display: name });
+            const index = prevState.findIndex(item => item.value === categoryName);
+            prevState.splice(index, 1, { value: _id, display: name });
             return prevState;
         });
         props.refreshData();
@@ -810,9 +818,9 @@ function DeleteWearableCategory(props) {
     return (
         <div className="modalBox">
             <h2>Delete category</h2>
-            The category "{category.name}" contains X number of wearables. If you want to delete it, you need to move them to a different category.
-            <div>
-                <label>Select a category:</label>
+            <p>The category "{category.name}" contains X number of wearables. If you want to delete it, you need to move them to a different category.</p>
+            <div style={{ textAlign: 'center' }}>
+                <label style={{ textAlign: 'center' }}>Select a category:</label>
                 <Dropdown
                     minWidth="10rem"
                     defaultValue={dropdownItems.defaultValue}
@@ -820,6 +828,13 @@ function DeleteWearableCategory(props) {
                     addNew={addCategory}
                     onChange={(value) => updateFormData('category', value)} />
             </div>
+            {loadingIcon
+                ?   <Loading />
+                :   <form className="buttons" onSubmit={(e) => props.handleDelete(e, formData.category)}>
+                        <button type="submit">Move to category {getCategoryName(formData.category)}</button>
+                        <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                    </form>
+                }
         </div>
     )
 }
