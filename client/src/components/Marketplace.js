@@ -9,7 +9,7 @@ import { ntc } from '../utils/ntc';
 export default function Marketplace(props) {
     const { viewingAsTeacher, student, avatar, teacher, wearables, categories, isMobile } = props;
     const [preview, setPreview] = useState(null);
-    const [category, setCategory] = useState(() => categories[0]);
+    const [category, setCategory] = useState(categories[0]);
     const wearableRefs = useRef({});
     useEffect(() => {
         if (avatar) setPreview(avatar);
@@ -191,7 +191,7 @@ export default function Marketplace(props) {
             // check if empty
             const handleDelete = async (e, newCategory = false) => {
                 e.preventDefault();
-                if (!newCategory) props.updateModal(content({ loadingIcon: true }));
+                props.updateModal(content({ loadingIcon: true }));
                 const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
                     method: 'DELETE',
                     headers: {
@@ -205,6 +205,7 @@ export default function Marketplace(props) {
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
+                // todo if new category setCategory to it
                 //todo shrink it down in the list before it disappears
                 props.refreshData();
                 props.updateModal(false);
@@ -225,7 +226,9 @@ export default function Marketplace(props) {
                                 </form>
                             }
                     </div>
-                ); else return <DeleteWearableCategory {...props} category={category} loading={options.loadingIcon} handleDelete={handleDelete}  />
+                ); else return (
+                    <DeleteWearableCategory {...props} category={category} loadingIcon={options.loadingIcon} handleDelete={handleDelete}  />
+                );
             }
             props.updateModal(content());
         },
@@ -778,7 +781,6 @@ function DeleteWearableCategory(props) {
             display: item.name
         }));
     });
-    const getCategoryName = (id) => categoriesList.find(item => item.value === id).display;
     const updateFormData = (key, value) => {
         setFormData(prevState => ({
             ...prevState,
@@ -808,6 +810,7 @@ function DeleteWearableCategory(props) {
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
         const { _id, name } = body.newCategory;
+        setFormData({ category: _id });
         setCategoriesList(prevState => {
             const index = prevState.findIndex(item => item.value === categoryName);
             prevState.splice(index, 1, { value: _id, display: name });
@@ -815,8 +818,12 @@ function DeleteWearableCategory(props) {
         });
         props.refreshData();
     }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        props.handleDelete(e, formData.category)
+    }
     return (
-        <div className="modalBox">
+        <form className="modalBox" onSubmit={handleSubmit}>
             <h2>Delete category</h2>
             <p>The category "{category.name}" contains X number of wearables. If you want to delete it, you need to move them to a different category.</p>
             <div style={{ textAlign: 'center' }}>
@@ -830,11 +837,11 @@ function DeleteWearableCategory(props) {
             </div>
             {loadingIcon
                 ?   <Loading />
-                :   <form className="buttons" onSubmit={(e) => props.handleDelete(e, formData.category)}>
-                        <button type="submit">Move to category {getCategoryName(formData.category)}</button>
+                :   <div className="buttons">
+                        <button type="submit">Move wearables</button>
                         <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                    </form>
+                    </div>
                 }
-        </div>
+        </form>
     )
 }
