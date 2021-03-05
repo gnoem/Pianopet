@@ -30,19 +30,19 @@ export default function App() {
     const getData = async () => {
         const response = await fetch('/auth');
         const body = await response.json();
-        if (!body) return console.log('no response from server');
         if (!body.success) return setIsLoaded(true);
-        if (body.student) {
-            setStudent(body.student);
-            setTeacher(body.teacher);
-            setWearables(body.wearables);
-            setCategories(body.categories);
-            setBadges(body.badges);
+        const { student, teacher, wearables, categories, badges } = body;
+        if (student) {
+            setStudent(student);
+            setTeacher(teacher);
+            setWearables(wearables);
+            setCategories(categories);
+            setBadges(badges);
             setIsLoaded(true);
             return;
         }
-        if (body.teacher) {
-            setTeacher(body.teacher);
+        if (teacher) {
+            setTeacher(teacher);
             setIsLoaded(true);
             return;
         }

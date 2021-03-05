@@ -88,7 +88,7 @@ export default function Marketplace(props) {
                     const response = await fetch(`/wearable/${_id}`, { method: 'DELETE' });
                     const body = await response.json();
                     if (!body) return console.log('no response from server');
-                    if (!body.success) return console.log('no success response from server');
+                    if (!body.success) return console.log(body.error);
                     shrinkit(wearableRefs.current[_id], true);
                     props.refreshTeacher();
                     props.refreshData();
@@ -528,10 +528,8 @@ export function AddOrEditWearable(props) {
             y: wearable?.image ? wearable.image.y : 40
         }
     });
-    useEffect(() => {
-        console.dir(formData);
-    }, [])
     const [categoriesList, setCategoriesList] = useState(() => {
+        // todo figure out what to do about "Color"
         return categories.map(item => ({
             value: item._id,
             display: item.name

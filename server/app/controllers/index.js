@@ -5,44 +5,12 @@ import { Student, Teacher, Homework, Wearable, Category, Badge } from '../models
 
 const secretKey = process.env.SECRET_KEY;
 
-const Resource = {
-    create: async({ Model, body }) => {
-        const newThing = new Model(body);
-        const success = await newThing.save();
-        if (!success) throw new Error(`Error saving new ${Model.modelName}`);
-        return success;
-    },
-    get: async ({ Model, params }) => {
-        let resource = await Model.findOne(params);
-        if (!resource) throw new Error(`${Model.modelName} {${JSON.stringify(params)}} not found`);
-        return resource;
-    },
-    edit: async (resource, formData) => {
-        resource = Object.assign(resource, formData);
-        const success = await resource.save();
-        if (!success) throw new Error(`Error saving resource`);
-        return success;
-    },
-    delete: async ({ Model, params }) => {
-        let success = await Model.deleteOne(params);
-        if (!success) throw new Error(`Error deleting resources`);
-        return success;
-    }
-}
-
 /*
 patterns:
+- run().catch(err)
+- simple update resource: Document.findOne({ _id }) then document = Object.assign(document, data);
 - update array - e.g. student.badges.findIndex(callback) then student.badges[index] = someValue;
     but throw error if index === -1
-- every mongoose crud function ends the same way:
-    .then(success => {
-        res.send({ success });
-    }).catch(err => {
-        res.send({
-            success: false,
-            error: err.message
-        });
-    });
 */
 
 const handle = (promise) => {
@@ -52,89 +20,45 @@ const handle = (promise) => {
 }
 
 export default {
-    custom: (req, res) => {
-        console.log('hi');
-    },
+    custom: () => {},
     auth: (req, res) => {
-        const accessToken = req.cookies.auth;
+        const accessToken = req.cookies?.auth;
         if (!accessToken) return res.send({ student: false, teacher: false });
         const decoded = jwt.verify(accessToken, secretKey);
-        Student.findOne({ _id: decoded.id }, (err, student) => {
-            if (err) {
-                console.error('error', err);
-                res.send({ success: false });
-                return;
+        const run = async () => {
+            const [student, studentError] = await handle(Student.findOne({ _id: decoded.id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
+            if (student) {
+                const { teacherCode } = student;
+                const [data, dataError] = await handle(Promise.all([
+                    Teacher.findOne({ _id: teacherCode }),
+                    Wearable.find({ teacherCode }),
+                    Category.find({ teacherCode }),
+                    Badge.find({ teacherCode })
+                ]));
+                if (dataError) throw new Error(`Error retrieving data associated with teacher ${teacherCode}`);
+                if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+                const [teacher, wearables, categories, badges] = data;
+                res.send({ success: true, student, teacher, wearables, categories, badges });
+            } else {
+                const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
+                if (teacherError) throw new Error(`Error finding user ${_id}`);
+                if (!teacher) throw new Error(`User ${_id} not found`);
+                res.send({ success: true, teacher });
             }
-            if (!student) {
-                Teacher.findOne({ _id: decoded.id }, (err, teacher) => {
-                    if (err) {
-                        console.error('error finding teacher', err);
-                        res.send({ success: false });
-                        return;
-                    }
-                    if (!teacher) {
-                        console.error('no student OR teacher w that ID', err);
-                        res.send({ success: false });
-                        return;
-                    } // LOGOUT!!!!!
-                    return res.send({
-                        success: true,
-                        teacher
-                    });
-                });
-                return;
-            }
-            // [else...]
-            const { teacherCode } = student;
-            Teacher.findOne({ _id: teacherCode }, (err, teacher) => {
-                if (err) return console.error(`error finding teacher ${teacherCode}`, err);
-                if (!teacher) return console.log(`teacher ${teacherCode} not found`);
-                Wearable.find({ teacherCode }, (err, wearables) => {
-                    if (err) return console.error(`error finding wearables w/ teacherCode ${teacherCode}`, err);
-                    if (!wearables || !wearables.length) console.log(`did not find any wearables w/ teacherCode ${teacherCode}`);
-                    Category.find({ teacherCode }, (err, categories) => {
-                        if (err) return console.error(`error finding categories w/ teacherCode ${teacherCode}`, err);
-                        if (!categories || !categories.length) console.log(`did not find any categories w/ teacherCode ${teacherCode}`);
-                        Badge.find({ teacherCode }, (err, badges) => {
-                            if (err) return console.error(`error finding badges w/ teacherCode ${teacherCode}`, err);
-                            if (!badges || !badges.length) console.log(`did not find any badges w/ teacherCode ${teacherCode}`);
-                            return res.send({
-                                success: true,
-                                student,
-                                teacher,
-                                wearables,
-                                categories,
-                                badges
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     login: (req, res) => {
         const { role, username, password } = req.body;
-        const handleLogin = (err, user) => {
-            if (err) return console.error('error signing in', err);
-            if (!user) {
-                res.send({
-                    success: false,
-                    errors: {
-                        username: 'Username not found'
-                    }
-                });
-                return;
-            }
+        const run = async () => {
+            const User = role === 'student' ? Student : Teacher;
+            const [user, userError] = await handle(User.findOne({ username }));
+            if (userError) throw new Error(`Error finding ${role} ${username}`);
+            if (!user) throw new Error(`${role} ${username} not found`);
             const passwordIsValid = bcrypt.compareSync(password, user.password);
-            if (!passwordIsValid) {
-                res.send({
-                    success: false,
-                    errors: {
-                        password: 'Invalid password'
-                    }
-                });
-                return;
-            }
+            if (!passwordIsValid) throw new Error(`Invalid password`);
+            // TODO see if error can be turned into res.send({ success: false, errors: { password: 'Invalid password' } })
             const accessToken = jwt.sign({ id: user.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
@@ -143,12 +67,9 @@ export default {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.send({
-                success: true
-            });
+            res.send({ success: user });
         }
-        if (role === 'student') return Student.findOne({ username }, handleLogin);
-        if (role === 'teacher') return Teacher.findOne({ username }, handleLogin);
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     logout: (req, res) => {
         res.clearCookie('auth');
@@ -210,62 +131,53 @@ export default {
         run().catch(err => res.send({ success: false, error: err.message }));
     },
     getTeacher: (req, res) => {
-        const { id } = req.params;
-        Student.find({ teacherCode: id }, (err, students) => {
-            if (err) return console.error('error finding students', err);
-            if (!students || !students.length) console.log('this teacher has no students');
-            Wearable.find({ teacherCode: id }, (err, wearables) => {
-                if (err) return console.error('error finding wearables', err);
-                if (!wearables || !wearables.length) console.log('this teacher hasnt uploaded any wearables');
-                Category.find({ teacherCode: id }, (err, categories) => {
-                    if (err) return console.error('error finding categories', err);
-                    if (!categories || !categories.length) console.log('this teacher hasnt created any categories');
-                    Badge.find({ teacherCode: id }, (err, badges) => {
-                        if (err) return console.error('error finding badges', err);
-                        if (!badges || !badges.length) console.log('this teacher hasnt uploaded any badges');
-                        res.send({
-                            success: true,
-                            students,
-                            wearables,
-                            categories,
-                            badges
-                        });
-                    });
-                });
-            });
-        });
+        const { id: teacherCode } = req.params; // todo figure out why I am not doing this as part of auth?
+        // i think theres a reason but i cant remember
+        // something to do with state vs props in Teacher.js (one level down from when fetch('/auth') is called)
+        // or maybe refreshData / refreshTeacher functions
+        const run = async () => {
+            const [data, dataError] = await handle(Promise.all([
+                Student.find({ teacherCode }),
+                Wearable.find({ teacherCode }),
+                Category.find({ teacherCode }),
+                Badge.find({ teacherCode })
+            ]));
+            if (dataError) throw new Error(`Error retrieving data for teacher ${teacherCode}`);
+            if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            const [students, wearables, categories, badges] = data;
+            res.send({ success: true, students, wearables, categories, badges });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editAccount: (req, res) => {
         const { id: _id } = req.params;
-        const formData = req.body;
-        const editAccount = (err, user) => {
-            if (err) return console.error(`error finding user ${_id}`, err);
-            if (!user) return console.log(`user ${_id} not found`);
-            user = Object.assign(user, formData);
-            user.save(err => {
-                if (err) return console.error(`error saving user ${_id}`, err);
-                res.send({ success: true });
-                return;
-            });
+        const { role, firstName, lastName, username, email, profilePic } = req.body;
+        const run = async () => {
+            const User = role === 'student' ? Student : Teacher;
+            let [user, userError] = await handle(User.findOne({ _id }));
+            if (userError) throw new Error(`Error finding user ${_id}`);
+            if (!user) throw new Error(`User ${_id} not found`);
+            user = Object.assign(user, { firstName, lastName, username, email, profilePic });
+            const [success, saveError] = await handle(user.save());
+            if (saveError) throw new Error(`Error saving user ${_id}`);
+            res.send({ success });
         }
-        if (formData.role === 'teacher') Teacher.findOne({ _id }, editAccount);
-        if (formData.role === 'student') Student.findOne({ _id }, editAccount);
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editPassword: (req, res) => {
         const { id: _id } = req.params;
         const { role, newPassword } = req.body;
-        const editPassword = (err, user) => {
-            if (err) return console.error(`error finding user ${_id}`, err);
-            if (!user) return console.log(`user ${_id} not found`);
-            user.password = bcrypt.hashSync(newPassword, 8);
-            user.save(err => {
-                if (err) return console.error(`error saving user ${_id}`, err);
-                res.send({ success: true });
-                return;
-            });
+        const run = async () => {
+            const User = role === 'student' ? Student : Teacher;
+            let [user, userError] = await handle(User.findOne({ _id }));
+            if (userError) throw new Error(`Error finding user ${_id}`);
+            if (!user) throw new Error(`User ${_id} not found`);
+            user = Object.assign(user, { password: bcrypt.hashSync(newPassword, 8) });
+            const [success, saveError] = await handle(user.save());
+            if (saveError) throw new Error(`Error saving user ${_id}`);
+            res.send({ success });
         }
-        if (role === 'teacher') Teacher.findOne({ _id }, editPassword);
-        if (role === 'student') Student.findOne({ _id }, editPassword);
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     addHomework: (req, res) => {
         const { id: studentId } = req.params;
@@ -287,18 +199,12 @@ export default {
     },
     getHomework: (req, res) => {
         const { id: studentId } = req.params;
-        Homework.find({ studentId }).sort({ date: 'desc' }).exec((err, homework) => {
-            if (err) return console.error('error finding homework', err);
-            if (!homework) {
-                console.log('no homework exists for this student');
-                res.send({ success: false });
-                return;
-            }
-            res.send({
-                success: true,
-                homework: homework
-            });
-        });
+        const run = async () => {
+            const [homework, homeworkError] = await handle(Homework.find({ studentId }).sort({ date: 'desc' }));
+            if (homeworkError) throw new Error(`Error finding homework for student ${studentId}`);
+            res.send({ success: true, homework });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     editHomework: (req, res) => {
         const { id: _id } = req.params;
@@ -328,7 +234,8 @@ export default {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     },
-    updateRecorded: (req, res) => { // todo maybe combine this one and update progress? difference is literally one line
+    updateRecorded: (req, res) => {
+        // todo maybe combine this one and update progress? difference is literally one line
         const { id: _id } = req.params;
         const { index, recorded } = req.body;
         const run = async () => {
@@ -385,30 +292,33 @@ export default {
     },
     deleteWearable: (req, res) => {
         const { id: _id } = req.params;
-        Wearable.findOneAndDelete({ _id }, (err, wearable) => {
-            if (err) return console.error('error finding and deleting wearable', err);
-            if (!wearable) return console.log(`no wearable with _id ${_id}`);
-            // deleting wearable from students' closets as well
-            if (wearable.ownedBy) { // if array exists and its length > 0
-                for (let [index, studentId] of wearable.ownedBy.entries()) {
-                    Student.findOne({ _id: studentId }, (err, student) => {
-                        if (err) return console.error(`error finding student ${studentId}`, err);
-                        if (!student) return console.log(`no student with id ${studentId}`);
-                        const removeWearable = (id, array) => {
-                            const index = array.indexOf(id);
-                            if (index !== -1) array.splice(index, 1);
-                        }
-                        removeWearable(_id, student.closet);
-                        removeWearable(_id, student.avatar);
-                        student.save(err => {
-                            if (err) return console.error(`error saving student ${studentId}`, err);
-                            console.log(`removed ${_id} from closet and avatar of student ${studentId}`);
-                            if (index === wearable.ownedBy.length - 1) res.send({ success: true }); // todo better please
-                        });
-                    });
+        const run = async () => {
+            const [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
+            if (wearableError) throw new Error(`Error finding wearable ${_id}`);
+            if (!wearable) throw new Error(`Wearable ${_id} not found`);
+            // loop through students in wearable.ownedBy and remove wearable._id from student.closet and student.avatar arrays
+            const studentIds = wearable.ownedBy || [];
+            const [students, studentsError] = await handle(Promise.all(studentIds.map(studentId => Student.findOne({ _id: studentId }))));
+            if (studentsError) throw new Error(`Error retrieving students with this wearable`);
+            // removeFromStudents will be an array of promises to spread out into upcoming Promise.all() along with wearable.deleteOne()
+            const removeFromStudents = students.map(student => {
+                const removeWearable = (id, arrays) => {
+                    for (let array of arrays) {
+                        const index = array.indexOf(id);
+                        if (index !== -1) array.splice(index, 1);
+                    }
                 }
-            }
-        });
+                removeWearable(_id, [student.closet, student.avatar]);
+                return student.save();
+            });
+            const [success, error] = await handle(Promise.all([
+                wearable.deleteOne(),
+                ...removeFromStudents
+            ]));
+            if (error) throw new Error(`Error deleting wearable ${_id}`);
+            res.send({ success });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     addBadge: (req, res) => {
         // todo validate name
@@ -436,31 +346,29 @@ export default {
     },
     deleteBadge: (req, res) => {
         const { id: _id } = req.params;
-        Badge.findOneAndDelete({ _id }, (err, badge) => {
-            if (err) return console.error('error finding and deleting badge', err);
-            if (!badge) return console.log(`no badge with _id ${_id}`);
-            if (badge.awardedTo) {
-                for (let [index, studentId] of badge.awardedTo.entries()) {
-                    Student.findOne({ _id: studentId }, (err, student) => {
-                        if (err) return console.error(`error finding student ${studentId}`, err);
-                        if (!student) return console.log(`no student with id ${studentId}`);
-                        const removeBadge = (id, array) => {
-                            // student.badges array contains some object such that object.id === badge._id
-                            // find its index and splice it out
-                            const index = array.findIndex(object => object.id === id);
-                            if (index !== -1) array.splice(index, 1);
-                        }
-                        removeBadge(_id, student.badges);
-                        student.save(err => {
-                            if (err) return console.error(`error saving student ${studentId}`, err);
-                            console.log(`removed ${_id} from badgelist of student ${studentId}`);
-                            if (index + 1 === badge.awardedTo.length) res.send({ success: true }); // todo better please
-                        });
-                    });
+        const run = async () => {
+            const [badge, badgeError] = await handle(Badge.findOne({ _id }));
+            if (badgeError) throw new Error(`Error finding badge ${_id}`);
+            if (!badge) throw new Error(`Badge ${_id} not found`);
+            const studentIds = badge.awardedTo || [];
+            const [students, studentsError] = await handle(Promise.all(studentIds.map(studentId => Student.findOne({ _id: studentId }))));
+            if (studentsError) throw new Error(`Error retrieving students with this badge`);
+            const removeFromStudents = students.map(student => {
+                const removeBadge = (id, array) => {
+                    const index = array.findIndex(object => object.id === id);
+                    if (index !== -1) array.splice(index, 1);
                 }
-            }
-            res.send({ success: true });
-        });
+                removeBadge(_id, student.badges);
+                return student.save();
+            });
+            const [success, error] = await handle(Promise.all([
+                badge.deleteOne(),
+                ...removeFromStudents
+            ]));
+            if (error) throw new Error(`Error deleting badge ${_id}`);
+            res.send({ success });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     addWearableCategory: (req, res) => {
         const { id: teacherCode } = req.params;
@@ -472,7 +380,7 @@ export default {
                 teacherCode
             }));
             if (createError) throw new Error(`Error creating new category`);
-            res.send({ success: success });
+            res.send({ success: true, newCategory: success }); // todo correct this here and in Marketplace.js
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     },
@@ -507,31 +415,25 @@ export default {
     updateBadges: (req, res) => {
         const { id: _id } = req.params;
         const { badgeId } = req.body;
-        Student.findOne({ _id }, (err, student) => {
-            if (err) return console.error(`error finding student ${_id}`, err);
-            if (!student) return console.log(`couldn't find student ${_id}`);
-            if (!student.badges) student.badges = [{
-                id: badgeId,
-                redeemed: false
-            }];
-            const alreadyHasBadge = () => {
+        const run = async () => {
+            const [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new Error(`Error finding student ${_id}`);
+            if (!student) throw new Error(`Student ${_id} not found`);
+            const alreadyHasBadge = (() => {
+                if (!student.badges || !student.badges.length) return false;
                 const index = student.badges.findIndex(object => object.id === badgeId);
                 if (index === -1) return false;
                 return true;
-            }
-            if (alreadyHasBadge()) return res.send({
-                success: false,
-                error: 'This student already has this badge'
-            });
-            else student.badges.push({
-                id: badgeId,
-                redeemed: false
-            });
-            student.save(err => {
-                if (err) return console.error(`error saving student ${_id}`, err);
-                return res.send({ success: true });
-            });
-        });
+            })();
+            if (alreadyHasBadge) throw new Error(`This student has already been awarded this badge`);
+            const newBadge = { id: badgeId, redeemed: false };
+            if (!student.badges) student.badges = [];
+            student.badges.push(newBadge);
+            const [success, saveError] = await handle(student.save());
+            if (saveError) throw new Error(`Error saving student ${_id}`);
+            res.send({ success });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
     },
     updateBadgeRedeemed: (req, res) => {
         const { id: _id } = req.params;
