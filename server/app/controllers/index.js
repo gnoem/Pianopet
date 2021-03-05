@@ -19,37 +19,42 @@ const handle = (promise) => {
         .catch(err => Promise.resolve([undefined, err]));
 }
 
-export default {
-    custom: () => {},
-    auth: (req, res) => {
+class Controller {
+    custom = () => {
+        console.log('hi')
+    }
+    auth = (req, res) => {
         const accessToken = req.cookies?.auth;
         if (!accessToken) return res.send({ student: false, teacher: false });
         const decoded = jwt.verify(accessToken, secretKey);
         const run = async () => {
             const [student, studentError] = await handle(Student.findOne({ _id: decoded.id }));
             if (studentError) throw new Error(`Error finding student ${_id}`);
-            if (student) {
-                const { teacherCode } = student;
-                const [data, dataError] = await handle(Promise.all([
-                    Teacher.findOne({ _id: teacherCode }),
-                    Wearable.find({ teacherCode }),
-                    Category.find({ teacherCode }),
-                    Badge.find({ teacherCode })
-                ]));
-                if (dataError) throw new Error(`Error retrieving data associated with teacher ${teacherCode}`);
-                if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
-                const [teacher, wearables, categories, badges] = data;
-                res.send({ success: true, student, teacher, wearables, categories, badges });
-            } else {
-                const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
-                if (teacherError) throw new Error(`Error finding user ${_id}`);
-                if (!teacher) throw new Error(`User ${_id} not found`);
-                res.send({ success: true, teacher });
-            }
+            if (student) return this.getStudent(res, student);
+            const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
+            if (teacherError) throw new Error(`Error finding user ${_id}`);
+            if (!teacher) throw new Error(`User ${_id} not found`);
+            res.send({ success: true, teacher });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    login: (req, res) => {
+    }
+    getStudent = (res, student) => {
+        const { teacherCode } = student;
+        const run = async () => {
+            const [data, dataError] = await handle(Promise.all([
+                Teacher.findOne({ _id: teacherCode }),
+                Wearable.find({ teacherCode }),
+                Category.find({ teacherCode }),
+                Badge.find({ teacherCode })
+            ]));
+            if (dataError) throw new Error(`Error retrieving data associated with teacher ${teacherCode}`);
+            if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            const [teacher, wearables, categories, badges] = data;
+            res.send({ success: true, student, teacher, wearables, categories, badges });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
+    }
+    login = (req, res) => {
         const { role, username, password } = req.body;
         const run = async () => {
             const User = role === 'student' ? Student : Teacher;
@@ -70,12 +75,12 @@ export default {
             res.send({ success: user });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    logout: (req, res) => {
+    }
+    logout = (req, res) => {
         res.clearCookie('auth');
         res.redirect('/');
-    },
-    studentSignup: (req, res) => {
+    }
+    studentSignup = (req, res) => {
         const { firstName, lastName, username, password, teacherCode } = req.body;
         const errors = validationResult(req);
         if (!errors.isEmpty()) return console.log('errors found...', errors);
@@ -102,8 +107,8 @@ export default {
             });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    teacherSignup: (req, res) => {
+    }
+    teacherSignup = (req, res) => {
         const { username, password } = req.body;
         const errors = validationResult(req);
         if (!errors.isEmpty()) return console.log('errors found...', errors);
@@ -129,8 +134,8 @@ export default {
             });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    getTeacher: (req, res) => {
+    }
+    getTeacher = (req, res) => {
         const { id: teacherCode } = req.params; // todo figure out why I am not doing this as part of auth?
         // i think theres a reason but i cant remember
         // something to do with state vs props in Teacher.js (one level down from when fetch('/auth') is called)
@@ -148,8 +153,8 @@ export default {
             res.send({ success: true, students, wearables, categories, badges });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editAccount: (req, res) => {
+    }
+    editAccount = (req, res) => {
         const { id: _id } = req.params;
         const { role, firstName, lastName, username, email, profilePic } = req.body;
         const run = async () => {
@@ -163,8 +168,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editPassword: (req, res) => {
+    }
+    editPassword = (req, res) => {
         const { id: _id } = req.params;
         const { role, newPassword } = req.body;
         const run = async () => {
@@ -178,8 +183,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    addHomework: (req, res) => {
+    }
+    addHomework = (req, res) => {
         const { id: studentId } = req.params;
         const run = async () => {
             const [homework, homeworkError] = await handle(Homework.create({ studentId, ...req.body }));
@@ -187,8 +192,8 @@ export default {
             res.send({ success: homework });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    deleteHomework: (req, res) => {
+    }
+    deleteHomework = (req, res) => {
         const { id: _id } = req.params;
         const run = async () => {
             const [homework, homeworkError] = await handle(Homework.findOneAndDelete({ _id }));
@@ -196,8 +201,8 @@ export default {
             res.send({ success: homework });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    getHomework: (req, res) => {
+    }
+    getHomework = (req, res) => {
         const { id: studentId } = req.params;
         const run = async () => {
             const [homework, homeworkError] = await handle(Homework.find({ studentId }).sort({ date: 'desc' }));
@@ -205,8 +210,8 @@ export default {
             res.send({ success: true, homework });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editHomework: (req, res) => {
+    }
+    editHomework = (req, res) => {
         const { id: _id } = req.params;
         const { date, headline, assignments } = req.body;
         const run = async () => {
@@ -219,8 +224,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateProgress: (req, res) => {
+    }
+    updateProgress = (req, res) => {
         const { id: _id } = req.params;
         const { index, value } = req.body;
         const run = async () => {
@@ -233,8 +238,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateRecorded: (req, res) => {
+    }
+    updateRecorded = (req, res) => {
         // todo maybe combine this one and update progress? difference is literally one line
         const { id: _id } = req.params;
         const { index, recorded } = req.body;
@@ -248,8 +253,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateCoins: (req, res) => {
+    }
+    updateCoins = (req, res) => {
         const { id: _id } = req.params;
         const { coins } = req.body;
         const run = async () => {
@@ -262,8 +267,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    addWearable: (req, res) => {
+    }
+    addWearable = (req, res) => {
         // todo validate name
         const { teacherCode, name, category, src, value, image } = req.body;
         const run = async () => {
@@ -274,8 +279,8 @@ export default {
             res.send({ success: wearable });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editWearable: (req, res) => {
+    }
+    editWearable = (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
         const { name, category, src, value, image } = req.body;
@@ -289,8 +294,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    deleteWearable: (req, res) => {
+    }
+    deleteWearable = (req, res) => {
         const { id: _id } = req.params;
         const run = async () => {
             const [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
@@ -319,8 +324,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    addBadge: (req, res) => {
+    }
+    addBadge = (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
         const run = async () => {
@@ -329,8 +334,8 @@ export default {
             res.send({ success: badge });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editBadge: (req, res) => {
+    }
+    editBadge = (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
         const run = async () => {
@@ -343,8 +348,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    deleteBadge: (req, res) => {
+    }
+    deleteBadge = (req, res) => {
         const { id: _id } = req.params;
         const run = async () => {
             const [badge, badgeError] = await handle(Badge.findOne({ _id }));
@@ -369,8 +374,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    addWearableCategory: (req, res) => {
+    }
+    addWearableCategory = (req, res) => {
         const { id: teacherCode } = req.params;
         // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)
         const { categoryName } = req.body;
@@ -383,8 +388,8 @@ export default {
             res.send({ success: true, newCategory: success }); // todo correct this here and in Marketplace.js
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    editWearableCategory: (req, res) => {
+    }
+    editWearableCategory = (req, res) => {
         const { id: teacherCode } = req.params;
         const { _id, categoryName } = req.body;
         // todo validate name
@@ -398,8 +403,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    deleteWearableCategory: async (req, res) => {
+    }
+    deleteWearableCategory = (req, res) => {
         const { id: teacherCode } = req.params;
         const { _id, newCategory } = req.body;
         const run = async () => {
@@ -411,8 +416,8 @@ export default {
             res.send({ success: { category, wearables } });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateBadges: (req, res) => {
+    }
+    updateBadges = (req, res) => {
         const { id: _id } = req.params;
         const { badgeId } = req.body;
         const run = async () => {
@@ -434,8 +439,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateBadgeRedeemed: (req, res) => {
+    }
+    updateBadgeRedeemed = (req, res) => {
         const { id: _id } = req.params;
         const { badgeId, badgeValue } = req.body;
         const run = async () => {
@@ -452,8 +457,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateCloset: (req, res) => {
+    }
+    updateCloset = (req, res) => {
         const { id: _id } = req.params;
         const { wearableId, wearableCost } = req.body;
         const run = async () => {
@@ -470,8 +475,8 @@ export default {
             res.send({ success });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
-    },
-    updateAvatar: (req, res) => {
+    }
+    updateAvatar = (req, res) => {
         const { id: _id } = req.params;
         const { avatar } = req.body;
         const run = async () => {
@@ -486,3 +491,5 @@ export default {
         run().catch(err => res.send({ success: false, error: err.message }));
     }
 }
+
+export default new Controller();

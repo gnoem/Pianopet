@@ -1,55 +1,55 @@
-import controller from '../controllers/index.js';
+import Controller from '../controllers/index.js';
 import { validate } from '../middleware/index.js';
 
 export default function (app) {
-    app.post('/custom', controller.custom);
+    app.post('/custom', Controller.custom);
 
     // COMMON
-    app.get('/auth', controller.auth);
-    app.post('/login', controller.login);
-    app.get('/logout', controller.logout);
+    app.get('/auth', Controller.auth);
+    app.post('/login', Controller.login);
+    app.get('/logout', Controller.logout);
 
     // TEACHER
     app.route('/teacher')
-        .post(validate.teacherSignup, controller.teacherSignup);
+        .post(validate.teacherSignup, Controller.teacherSignup);
     app.route('/teacher/:id')
-        .get(controller.getTeacher)
-        .put(controller.editAccount);
+        .get(Controller.getTeacher)
+        .put(Controller.editAccount);
     app.route('/teacher/:id/password')
-        .put(controller.editPassword);
+        .put(Controller.editPassword);
     app.route('/teacher/:id/wearable-category') // todo fix route name hierarchy
-        .post(controller.addWearableCategory)
-        .put(controller.editWearableCategory)
-        .delete(controller.deleteWearableCategory);
+        .post(Controller.addWearableCategory)
+        .put(Controller.editWearableCategory)
+        .delete(Controller.deleteWearableCategory);
     app.route('/wearable')
-        .post(controller.addWearable);
+        .post(Controller.addWearable);
     app.route('/wearable/:id')
-        .put(controller.editWearable)
-        .delete(controller.deleteWearable);
+        .put(Controller.editWearable)
+        .delete(Controller.deleteWearable);
     app.route('/badge')
-        .post(controller.addBadge);
+        .post(Controller.addBadge);
     app.route('/badge/:id')
-        .put(controller.editBadge)
-        .delete(controller.deleteBadge);
+        .put(Controller.editBadge)
+        .delete(Controller.deleteBadge);
     
     // STUDENT
-    app.post('/student', validate.studentSignup, controller.studentSignup);
+    app.post('/student', validate.studentSignup, Controller.studentSignup);
     app.route('/student/:id')
-        .put(controller.editAccount);
+        .put(Controller.editAccount);
     app.route('/student/:id/password')
-        .put(controller.editPassword);
+        .put(Controller.editPassword);
     app.route('/student/:id/homework')
-        .get(controller.getHomework)
-        .post(controller.addHomework);
+        .get(Controller.getHomework)
+        .post(Controller.addHomework);
     app.route('/student/homework/:id')
-        .put(controller.editHomework)
-        .delete(controller.deleteHomework);
-    app.put('/assignment/:id/progress', controller.updateProgress);
-    app.put('/assignment/:id/recorded', controller.updateRecorded);
-    app.put('/student/:id/coins', controller.updateCoins);
-    app.put('/student/:id/badges', controller.updateBadges);
+        .put(Controller.editHomework)
+        .delete(Controller.deleteHomework);
+    app.put('/assignment/:id/progress', Controller.updateProgress);
+    app.put('/assignment/:id/recorded', Controller.updateRecorded);
+    app.put('/student/:id/coins', Controller.updateCoins);
+    app.put('/student/:id/badges', Controller.updateBadges);
     app.route('/student/:id/badge/redeemed')
-        .put(controller.updateBadgeRedeemed);
-    app.put('/student/:id/closet', controller.updateCloset);
-    app.put('/student/:id/avatar', controller.updateAvatar);
+        .put(Controller.updateBadgeRedeemed);
+    app.put('/student/:id/closet', Controller.updateCloset);
+    app.put('/student/:id/avatar', Controller.updateAvatar);
 }
