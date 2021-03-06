@@ -9,36 +9,21 @@ import MyAccount from './MyAccount';
 import Dropdown from './Dropdown';
 
 export default function Teacher(props) {
-    const { teacher } = props;
+    const { teacher, students } = props;
     const [view, setView] = useState({ type: 'home' });
-    const [students, setStudents] = useState([]);
-    const [wearables, setWearables] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [badges, setBadges] = useState([]);
-    const getTeacherData = async () => {
-        const response = await fetch(`/teacher/${teacher._id}`);
-        const body = await response.json();
-        if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
-        setStudents(body.students);
-        setWearables(body.wearables);
-        setCategories(body.categories);
-        setBadges(body.badges);
+    useEffect(() => {
         if (view.type === 'student') {
             const refreshCurrentStudent = (prevView) => {
                 let thisStudent = prevView.data;
-                let index = body.students.findIndex(student => student._id === thisStudent._id);
-                return body.students[index];
+                let index = students.findIndex(student => student._id === thisStudent._id);
+                return students[index];
             }
             setView(prevView => ({
                 type: 'student',
                 data: refreshCurrentStudent(prevView)
             }));
         }
-    }
-    useEffect(() => {
-        getTeacherData();
-    }, [teacher._id]);
+    }, [students]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const makeSureNameFits = (string) => {
@@ -62,12 +47,7 @@ export default function Teacher(props) {
     }
     const state = {
         view,
-        students,
-        wearables,
-        categories,
-        badges,
-        updateView: setView,
-        refreshData: getTeacherData
+        updateView: setView
     }
     return (
         <Dashboard teacher={true}>
@@ -212,7 +192,6 @@ function Badges(props) {
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log('no success response from server');
                 shrinkit(badgesRef.current[_id], true);
-                props.refreshTeacher();
                 props.refreshData();
                 props.updateModal(false);
             }

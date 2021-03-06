@@ -8,11 +8,11 @@ import Modal from './components/Modal';
 import ContextMenu from './components/ContextMenu';
 
 export default function App() {
-    const [student, setStudent] = useState(false);
-    const [teacher, setTeacher] = useState(false);
-    const [wearables, setWearables] = useState(false);
-    const [categories, setCategories] = useState(false);
-    const [badges, setBadges] = useState(false);
+    const [user, setUser] = useState({
+        teacher: false,
+        student: false
+    });
+    const [userData, setUserData] = useState({});
     const [isLoaded, setIsLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [contextMenu, setContextMenu] = useState(false);
@@ -31,18 +31,17 @@ export default function App() {
         const response = await fetch('/auth');
         const body = await response.json();
         if (!body.success) return setIsLoaded(true);
-        const { student, teacher, wearables, categories, badges } = body;
-        if (student) {
-            setStudent(student);
-            setTeacher(teacher);
-            setWearables(wearables);
-            setCategories(categories);
-            setBadges(badges);
+        const { studentData, teacherData } = body;
+        //return console.dir(body.studentData);
+        if (studentData) {
+            setUser({ student: true });
+            setUserData(studentData);
             setIsLoaded(true);
             return;
         }
-        if (teacher) {
-            setTeacher(teacher);
+        if (teacherData) {
+            setUser({ teacher: true });
+            setUserData(teacherData);
             setIsLoaded(true);
             return;
         }
@@ -63,21 +62,15 @@ export default function App() {
     const state = {
         modal,
         isMobile,
+        ...userData,
         logout,
         updateModal: setModal,
         updateContextMenu
     }
-    const studentProps = {
-        student,
-        teacher,
-        wearables,
-        categories,
-        badges
-    }
     const app = () => {
-        if (!student && !teacher) return <Guest />;
-        if (student) return <Student {...state} {...studentProps} refreshData={getData} />;
-        if (teacher) return <Teacher {...state} teacher={teacher} refreshTeacher={getData} />;
+        if (!user.student && !user.teacher) return <Guest />;
+        if (user.student) return <Student {...state} refreshData={getData} />;
+        if (user.teacher) return <Teacher {...state} refreshData={getData} />;
     }
     return (
         <div className="App">

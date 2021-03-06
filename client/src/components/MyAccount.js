@@ -50,8 +50,7 @@ export default function MyAccount(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        if (userType === 'teacher') props.refreshTeacher();
-        else props.refreshData();
+        props.refreshData();
         setFormSuccess(true);
         setFormSuccess(false);
     }
@@ -71,8 +70,7 @@ export default function MyAccount(props) {
         const body = await response.json();
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
-        if (userType === 'teacher') props.refreshTeacher();
-        else props.refreshData();
+        props.refreshData();
         setPasswordFormSuccess(true);
         setPasswordFormSuccess(false);
         setTimeout(() => {

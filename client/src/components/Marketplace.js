@@ -90,7 +90,6 @@ export default function Marketplace(props) {
                     if (!body) return console.log('no response from server');
                     if (!body.success) return console.log(body.error);
                     shrinkit(wearableRefs.current[_id], true);
-                    props.refreshTeacher();
                     props.refreshData();
                     props.updateModal(false);
                 }

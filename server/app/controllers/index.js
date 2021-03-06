@@ -30,27 +30,45 @@ class Controller {
         const run = async () => {
             const [student, studentError] = await handle(Student.findOne({ _id: decoded.id }));
             if (studentError) throw new Error(`Error finding student ${_id}`);
-            if (student) return this.getStudent(res, student);
+            if (student) return this.getStudent(res, student); // todo figure out if better way to res.send than passing res
             const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
             if (teacherError) throw new Error(`Error finding user ${_id}`);
-            if (!teacher) throw new Error(`User ${_id} not found`);
-            res.send({ success: true, teacher });
+            if (!teacher) throw new Error(`User ${_id} not found`); // and delete cookie? todo figure out
+            this.getTeacher(res, teacher);
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
     getStudent = (res, student) => {
         const { teacherCode } = student;
         const run = async () => {
-            const [data, dataError] = await handle(Promise.all([
+            const [foundData, dataError] = await handle(Promise.all([
                 Teacher.findOne({ _id: teacherCode }),
                 Wearable.find({ teacherCode }),
                 Category.find({ teacherCode }),
                 Badge.find({ teacherCode })
             ]));
             if (dataError) throw new Error(`Error retrieving data associated with teacher ${teacherCode}`);
-            if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
-            const [teacher, wearables, categories, badges] = data;
-            res.send({ success: true, student, teacher, wearables, categories, badges });
+            if (!foundData) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            const [teacher, wearables, categories, badges] = foundData;
+            const studentData = { student, teacher, wearables, categories, badges };
+            res.send({ success: true, studentData });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
+    }
+    getTeacher = (res, teacher) => {
+        const { _id: teacherCode } = teacher;
+        const run = async () => {
+            const [foundData, dataError] = await handle(Promise.all([
+                Student.find({ teacherCode }),
+                Wearable.find({ teacherCode }),
+                Category.find({ teacherCode }),
+                Badge.find({ teacherCode })
+            ]));
+            if (dataError) throw new Error(`Error retrieving data for teacher ${teacherCode}`);
+            if (!foundData) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            const [students, wearables, categories, badges] = foundData;
+            const teacherData = { teacher, students, wearables, categories, badges };
+            res.send({ success: true, teacherData });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
@@ -132,25 +150,6 @@ class Controller {
                 success: teacher,
                 accessToken
             });
-        }
-        run().catch(err => res.send({ success: false, error: err.message }));
-    }
-    getTeacher = (req, res) => {
-        const { id: teacherCode } = req.params; // todo figure out why I am not doing this as part of auth?
-        // i think theres a reason but i cant remember
-        // something to do with state vs props in Teacher.js (one level down from when fetch('/auth') is called)
-        // or maybe refreshData / refreshTeacher functions
-        const run = async () => {
-            const [data, dataError] = await handle(Promise.all([
-                Student.find({ teacherCode }),
-                Wearable.find({ teacherCode }),
-                Category.find({ teacherCode }),
-                Badge.find({ teacherCode })
-            ]));
-            if (dataError) throw new Error(`Error retrieving data for teacher ${teacherCode}`);
-            if (!data) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
-            const [students, wearables, categories, badges] = data;
-            res.send({ success: true, students, wearables, categories, badges });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
