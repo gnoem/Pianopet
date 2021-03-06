@@ -58,12 +58,12 @@ export default function App() {
             children: content
         });
     }
-    const updateModal = (modalContent) => {
-        if (modalContent) return setModal(modalContent);
+    const updateModal = (modalContent, set = setModal) => {
+        if (modalContent) return set(modalContent);
         const box = document.querySelector('.Modal');
-        if (!box) return setModal(false);
+        if (!box) return set(false);
         box.classList.remove('active');
-        setTimeout(() => setModal(false), 200);
+        setTimeout(() => set(false), 200);
     }
     const state = {
         modal,
@@ -71,7 +71,8 @@ export default function App() {
         ...userData,
         logout,
         updateModal,
-        updateContextMenu
+        updateContextMenu,
+        gracefullyCloseModal: (fn) => updateModal(false, fn)
     }
     const app = () => {
         if (!user.student && !user.teacher) return <Guest />;

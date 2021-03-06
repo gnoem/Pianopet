@@ -193,7 +193,7 @@ input[type=color] {
     background: #fff;
     border: 0;
 }
-input:not([type=submit]):not([type=range]):not([type=color]) {
+input[type=text], input[type=number], input[type=password] {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid transparent;
     border-radius: 0.5rem;
@@ -204,7 +204,7 @@ input:not([type=submit]):not([type=range]):not([type=color]) {
     width: 100%;
     height: 3rem;
 }
-input:not([type=submit]):not([type=range]):not([type=color]):focus {
+input[type=text]:focus, input[type=number]:focus, input[type=password]:focus {
     border-color: var(--med-theme-color);
 }
 input[type=submit], button {
@@ -1398,6 +1398,7 @@ img.statsIcon {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 9999999;
+    color: #000;
     opacity: 0;
     transition: 0.2s;
 }
@@ -1442,10 +1443,13 @@ img.statsIcon {
     color: #666;
     background: 0;
 }
-.Modal input:not([type=submit]):not([type=range]):not([type=color]) {
+.Modal input[type=text], .Modal input[type=number] {
     border-color: #ddd;
     color: #000;
     background: #fff;
+}
+.Modal input[type=text]:focus, .Modal input[type=number]:focus {
+    border-color: var(--med-theme-color);
 }
 /* .Modal button:not(.greyed):not(.exit), .Modal input[type=submit] {
     background: var(--med-theme-color);

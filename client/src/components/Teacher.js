@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Dashboard, Header, Sidebar, Nav } from './Dashboard';
 import ViewStudent from './ViewStudent';
-import Marketplace, { AddOrEditWearable } from './Marketplace';
+import Marketplace from './Marketplace';
 import Loading from './Loading';
 import ContextMenu from './ContextMenu';
 import { shrinkit } from '../utils';
@@ -137,23 +137,10 @@ function Home() {
 }
 
 function TeacherMarketplace(props) {
-    const { teacher, modal } = props;
-    const [wearableModal, setWearableModal] = useState(false);
-    useEffect(() => {
-        if (!modal) setWearableModal(false);
-    }, [modal]);
-    useEffect(() => {
-        if (wearableModal) addNewWearable();
-    }, [teacher]);
-    const addNewWearable = () => {
-        props.updateModal(<AddOrEditWearable {...props} />);
-        setWearableModal(true);
-    }
     return (
         <div className="Main">
             <h1>Marketplace</h1>
             <Marketplace {...props} viewingAsTeacher={true} />
-            <button onClick={addNewWearable}>Add new wearable</button>
         </div>
     );
 }
