@@ -137,10 +137,7 @@ export default function Marketplace(props) {
                 props.updateModal(content({ loadingIcon: true }));
                 const fromDropdown = !!categoryName;
                 const formData = editingCategory
-                    ?   {
-                            _id: category._id,
-                            categoryName: e.target[0].value
-                        }
+                    ?   { _id: category._id, categoryName: e.target[0].value }
                     :   { categoryName: fromDropdown ? categoryName : e.target[0].value }
                 const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
                     method: editingCategory ? 'PUT' : 'POST',
@@ -152,11 +149,10 @@ export default function Marketplace(props) {
                 const body = await response.json();
                 console.dir(body);
                 if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no success response from server');
+                if (!body.success) return console.log(body.error);
                 props.refreshData();
                 if (editingCategory) {
-                    props.refreshData(); // in case any wearables were affected by category name change
-                    if (category === originalName) setCategory(e.target[0].value);
+                    if (category === getCategoryObject.fromName(categoryName)?._id) setCategory(e.target[0].value);
                 }
                 props.updateModal(false);
             }
@@ -203,10 +199,13 @@ export default function Marketplace(props) {
                 });
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no success response from server');
-                // todo if new category setCategory to it
+                if (!body.success) return console.log(body.error);
                 //todo shrink it down in the list before it disappears
-                props.refreshData();
+                props.refreshData().then(data => {
+                    if (!newCategory) return;
+                    const newCategoryObject = data.categories.find(item => item._id === newCategory);
+                    setCategory(newCategoryObject);
+                });
                 props.updateModal(false);
             }
             const categoryIsEmpty = (() => !wearables.some(wearable => wearable.category === category._id))();
@@ -275,7 +274,7 @@ export default function Marketplace(props) {
                 });
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
-                if (!body.success) return console.log('no success response from server');
+                if (!body.success) return console.log(body.error);
                 props.refreshData();
                 props.updateModal(false);
             }
@@ -426,6 +425,7 @@ export default function Marketplace(props) {
     }
     return (
         <div className="Marketplace">
+            <div id="demo" onClick={() => console.dir(category)}></div>
             <div className="marketplacePreview">
                 {generate.previewObject(preview)}
                 {generate.previewDescription(preview)}
@@ -473,7 +473,7 @@ function AddOrEditColor(props) {
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) return console.log(body.error);
         props.updateModal(false);
         props.refreshData();
     }
@@ -609,7 +609,7 @@ export function AddOrEditWearable(props) {
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) return console.log(body.error);
         const { _id, name } = body.newCategory;
         setCategoriesList(prevState => {
             prevState.push({ value: _id, display: name });
@@ -807,7 +807,7 @@ function DeleteWearableCategory(props) {
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) return console.log(body.error);
         const { _id, name } = body.newCategory;
         setFormData({ category: _id });
         setCategoriesList(prevState => {

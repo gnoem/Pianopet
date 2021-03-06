@@ -1398,6 +1398,8 @@ img.statsIcon {
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
     z-index: 9999999;
+    opacity: 0;
+    transition: 0.2s;
 }
 .modalContainer {
     display: grid;
@@ -1412,6 +1414,16 @@ img.statsIcon {
     border-radius: 1rem;
     position: relative;
     margin: auto;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: 0.2s;
+}
+.Modal.active {
+    opacity: 1;
+}
+.Modal.active .modalContent {
+    transform: scale(1);
+    opacity: 1;
 }
 .modalBox.hasImage {
     display: grid;

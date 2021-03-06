@@ -339,7 +339,7 @@ function AddOrEditBadge(props) {
         });
         const body = await response.json();
         if (!body) return console.log('no response from server');
-        if (!body.success) return console.log('no success response from server');
+        if (!body.success) return console.log(body.error);
         props.updateModal(false);
         props.refreshData();
     }

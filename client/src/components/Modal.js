@@ -2,7 +2,12 @@ import React, { useEffect, useRef } from 'react';
 
 function Modal(props) {
     const { exit } = props;
+    const modalContainer = useRef(null);
     const modalContent = useRef(null);
+    useEffect(() => {
+        if (!modalContainer) return;
+        modalContainer.current.classList.add('active');
+    }, []);
     useEffect(() => {
         const exitModal = (e) => {
             if (!modalContent.current) return () => {
@@ -16,7 +21,7 @@ function Modal(props) {
         }
     }, [exit]);
     return (
-        <div className="Modal">
+        <div className="Modal" ref={modalContainer}>
             <div className="modalContainer">
                 <div className="modalContent" ref={modalContent}>
                     <button className="stealth exit" onClick={props.exit}><i className="fas fa-times"></i></button>
@@ -24,7 +29,7 @@ function Modal(props) {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default Modal;

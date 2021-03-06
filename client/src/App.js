@@ -32,18 +32,17 @@ export default function App() {
         const body = await response.json();
         if (!body.success) return setIsLoaded(true);
         const { studentData, teacherData } = body;
-        //return console.dir(body.studentData);
         if (studentData) {
             setUser({ student: true });
             setUserData(studentData);
             setIsLoaded(true);
-            return;
+            return studentData;
         }
         if (teacherData) {
             setUser({ teacher: true });
             setUserData(teacherData);
             setIsLoaded(true);
-            return;
+            return teacherData;
         }
     }
     const logout = async () => {
@@ -59,12 +58,19 @@ export default function App() {
             children: content
         });
     }
+    const updateModal = (modalContent) => {
+        if (modalContent) return setModal(modalContent);
+        const box = document.querySelector('.Modal');
+        if (!box) return setModal(false);
+        box.classList.remove('active');
+        setTimeout(() => setModal(false), 200);
+    }
     const state = {
         modal,
         isMobile,
         ...userData,
         logout,
-        updateModal: setModal,
+        updateModal,
         updateContextMenu
     }
     const app = () => {
@@ -74,7 +80,7 @@ export default function App() {
     }
     return (
         <div className="App">
-            {modal && <Modal exit={() => setModal(false)} children={modal} />}
+            {modal && <Modal exit={() => updateModal(false)} children={modal} />}
             {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
             {isLoaded ? app() : <Loading />}
         </div>
