@@ -180,7 +180,6 @@ export default function Marketplace(props) {
                     body: JSON.stringify(formData)
                 });
                 const body = await response.json();
-                console.dir(body);
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log(body.error);
                 props.refreshData();
@@ -560,35 +559,32 @@ function AddOrEditColor(props) {
 
 function ManageWearable(props) {
     const { teacher, wearable, category, categories } = props;
+    const filteredCategories = categories.filter(item => item.name !== 'Color');
     const [loadingIcon, setLoadingIcon] = useState(false);
-    const [formData, setFormData] = useState(() => {
-        const filteredCategories = categories.filter(item => (item._id !== category?._id) && (item.name !== 'Color'));
-        return {
-            teacherCode: wearable?.teacherCode ?? teacher._id,
-            name: wearable?.name ?? '',
-            category: category?._id ?? filteredCategories[0]._id,
-            src: wearable?.src ?? '',
-            value: wearable?.value ?? '',
-            image: {
-                w: wearable?.image?.w ?? 50,
-                x: wearable?.image?.x ?? 10,
-                y: wearable?.image?.y ?? 40
-            }
+    const [formData, setFormData] = useState({
+        teacherCode: wearable?.teacherCode ?? teacher._id,
+        name: wearable?.name ?? '',
+        category: category?._id ?? filteredCategories[0]._id,
+        src: wearable?.src ?? '',
+        value: wearable?.value ?? '',
+        occupies: wearable?.occupies ?? [],
+        image: {
+            w: wearable?.image?.w ?? 50,
+            x: wearable?.image?.x ?? 10,
+            y: wearable?.image?.y ?? 40
         }
     });
     const dropdownItems = {
         defaultValue: () => {
-            const filteredList = categories.filter(item => (item._id !== category?._id) && (item.name !== 'Color'));
-            const categoryName = category?.name ?? filteredList[0].name;
-            const categoryId = category?._id ?? filteredList[0]._id;
+            const categoryName = category?.name ?? filteredCategories[0].name;
+            const categoryId = category?._id ?? filteredCategories[0]._id;
             return {
                 value: categoryId,
                 display: categoryName
             }
         },
         listItems: () => {
-            const filteredList = categories.filter(item => (item._id !== category?._id) && (item.name !== 'Color'));
-            return filteredList.map(item => ({
+            return filteredCategories.map(item => ({
                 value: item._id,
                 display: item.name
             }));
@@ -612,16 +608,21 @@ function ManageWearable(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
+        // make sure 'occupies' array includes selected category
+        let dataToSend = {...formData};
+        const category = dataToSend.category;
+        if (!dataToSend.occupies.includes(category)) dataToSend.occupies.splice(0, 0, category);
         const ROUTE = wearable ? `/wearable/${wearable._id}` : '/wearable';
         const response = await fetch(ROUTE, {
             method: wearable ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(dataToSend)
         });
         const body = await response.json();
         if (!body.success) return console.error(body.error);
+        console.dir(body.success);
         props.refreshData();
         props.closeModal();
     }
@@ -629,6 +630,40 @@ function ManageWearable(props) {
         props.newCategory(categoryName).then(result => {
             const { _id } = result.newCategory;
             updateFormData('category', _id);
+        });
+    }
+    const occupiesRegionsInput = () => {
+        const additionalCategories = category ? filteredCategories.filter(item => item._id !== category._id) : filteredCategories;
+        const updateOccupies = (e, category) => {
+            setFormData(prevState => {
+                const updatedArray = (prevArray) => {
+                    if (e.target.checked) {
+                        const alreadyInArray = prevArray.includes(category);
+                        if (!alreadyInArray) prevArray.push(category);
+                        return prevArray;
+                    } else {
+                        const index = prevArray.indexOf(category);
+                        if (index !== -1) prevArray.splice(index, 1);
+                        return prevArray;
+                    }
+                }
+                return {
+                    ...prevState,
+                    occupies: updatedArray(prevState.occupies)
+                }
+            })
+        }
+        return additionalCategories.map(category => {
+            const isChecked = (() => {
+                if (!wearable) return false;
+                return wearable.occupies.includes(category._id);
+            })();
+            return (
+                <div key={`occupiesRegions-checkbox-${category._id}`}>
+                    <input type="checkbox" onChange={(e) => updateOccupies(e, category._id)} checked={isChecked} />
+                    {category.name}
+                </div>
+            );
         });
     }
     return (
@@ -649,12 +684,16 @@ function ManageWearable(props) {
                             listItems={dropdownItems.listItems()}
                             addNew={addCategory}
                             onChange={(value) => updateFormData('category', value)} />
+                        <label htmlFor="occupies">Occupies regions:</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {occupiesRegionsInput()}
+                        </div>
                         <label htmlFor="src">Image link:</label>
                         <input type="text" defaultValue={wearable?.src ?? ''} onChange={(e) => updateFormData('src', e.target.value)} />
                         <label htmlFor="value">Wearable value:</label>
                         <input type="text" defaultValue={wearable?.value ?? ''} onChange={(e) => updateFormData('value', e.target.value)} />
                     </div>
-                    <AddOrEditWearablePreview src={formData.src} image={formData.image} updateImage={updateImage} />
+                    <ManageWearableImage src={formData.src} image={formData.image} updateImage={updateImage} />
                 </div>
                 <div className="buttons">
                     {loadingIcon
@@ -667,79 +706,7 @@ function ManageWearable(props) {
     );
 }
 
-function DeleteCategory(props) {
-    const { wearables, category, categories } = props; // props.handleDelete
-    const [loadingIcon, setLoadingIcon] = useState(false);
-    const [formData, setFormData] = useState(() => {
-        const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
-        return {
-            category: filteredList[0]._id
-        }
-    });
-    const updateFormData = (key, value) => {
-        setFormData(prevState => ({
-            ...prevState,
-            [key]: value
-        }));
-    }
-    const dropdownItems = {
-        defaultValue: () => {
-            const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
-            return {
-                value: filteredList[0]._id,
-                display: filteredList[0].name
-            }
-        },
-        listItems: () => {
-            const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
-            return filteredList.map(item => ({
-                value: item._id,
-                display: item.name
-            }));
-        }
-    }
-    const addCategory = async (categoryName) => {
-        props.newCategory(categoryName).then(result => {
-            const { _id } = result.newCategory;
-            updateFormData('category', _id);
-        });
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setLoadingIcon(true);
-        props.handleDelete(e, formData.category)
-    }
-    const howManyWearables = (() => {
-        const wearablesInThisCategory = wearables.filter(wearable => wearable.category === category._id);
-        const num = wearablesInThisCategory.length;
-        if (num === 1) return 'one wearable';
-        else return `${num} wearables`;
-    })();
-    return (
-        <form className="modalBox" onSubmit={handleSubmit}>
-            <h2>Delete category</h2>
-            <p>The category "{category.name}" contains {howManyWearables}. In order to proceed, you need to move the contents of "{category.name}" to a different category.</p>
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <label style={{ textAlign: 'center' }}>Select one:</label>
-                <Dropdown
-                    style={{ minWidth: '10rem' }}
-                    defaultValue={dropdownItems.defaultValue()}
-                    listItems={dropdownItems.listItems()}
-                    addNew={addCategory}
-                    onChange={(value) => updateFormData('category', value)} />
-            </div>
-            {loadingIcon
-                ?   <Loading />
-                :   <div className="buttons">
-                        <button type="submit">Delete category</button>
-                        <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                    </div>
-                }
-        </form>
-    );
-}
-
-function AddOrEditWearablePreview(props) {
+function ManageWearableImage(props) {
     const { src, image } = props;
     const [mouseIsDown, setMouseIsDown] = useState(null);
     const [mouseIsMoving, setMouseIsMoving] = useState(false);
@@ -840,5 +807,77 @@ function AddOrEditWearablePreview(props) {
             </div>
             <input type="range" defaultValue={image.w - 1} min="0" max="99" onChange={updateImageSize} />
         </div>
+    );
+}
+
+function DeleteCategory(props) {
+    const { wearables, category, categories } = props; // props.handleDelete
+    const [loadingIcon, setLoadingIcon] = useState(false);
+    const [formData, setFormData] = useState(() => {
+        const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
+        return {
+            category: filteredList[0]._id
+        }
+    });
+    const updateFormData = (key, value) => {
+        setFormData(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    }
+    const dropdownItems = {
+        defaultValue: () => {
+            const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
+            return {
+                value: filteredList[0]._id,
+                display: filteredList[0].name
+            }
+        },
+        listItems: () => {
+            const filteredList = categories.filter(item => (item._id !== category._id) && (item.name !== 'Color'));
+            return filteredList.map(item => ({
+                value: item._id,
+                display: item.name
+            }));
+        }
+    }
+    const addCategory = async (categoryName) => {
+        props.newCategory(categoryName).then(result => {
+            const { _id } = result.newCategory;
+            updateFormData('category', _id);
+        });
+    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoadingIcon(true);
+        props.handleDelete(e, formData.category)
+    }
+    const howManyWearables = (() => {
+        const wearablesInThisCategory = wearables.filter(wearable => wearable.category === category._id);
+        const num = wearablesInThisCategory.length;
+        if (num === 1) return 'one wearable';
+        else return `${num} wearables`;
+    })();
+    return (
+        <form className="modalBox" onSubmit={handleSubmit}>
+            <h2>Delete category</h2>
+            <p>The category "{category.name}" contains {howManyWearables}. In order to proceed, you need to move the contents of "{category.name}" to a different category.</p>
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <label style={{ textAlign: 'center' }}>Select one:</label>
+                <Dropdown
+                    style={{ minWidth: '10rem' }}
+                    defaultValue={dropdownItems.defaultValue()}
+                    listItems={dropdownItems.listItems()}
+                    addNew={addCategory}
+                    onChange={(value) => updateFormData('category', value)} />
+            </div>
+            {loadingIcon
+                ?   <Loading />
+                :   <div className="buttons">
+                        <button type="submit">Delete category</button>
+                        <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                    </div>
+                }
+        </form>
     );
 }

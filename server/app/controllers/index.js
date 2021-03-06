@@ -269,10 +269,10 @@ class Controller {
     }
     addWearable = (req, res) => {
         // todo validate name
-        const { teacherCode, name, category, src, value, image } = req.body;
+        const { teacherCode, name, category, occupies, src, value, image } = req.body;
         const run = async () => {
             const [wearable, wearableError] = await handle(Wearable.create({
-                teacherCode, name, category, src, value, image
+                teacherCode, name, category, occupies, src, value, image
             }));
             if (wearableError) throw new Error(`Error creating new wearable`);
             res.send({ success: wearable });
@@ -282,12 +282,12 @@ class Controller {
     editWearable = (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
-        const { name, category, src, value, image } = req.body;
+        const { name, category, occupies, src, value, image } = req.body;
         const run = async () => {
             let [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
             if (wearableError) throw new Error(`Error finding wearable ${_id}`);
             if (!wearable) throw new Error(`Wearable ${_id} not found`);
-            wearable = Object.assign(wearable, { name, category, src, value, image });
+            wearable = Object.assign(wearable, { name, category, occupies, src, value, image });
             const [success, saveError] = await handle(wearable.save());
             if (saveError) throw new Error(`Error saving wearable`);
             res.send({ success });
