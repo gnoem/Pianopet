@@ -44,15 +44,22 @@ export default function Marketplace(props) {
         fromName: (name) => categories.find(item => item.name === name),
         fromId: (id) => categories.find(item => item._id === id)
     }
-    const updatePreview = ({ category, _id, name, src, value, image }) => {
+    const updatePreview = ({ category, occupies, _id, name, src, value, image }) => {
         const updatePreviewFor = (type) => {
-            const categoryName = getCategoryObject.fromId(category)?.name || category; // in case of default
+            const categoryName = getCategoryObject.fromId(category)?.name ?? category; // in case of default
             const [object, setObject] = type === 'preview'
                 ? [preview, setPreview]
                 : [avatar, props.updateAvatar];
-            if (object?.[categoryName]?.name === name) {
+            const regionsOccupied = (occupies = occupies) => {
+                return occupies.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
+            }
+            const regionsOccupiedByThisWearable = regionsOccupied(occupies);
+            const removeWearableFromPreview = () => {
                 const previewObjectMinusCategory = (prevState) => {
                     const obj = {...prevState};
+                    for (let property in prevState) {
+                        if (regionsOccupiedByThisWearable.includes(property)) delete obj[property];
+                    }
                     delete obj[categoryName];
                     return obj;
                 }
@@ -61,10 +68,32 @@ export default function Marketplace(props) {
                 }));
                 return;
             }
-            setObject(prevState => ({
-                ...prevState,
-                [categoryName]: { _id, name, src, value, image }
-            }));
+            // when clicking on a wearable that is currently being previewed, i.e. to take it off:
+            if (object?.[categoryName]?.name === name) return removeWearableFromPreview();
+            // else (when clicking on a wearable to put it on)
+            setObject(prevState => {
+                // generate empty preview object to write and return as preview object state:
+                const obj = {...prevState};
+                // if you try to put on a hat and region "head" is occupied by some other wearable,
+                // remove that wearable and also remove all the categories it is occupying:
+                if (obj[categoryName]?.isOccupied) {
+                    // get the id of the guilty wearable to find what regions it occupies
+                    // and remove it, as well as those regions, from preview object
+                    const guiltyWearable = wearables.find(item => item._id === object[categoryName].isOccupied);
+                    const regionsOccupiedByGuiltyWearable = regionsOccupied(guiltyWearable.occupies);
+                    // remove guilty wearable
+                    const guiltyWearableCategory = getCategoryObject.fromId(guiltyWearable.category)?.name;
+                    delete obj[guiltyWearableCategory];
+                    // remove occupied regions
+                    for (let region of regionsOccupiedByGuiltyWearable) delete obj[region];
+                }
+                // if the wearable you are trying to preview occupies any regions,
+                // then set those regions to { isOccupied: thisWearableId }
+                for (let region of regionsOccupiedByThisWearable) obj[region] = { isOccupied: _id };
+                // set the actual wearable
+                obj[categoryName] = { _id, name, src, value, image };
+                return obj;
+            });
         }
         if (isMobile) updatePreviewFor('avatar');
         else updatePreviewFor('preview');
@@ -345,8 +374,8 @@ export default function Marketplace(props) {
             if (isMobile) return null;
             const images = [];
             for (let category in preview) {
-                if (category !== 'Color') {
-                    const thisWearable = preview[category];
+                const thisWearable = preview[category];
+                if (category !== 'Color' && !thisWearable.isOccupied) {
                     const style = {
                         top: `${thisWearable.image.y}%`,
                         left: `${thisWearable.image.x}%`,
@@ -460,6 +489,7 @@ export default function Marketplace(props) {
     return (
         <>
             <div className="Marketplace">
+                <div id="demo" onClick={() => console.dir(preview)}></div>
                 {modalForm &&
                     <Modal {...props} exit={() => props.gracefullyCloseModal(setModalForm)}>
                         {modalForm.type === 'manageWearable' && <ManageWearable {...props} {...modalForm.props} />}
@@ -608,21 +638,16 @@ function ManageWearable(props) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        // make sure 'occupies' array includes selected category
-        let dataToSend = {...formData};
-        const category = dataToSend.category;
-        if (!dataToSend.occupies.includes(category)) dataToSend.occupies.splice(0, 0, category);
         const ROUTE = wearable ? `/wearable/${wearable._id}` : '/wearable';
         const response = await fetch(ROUTE, {
             method: wearable ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(dataToSend)
+            body: JSON.stringify(formData)
         });
         const body = await response.json();
         if (!body.success) return console.error(body.error);
-        console.dir(body.success);
         props.refreshData();
         props.closeModal();
     }
