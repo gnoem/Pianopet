@@ -16,6 +16,7 @@ export default function Avatar(props) {
         if (avatar === null) return <Loading />;
         return Object.keys(avatar).map(key => {
             if (key === 'Color') return null;
+            if (avatar[key].isOccupied) return null;
             const { _id, src, image } = avatar[key];
             const style = {
                 top: `${image.y}%`,

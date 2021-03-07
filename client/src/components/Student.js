@@ -18,9 +18,12 @@ export default function Student(props) {
             const filteredArray = avatarArray.filter(word => word);
             return filteredArray.reduce((obj, id) => {
                 const index = wearables.findIndex(element => element._id === id);
-                const { category, _id, name, src, image } = wearables[index];
+                const { category, _id, name, src, image, occupies } = wearables[index];
+                const occupiedRegions = occupies.map(id => categories.find(item => item._id === id)?.name);
+                // if wearable occupies other regions, set those as occupied by wearable's id
+                for (let region of occupiedRegions) obj[region] = { isOccupied: id };
                 const categoryName = categories.find(item => item._id === category).name;
-                obj[categoryName] = { _id, name, src, image };
+                obj[categoryName] = { _id, name, src, image, occupies };
                 return obj;
             }, {});
         }
@@ -244,7 +247,6 @@ function StudentCloset(props) {
             })
         });
         const body = await response.json();
-        console.dir(body);
         if (!body) return console.log('no response from server');
         if (!body.success) return console.log('no success response from server');
         props.refreshData();
