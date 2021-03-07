@@ -410,9 +410,24 @@ class Controller {
             let [category, categoryError] = await handle(Category.findOneAndDelete({ _id }));
             if (categoryError) throw new Error(`Error deleting category ${_id}`);
             if (!category) throw new Error(`Category ${_id} not found`);
-            let [wearables, wearablesError] = await handle(Wearable.updateMany({ category: _id }, { category: newCategory }));
-            if (wearablesError) throw new Error(`Error updating wearables`);
-            res.send({ success: { category, wearables } });
+            let [allWearables, findWearablesError] = await handle(Wearable.find({ teacherCode }));
+            if (findWearablesError) throw new Error(`Error finding wearables with the teacherCode ${teacherCode}`);
+            let wearablesReassigned = [];
+            if (newCategory) {
+                const [reassignWearables, reassignWearablesError] = await handle(Wearable.updateMany({ category: _id }, { category: newCategory }));
+                if (reassignWearablesError) throw new Error(`Error reassigning wearables to new category`);
+                wearablesReassigned = reassignWearables;
+            }
+            const updateWearableOccupies = allWearables.map(wearable => {
+                const index = wearable.occupies.indexOf(_id);
+                if (index !== -1) {
+                    wearable.occupies.splice(index, 1);
+                    return wearable.save();
+                }
+            });
+            const [updateWearables, updateError] = await handle(Promise.all(updateWearableOccupies));
+            if (updateError) throw new Error(`Error updating wearables`);
+            res.send({ success: { category, wearablesReassigned, wearablesUpdated: updateWearables } });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
