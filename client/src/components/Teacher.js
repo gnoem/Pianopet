@@ -23,7 +23,7 @@ export default function Teacher(props) {
                 data: refreshCurrentStudent(prevView)
             }));
         }
-    }, [students]);
+    }, [students, view.type]);
     const generateStudentList = () => {
         if (!students.length) return 'No students yet!';
         const makeSureNameFits = (string) => {
@@ -51,7 +51,7 @@ export default function Teacher(props) {
     }
     return (
         <Dashboard teacher={true}>
-            <Header>
+            <Header {...props} {...state}>
                 <Nav>
                     <button onClick={() => setView({ type: 'home' })}>Home</button>
                     <button onClick={() => setView({ type: 'marketplace' })}>Marketplace</button>

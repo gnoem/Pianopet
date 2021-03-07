@@ -24,7 +24,7 @@ function Header(props) {
     if (isMobile) return (
         <div className="Header">
             <div className="Logo">
-                <img src="assets/logo.svg" alt="pianopet logo" />
+                <img src="assets/logo.svg" alt="pianopet logo" onClick={() => props.updateView({ type: 'home' })} />
             </div>
             <button className="stealth" style={{ lineHeight: '1' }} onClick={() => setExpanded(state => !state)}>
                 <i className="fas fa-bars" style={{ fontSize: '1.5rem', marginRight: '0.7rem' }}></i>
@@ -37,7 +37,7 @@ function Header(props) {
     return (
         <>
             <div className="Logo">
-                <img src="assets/logo.svg" alt="pianopet logo" />
+                <img src="assets/logo.svg" alt="pianopet logo" onClick={() => props.updateView({ type: 'home' })} />
             </div>
             <div className="Header">
                 {props.children}

@@ -9,7 +9,7 @@ import MyAccount from './MyAccount';
 
 export default function Student(props) {
     const { student, wearables, categories } = props;
-    const [view, setView] = useState('home');
+    const [view, setView] = useState({ type: 'home' });
     const [avatar, setAvatar] = useState(null);
     useEffect(() => {
         // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
@@ -49,10 +49,10 @@ export default function Student(props) {
         <Dashboard teacher={false}>
             <Header {...props} {...state}>
                 <Nav>
-                    <button className="stealth" onClick={() => setView('home')}>Home</button>
-                    <button className="stealth" onClick={() => setView('closet')}>Closet</button>
-                    <button className="stealth" onClick={() => setView('marketplace')}>Marketplace</button>
-                    <button className="stealth" onClick={() => setView('badges')}>Badges</button>
+                    <button className="stealth" onClick={() => setView({ type: 'home' })}>Home</button>
+                    <button className="stealth" onClick={() => setView({ type: 'closet' })}>Closet</button>
+                    <button className="stealth" onClick={() => setView({ type: 'marketplace' })}>Marketplace</button>
+                    <button className="stealth" onClick={() => setView({ type: 'badges' })}>Badges</button>
                 </Nav>
                 <StudentProfileDropdown {...props} {...state} />
             </Header>
@@ -104,7 +104,7 @@ function StudentProfileDropdown(props) {
 
 function Main(props) {
     const { view, student } = props;
-    switch (view) {
+    switch (view.type) {
         case 'home': return <Homework {...props} />;
         case 'closet': return <StudentCloset {...props} />
         case 'marketplace': return <StudentMarketplace {...props} />;

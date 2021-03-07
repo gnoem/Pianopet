@@ -6,6 +6,7 @@ import PianopetBase from './PianopetBase';
 import Splat from './Splat';
 import Modal from './Modal';
 import { ntc } from '../utils/ntc';
+import Checkbox from './Checkbox';
 
 export default function Marketplace(props) {
     const { viewingAsTeacher, student, avatar, teacher, wearables, categories, isMobile } = props;
@@ -135,6 +136,7 @@ export default function Marketplace(props) {
                     if (!body) return console.log('no response from server');
                     if (!body.success) return console.log(body.error);
                     shrinkit(wearableRefs.current[_id], true);
+                    console.dir(body.wearablesUpdated);
                     props.refreshData();
                     props.updateModal(false);
                 }
@@ -261,6 +263,7 @@ export default function Marketplace(props) {
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log(body.error);
+                console.dir(body);
                 //todo shrink it down in the list before it disappears
                 props.refreshData().then(data => {
                     if (!newCategory) return;
@@ -659,7 +662,7 @@ function ManageWearable(props) {
         });
     }
     const occupiesRegionsInput = () => {
-        const additionalCategories = category ? filteredCategories.filter(item => item._id !== category._id) : filteredCategories;
+        const additionalCategories = filteredCategories.filter(item => item._id !== formData.category);
         const updateOccupies = (e, category) => {
             setFormData(prevState => {
                 const updatedArray = (prevArray) => {
@@ -685,10 +688,12 @@ function ManageWearable(props) {
                 return wearable.occupies.includes(category._id);
             })();
             return (
-                <div key={`occupiesRegions-checkbox-${category._id}`}>
-                    <input type="checkbox" onChange={(e) => updateOccupies(e, category._id)} checked={isChecked} />
-                    {category.name}
-                </div>
+                <Checkbox
+                    key={`occupiesRegions-checkbox-${category._id}`}
+                    label={category.name}
+                    checked={isChecked}
+                    onChange={(e) => updateOccupies(e, category._id)}
+                />
             );
         });
     }
@@ -711,7 +716,7 @@ function ManageWearable(props) {
                             addNew={addCategory}
                             onChange={(value) => updateFormData('category', value)} />
                         <label htmlFor="occupies">Occupies regions:</label>
-                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        <div className="checkboxContainer">
                             {occupiesRegionsInput()}
                         </div>
                         <label htmlFor="src">Image link:</label>
@@ -876,7 +881,7 @@ function DeleteCategory(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoadingIcon(true);
-        props.handleDelete(e, formData.category)
+        props.handleDelete(e, formData.category);
     }
     const howManyWearables = (() => {
         const wearablesInThisCategory = wearables.filter(wearable => wearable.category === category._id);

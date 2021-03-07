@@ -166,15 +166,30 @@ function StudentSignup(props) {
     return (
         <div className="Signup">
             <h1>Student Signup</h1>
-            <form onSubmit={props.handleSignup} autoComplete="off">
-                <label htmlFor="firstName">First name:</label>
-                <input name="firstName" type="text" onChange={props.updateFormData} />
-                <label htmlFor="lastName">Last name:</label>
-                <input name="lastName" type="text" onChange={props.updateFormData} />
-                <label htmlFor="username">Choose a username:</label>
-                <input name="username" type="text" onChange={props.updateFormData} />
-                <label htmlFor="password">Choose a password:</label>
-                <input name="password" type="password" onChange={props.updateFormData} />
+            <form onSubmit={props.handleSignup} autoComplete="off" className="divide">
+                <div className="half">
+                    <div>
+                        <label htmlFor="firstName">First name:</label>
+                        <input name="firstName" type="text" onChange={props.updateFormData} />
+                    </div>
+                    <div>
+                        <label htmlFor="lastName">Last name:</label>
+                        <input name="lastName" type="text" onChange={props.updateFormData} />
+                    </div>
+                </div>
+                <label htmlFor="email">Email address:</label>
+                <input name="email" type="text" onChange={props.updateFormData} />
+                <span className="formHint">For password recovery only. We'll never send you marketing emails or share your contact information with third parties.</span>
+                <div className="half">
+                    <div>
+                        <label htmlFor="username">Choose a username:</label>
+                        <input name="username" type="text" onChange={props.updateFormData} />
+                    </div>
+                    <div>
+                        <label htmlFor="password">Choose a password:</label>
+                        <input name="password" type="password" onChange={props.updateFormData} />
+                    </div>
+                </div>
                 <label htmlFor="teacherCode">Teacher code:</label>
                 <input name="teacherCode" type="text" onChange={props.updateFormData} />
                 <input type="submit" />
