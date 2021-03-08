@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Input from './Input';
 
 export default function Guest(props) {
     const [view, setView] = useState({ type: 'student', action: 'login' });
@@ -18,16 +19,10 @@ export default function Guest(props) {
 
 function Login(props) {
     const { type } = props;
-    const [formData, setFormData] = useState({
-        username: 'daniel',
-        password: 'kjhg'
-    });
+    const [formData, setFormData] = useState({});
     const [formError, setFormError] = useState({});
     useEffect(() => {
-        setFormData({
-            username: '',
-            password: ''
-        });
+        setFormData({});
         setFormError({});
     }, [type]);
     const updateFormData = (e) => {
@@ -36,9 +31,16 @@ function Login(props) {
             [e.target.name]: e.target.value
         }));
     }
+    const resetFormError = (e) => {
+        setFormError(prevState => {
+            const stateMinusFormError = {...prevState};
+            delete stateMinusFormError[e.target.name];
+            return stateMinusFormError;
+        });
+    }
     const handleLogin = async (e) => {
         e.preventDefault();
-        const { username, password } = formData;
+        setFormError({});
         const response = await fetch('/login', {
             method: 'POST',
             headers: {
@@ -46,82 +48,47 @@ function Login(props) {
             },
             body: JSON.stringify({
                 role: type,
-                username,
-                password
+                ...formData
             })
         });
         const body = await response.json();
         if (!body) return console.log('server error');
-        if (!body.success) return setFormError(body.errors);
+        if (!body.success) return setFormError(body.error);
         window.location.assign('/');
     }
-    const showError = {
-        username: () => {
-            if (!formError || !formError.username) return null;
-            if (formError.username) return <span className="error">{formError.username}</span>;
-        },
-        password: () => {
-            if (!formError || !formError.password) return null;
-            if (formError.password) return <span className="error">{formError.password}</span>;
-        }
-    }
-    const state = {
-        formData,
-        formError,
-        resetFormError: () => setFormError({}),
-        updateFormData,
-        handleLogin,
-        showError
-    }
-    switch (type) {
-        case 'student': return <StudentLogin {...props} {...state} />;
-        case 'teacher': return <TeacherLogin {...props} {...state} />;
-        default: return null;
-    }
-}
-
-function StudentLogin(props) {
-    const { showError } = props;
+    const uppercaseFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+    const oppositeType = type === 'student'
+        ? 'teacher'
+        : 'student';
     return (
         <div className="Login">
-            <h1>Student Login</h1>
-            <form onSubmit={props.handleLogin} autoComplete="off">
-                <label htmlFor="username">Username:</label>
-                <input name="username" type="text" onInput={props.resetFormError} onChange={props.updateFormData} />
-                {showError.username()}
-                <label htmlFor="password">Password:</label>
-                <input name="password" type="password" onInput={props.resetFormError} onChange={props.updateFormData} />
-                {showError.password()}
+            <h1>{uppercaseFirstLetter(type)} Login</h1>
+            <form onSubmit={handleLogin} autoComplete="off">
+                <Input
+                    type="text"
+                    name="username"
+                    label="Username"
+                    onChange={updateFormData}
+                    onInput={resetFormError}
+                    error={formError?.username}
+                />
+                <Input
+                    type="password"
+                    name="password"
+                    label="Password"
+                    onChange={updateFormData}
+                    onInput={resetFormError}
+                    error={formError?.password}
+                />
                 <input type="submit" />
             </form>
             <span className="nowrap">Don't have an account?</span>
             <span className="nowrap">
-                Click <button className="stealth link" onClick={() => props.updateView('student', 'signup')}>here</button> to sign up.
+                Click <button className="stealth link" onClick={() => props.updateView(type, 'signup')}>here</button> to sign up.
             </span>
-            <button className="portalLink" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
-        </div>
-    );
-}
-
-function TeacherLogin(props) {
-    const { showError } = props;
-    return (
-        <div className="Login">
-            <h1>Teacher Login</h1>
-            <form onSubmit={props.handleLogin} autoComplete="off">
-                <label htmlFor="username">Username:</label>
-                <input name="username" type="text" onInput={props.resetFormError} onChange={props.updateFormData} />
-                {showError.username()}
-                <label htmlFor="password">Password:</label>
-                <input name="password" type="password" onInput={props.resetFormError} onChange={props.updateFormData} />
-                {showError.password()}
-                <input type="submit" />
-            </form>
-            <span className="nowrap">Don't have an account?</span>
-            <span className="nowrap">
-                Click <button className="stealth link" onClick={() => props.updateView('teacher', 'signup')}>here</button> to sign up.
-            </span>
-            <button className="portalLink" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
+            <button className="portalLink" onClick={() => props.updateView(oppositeType, 'login')}>
+                &raquo; {uppercaseFirstLetter(oppositeType)} Portal
+            </button>
         </div>
     )
 }
@@ -129,6 +96,7 @@ function TeacherLogin(props) {
 function Signup(props) {
     const { type } = props;
     const [formData, setFormData] = useState({});
+    const [formError, setFormError] = useState({});
     useEffect(() => setFormData({}), [type]);
     const updateFormData = (e) => {
         setFormData(prevState => ({
@@ -136,8 +104,16 @@ function Signup(props) {
             [e.target.name]: e.target.value
         }))
     }
+    const resetFormError = (e) => {
+        setFormError(prevState => {
+            const stateMinusFormError = {...prevState};
+            delete stateMinusFormError[e.target.name];
+            return stateMinusFormError;
+        });
+    }
     const handleSignup = async (e) => {
         e.preventDefault();
+        setFormError({});
         const response = await fetch('/student', {
             method: 'POST',
             headers: {
@@ -147,82 +123,90 @@ function Signup(props) {
         });
         const body = await response.json();
         if (!body) return console.log('server error');
-        if (!body.success) return console.log('server working but something went wrong');
+        if (!body.success) return setFormError(body.error);
         if (body.accessToken) window.location.assign('/');
         else return console.log('no token!!?');
     }
-    const functions = {
-        updateFormData,
-        handleSignup
-    }
-    switch (type) {
-        case 'student': return <StudentSignup {...props} {...functions} />;
-        case 'teacher': return <TeacherSignup {...props} {...functions} />;
-        default: return null;
-    }
-}
-
-function StudentSignup(props) {
+    const uppercaseFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+    const oppositeType = type === 'student'
+        ? 'teacher'
+        : 'student';
     return (
         <div className="Signup">
-            <h1>Student Signup</h1>
-            <form onSubmit={props.handleSignup} autoComplete="off" className="divide">
+            <h1>{uppercaseFirstLetter(type)} Signup</h1>
+            <form onSubmit={handleSignup} autoComplete="off" className="divide">
                 <div className="half">
                     <div>
-                        <label htmlFor="firstName">First name:</label>
-                        <input name="firstName" type="text" onChange={props.updateFormData} />
+                        <Input
+                            type="text"
+                            name="firstName"
+                            label="First name:"
+                            onChange={updateFormData}
+                            onInput={resetFormError}
+                            error={formError?.firstName}
+                        />
                     </div>
                     <div>
-                        <label htmlFor="lastName">Last name:</label>
-                        <input name="lastName" type="text" onChange={props.updateFormData} />
+                        <Input
+                            type="text"
+                            name="lastName"
+                            label="Last name:"
+                            onChange={updateFormData}
+                            onInput={resetFormError}
+                            error={formError?.lastName}
+                        />
                     </div>
                 </div>
-                <label htmlFor="email">Email address:</label>
-                <input name="email" type="text" onChange={props.updateFormData} />
+                <Input
+                    type="text"
+                    name="email"
+                    label="Email address:"
+                    onChange={updateFormData}
+                    onInput={resetFormError}
+                    error={formError?.email}
+                />
                 <span className="formHint">For password recovery only. We'll never send you marketing emails or share your contact information with third parties.</span>
-                <div className="half">
+                <div className="half" style={type === 'teacher' ? { marginBottom: '0' } : null}>
                     <div>
-                        <label htmlFor="username">Choose a username:</label>
-                        <input name="username" type="text" onChange={props.updateFormData} />
+                        <Input
+                            type="text"
+                            name="username"
+                            label="Choose a username:"
+                            onChange={updateFormData}
+                            onInput={resetFormError}
+                            error={formError?.username}
+                        />
                     </div>
                     <div>
-                        <label htmlFor="password">Choose a password:</label>
-                        <input name="password" type="password" onChange={props.updateFormData} />
+                        <Input
+                            type="password"
+                            name="password"
+                            label="Choose a password:"
+                            onChange={updateFormData}
+                            onInput={resetFormError}
+                            error={formError?.password}
+                        />
                     </div>
                 </div>
-                <label htmlFor="teacherCode">Teacher code:</label>
-                <input name="teacherCode" type="text" onChange={props.updateFormData} />
+                {type === 'student' &&
+                    <Input
+                        type="text"
+                        name="teacherCode"
+                        label="Teacher code:"
+                        onChange={updateFormData}
+                        onInput={resetFormError}
+                        error={formError?.teacherCode}
+                    />
+                }
                 <input type="submit" />
             </form>
             <span className="nowrap">Already have an account?</span>
             <span className="nowrap">
-                Click <button className="stealth link" onClick={() => props.updateView('student', 'login')}>here</button> to log in.
+                Click <button className="stealth link" onClick={() => props.updateView(type, 'login')}>here</button> to log in.
             </span>
-            <button className="portalLink" onClick={() => props.updateView('teacher', 'login')}>&raquo; Teacher Portal</button>
+            <button className="portalLink" onClick={() => props.updateView(oppositeType, 'login')}>
+                &raquo; {uppercaseFirstLetter(oppositeType)} Portal
+            </button>
         </div>
     )
-}
-
-function TeacherSignup(props) {
-    return (
-        <div className="Signup">
-            <h1>Teacher Signup</h1>
-            <form onSubmit={props.handleSignup} autoComplete="off">
-                <label htmlFor="firstName">First name:</label>
-                <input name="firstName" type="text" onChange={props.updateFormData} />
-                <label htmlFor="lastName">Last name:</label>
-                <input name="lastName" type="text" onChange={props.updateFormData} />
-                <label htmlFor="username">Choose a username:</label>
-                <input name="username" type="text" onChange={props.updateFormData} />
-                <label htmlFor="password">Choose a password:</label>
-                <input name="password" type="password" onChange={props.updateFormData} />
-                <input type="submit" />
-            </form>
-            <span className="nowrap">Already have an account?</span>
-            <span className="nowrap">
-                Click <button className="stealth link" onClick={() => props.updateView('teacher', 'login')}>here</button> to log in.
-            </span>
-            <button className="portalLink" onClick={() => props.updateView('student', 'login')}>&raquo; Student Portal</button>
-        </div>
-    );
 }

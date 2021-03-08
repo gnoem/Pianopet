@@ -18,6 +18,20 @@ const handle = (promise) => {
         .then(data => ([data, undefined]))
         .catch(err => Promise.resolve([undefined, err]));
 }
+const FormError = (fieldName, errorMessage) => ({ [fieldName]: errorMessage });
+const generateErrorReport = (errors) => {
+    const report = errors.reduce((obj, error) => {
+        if (error.location !== 'body') return null;
+        obj[error.param] = error.msg;
+        return obj;
+    }, {});
+    return report;
+    // for each object in array,
+    // if object.location === 'body' then
+    // find object.param
+    // then find object.msg
+    // and push to new object
+}
 
 class Controller {
     custom = () => {
@@ -78,10 +92,9 @@ class Controller {
             const User = role === 'student' ? Student : Teacher;
             const [user, userError] = await handle(User.findOne({ username }));
             if (userError) throw new Error(`Error finding ${role} ${username}`);
-            if (!user) throw new Error(`${role} ${username} not found`);
+            if (!user) throw FormError('username', 'User not found');
             const passwordIsValid = bcrypt.compareSync(password, user.password);
-            if (!passwordIsValid) throw new Error(`Invalid password`);
-            // TODO see if error can be turned into res.send({ success: false, errors: { password: 'Invalid password' } })
+            if (!passwordIsValid) throw FormError('password', 'Invalid password');
             const accessToken = jwt.sign({ id: user.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
@@ -92,20 +105,21 @@ class Controller {
             });
             res.send({ success: user });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(err => res.send({ success: false, error: err }));
     }
     logout = (req, res) => {
         res.clearCookie('auth');
         res.redirect('/');
     }
     studentSignup = (req, res) => {
-        const { firstName, lastName, username, password, teacherCode } = req.body;
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) return console.log('errors found...', errors);
+        const { firstName, lastName, email, username, password, teacherCode } = req.body;
+        const { errors } = validationResult(req);
+        if (errors.length) return res.send({ success: false, error: generateErrorReport(errors) });
         const run = async () => {
             const [student, studentError] = await handle(Student.create({
                 firstName,
                 lastName,
+                email,
                 username,
                 password: bcrypt.hashSync(password, 8),
                 teacherCode
@@ -127,13 +141,14 @@ class Controller {
         run().catch(err => res.send({ success: false, error: err.message }));
     }
     teacherSignup = (req, res) => {
-        const { username, password } = req.body;
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) return console.log('errors found...', errors);
+        const { firstName, lastName, email, username, password } = req.body;
+        const { errors } = validationResult(req).array();
+        if (errors.length) return res.send({ success: false, error: generateErrorReport(errors) });
         const run = async () => {
             const [teacher, teacherError] = await handle(Teacher.create({
                 firstName,
                 lastName,
+                email,
                 username,
                 password: bcrypt.hashSync(password, 8)
             }));
