@@ -29,20 +29,19 @@ export default function Marketplace(props) {
             const updatedObject = {};
             for (let categoryName in preview) {
                 const wearableId = preview[categoryName]._id;
-                const getWearableObjectFromId = (id) => {
-                    const wearable = wearables.find(item => item._id === id);
-                    return wearable;
-                }
+                if (!wearableId) break; // means there's something wrong - db 'wearable.occupies' array possibly corrupted, random undefined
+                const getWearableObjectFromId = (id) => wearables.find(item => item._id === id);
                 const wearable = getWearableObjectFromId(wearableId);
                 const category = getCategoryObject.fromId(wearable.category);
-                const { _id, name, src, value, image } = getWearableObjectFromId(wearableId)
-                updatedObject[category.name] = { _id, name, src, value, image };
+                const { _id, name, src, value, image, occupies } = getWearableObjectFromId(wearableId)
+                updatedObject[category.name] = { _id, name, src, value, image, occupies };
             }
             return updatedObject;
         }
         setPreview(prevState => updatedPreviewObject(prevState));
     }, [wearables]);
     useEffect(() => {
+        if (viewingAsTeacher) return;
         // loop through preview and check if owned
         const newItems = [];
         for (let category in preview) {
@@ -63,8 +62,8 @@ export default function Marketplace(props) {
             const [object, setObject] = type === 'preview'
                 ? [preview, setPreview]
                 : [avatar, props.updateAvatar];
-            const regionsOccupied = (occupies = occupies) => {
-                return occupies.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
+            const regionsOccupied = (array = occupies) => {
+                return array.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
             }
             const regionsOccupiedByThisWearable = regionsOccupied(occupies);
             const removeWearableFromPreview = () => {
@@ -100,11 +99,20 @@ export default function Marketplace(props) {
                     // remove occupied regions
                     for (let region of regionsOccupiedByGuiltyWearable) delete obj[region];
                 }
+                // look at obj[categoryName] /before/ resetting it, to see if it is occupying any other regions and then remove those:
+                /* otherwise, if wearing e.g. full body crab suit, which occupies head/face/accessory, and you put on
+                a different body item, head/face/accessory remain occupied by full body crab suit */
+                const prevWearable = obj[categoryName];
+                if (prevWearable) {
+                    const regionIds = prevWearable.occupies ?? [];
+                    const regionsOccupiedByPrevWearable = regionsOccupied(regionIds);
+                    for (let region of regionsOccupiedByPrevWearable) delete obj[region];
+                }
                 // if the wearable you are trying to preview occupies any regions,
                 // then set those regions to { isOccupied: thisWearableId }
                 for (let region of regionsOccupiedByThisWearable) obj[region] = { isOccupied: _id };
                 // set the actual wearable
-                obj[categoryName] = { _id, name, src, value, image };
+                obj[categoryName] = { _id, name, src, value, image, occupies };
                 return obj;
             });
         }

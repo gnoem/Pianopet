@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Input from './Input';
 import { useLocation } from 'react-router-dom';
 
@@ -34,7 +34,9 @@ function Login(props) {
     useEffect(() => {
         setFormData({});
         setFormError({});
+        loginForm?.current?.reset();
     }, [type]);
+    const loginForm = useRef(null);
     const updateFormData = (e) => {
         setFormData(prevState => ({
             ...prevState,
@@ -74,14 +76,15 @@ function Login(props) {
         if (formError?.[inputName]) return { type: 'error', message: formError[inputName] };
         return { type: null, message: null };
     }
-        return (
+    return (
         <div className="Login">
             <h1>{uppercaseFirstLetter(type)} Login</h1>
-            <form onSubmit={handleLogin} autoComplete="off">
+            <form onSubmit={handleLogin} autoComplete="off" ref={loginForm}>
                 <Input
                     type="text"
                     name="username"
                     label="Username"
+                    defaultValue={formData?.username}
                     onChange={updateFormData}
                     onInput={resetFormError}
                     hint={inputHint('username')}
@@ -90,6 +93,7 @@ function Login(props) {
                     type="password"
                     name="password"
                     label="Password"
+                    defaultValue={formData?.password}
                     onChange={updateFormData}
                     onInput={resetFormError}
                     hint={inputHint('password')}

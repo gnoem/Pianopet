@@ -37,8 +37,8 @@ export default function Closet(props) {
                     return;
                 }
                 props.handleUpdateAvatar((() => {
-                    const regionsOccupied = (occupies = occupies) => {
-                        return occupies.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
+                    const regionsOccupied = (array = occupies) => {
+                        return array.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
                     }
                     const regionsOccupiedByThisWearable = regionsOccupied(occupies);
                     const isTakingOffWearable = avatar[categoryName]?._id === _id;
@@ -69,6 +69,15 @@ export default function Closet(props) {
                             delete obj[guiltyWearableCategory];
                             // remove occupied regions
                             for (let region of regionsOccupiedByGuiltyWearable) delete obj[region];
+                        }
+                        // look at obj[categoryName] /before/ resetting it, to see if it is occupying any other regions and then remove those:
+                        /* otherwise, if wearing e.g. full body crab suit, which occupies head/face/accessory, and you put on
+                        a different body item, head/face/accessory remain occupied by full body crab suit */
+                        const prevWearable = obj[categoryName];
+                        if (prevWearable) {
+                            const regionIds = prevWearable.occupies ?? [];
+                            const regionsOccupiedByPrevWearable = regionsOccupied(regionIds);
+                            for (let region of regionsOccupiedByPrevWearable) delete obj[region];
                         }
                         // if the wearable you are trying to preview occupies any regions,
                         // then set those regions to { isOccupied: thisWearableId }
