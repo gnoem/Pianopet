@@ -10,7 +10,7 @@ export default function Avatar(props) {
         setColor(avatar.Color?.src);
     }, [avatar]);
     const handleClick = () => {
-        if (!viewingAsTeacher) props.updateView('closet');
+        if (!viewingAsTeacher) props.updateView({ type: 'closet' });
     }
     const generateAvatar = () => {
         if (avatar === null) return <Loading />;

@@ -63,9 +63,9 @@ export default function Student(props) {
                     </div>
                     <div className="studentStats">
                         <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-                        <span className="statsLabel" onClick={() => setView('marketplace')}>{formatCoins(student.coins)}</span>
+                        <span className="statsLabel" onClick={() => setView({ type: 'marketplace' })}>{formatCoins(student.coins)}</span>
                         <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
-                        <span className="statsLabel" onClick={() => setView('badges')}>{student.badges.length.toString()}</span>
+                        <span className="statsLabel" onClick={() => setView({ type: 'badges' })}>{student.badges.length.toString()}</span>
                     </div>
                 </div>
             </Sidebar>

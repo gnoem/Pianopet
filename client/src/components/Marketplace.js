@@ -242,10 +242,20 @@ export default function Marketplace(props) {
                     Sorry, this is a default category and can't be renamed.
                     <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
                 </div>
-            )
+            );
             props.updateModal(content);
         },
         confirmDeleteCategory: (category) => {
+            if (category.name === 'Color') {
+                let notAllowed = (
+                    <div className="modalBox">
+                        <h2>Not allowed</h2>
+                        Sorry, this is a default category and can't be deleted.
+                        <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
+                    </div>
+                );
+                return props.updateModal(notAllowed);
+            }
             // check if empty
             const handleDelete = async (e, newCategory = false) => {
                 e.preventDefault();
