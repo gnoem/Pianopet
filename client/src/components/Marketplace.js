@@ -13,6 +13,7 @@ export default function Marketplace(props) {
     const [preview, setPreview] = useState(null);
     const [category, setCategory] = useState(categories[0]);
     const [modalForm, setModalForm] = useState(null);
+    const [newItemsInCart, setNewItemsInCart] = useState(0);
     const wearableRefs = useRef({});
     useEffect(() => {
         if (avatar) setPreview(avatar);
@@ -41,6 +42,17 @@ export default function Marketplace(props) {
         }
         setPreview(prevState => updatedPreviewObject(prevState));
     }, [wearables]);
+    useEffect(() => {
+        // loop through preview and check if owned
+        const newItems = [];
+        for (let category in preview) {
+            if (preview[category]._id) { // default color _id is undefined, and also if preview[category].isOccupied it won't have _id
+                const isOwned = student.closet.includes(preview[category]._id);
+                if (!isOwned) newItems.push(preview[category].name);
+            }
+        }
+        setNewItemsInCart(newItems.length);
+    }, [preview]);
     const getCategoryObject = {
         fromName: (name) => categories.find(item => item.name === name),
         fromId: (id) => categories.find(item => item._id === id)
@@ -318,6 +330,18 @@ export default function Marketplace(props) {
         }
     }
     const studentOperations = {
+        viewCart: () => {
+            let content = (
+                <div className="modalBox">
+                    <h2>Currently previewing:</h2>
+                    <p>You are currently previewing the following items. If you own an item, you will see a checkmark icon next to it. If you would like to buy an item, click on the purple button.</p>
+                    <div className="marketplacePreview">
+                        {generate.previewDescription(preview)}
+                    </div>
+                </div>
+            );
+            props.updateModal(content, undefined, { ignoreClick: ['.marketplacePreview button'] });
+        },
         buyWearable: ({ _id, name, src, value, image }) => {
             // todo add checkbox to update avatar immediately
             if (viewingAsTeacher) return;
@@ -357,25 +381,27 @@ export default function Marketplace(props) {
             let content = (options = {
                 loadingIcon: false
             }) => (
-                <div className="modalBox hasImage">
+                <div className="modalBox">
                     <div>
                         <h2>Confirm purchase</h2>
-                        Are you sure you want to purchase {buyingColor && 'the color'} <b>{name}</b> for <span className="coins"><b>{value}</b>?</span>
-                        <div className="buttons">
+                        <div className="hasImage">
+                            <p>Are you sure you want to purchase {buyingColor && 'the color'} <b>{name}</b> for <span className="coins"><b>{value}</b>?</span></p>
+                            <div className="flex center">
+                                {buyingColor
+                                    ? <PianopetBase color={src} zoom={true} />
+                                    : <img alt={name} src={src} />
+                                }
+                            </div>
+                        </div>
+                        <form className="buttons" onSubmit={handleSubmit}>
                             {options.loadingIcon
                                 ?   <Loading />
-                                :   <form onSubmit={handleSubmit}>
+                                :   <>
                                         <button type="submit">Yes, I'm sure</button>
                                         <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
-                                    </form>
+                                    </>
                                 }
-                        </div>
-                    </div>
-                    <div className="flex center">
-                        {buyingColor
-                            ? <PianopetBase color={src} zoom={true} />
-                            : <img alt={name} src={src} />
-                        }
+                        </form>
                     </div>
                 </div>
             );
@@ -384,7 +410,6 @@ export default function Marketplace(props) {
     }
     const generate = {
         previewObject: (preview) => {
-            if (isMobile) return null;
             const images = [];
             for (let category in preview) {
                 const thisWearable = preview[category];
@@ -413,7 +438,7 @@ export default function Marketplace(props) {
             );
         },
         previewDescription: (preview) => {
-            if (viewingAsTeacher || isMobile) return;
+            if (viewingAsTeacher) return;
             const previewItems = [];
             for (let category in preview) {
                 if (preview[category]._id) { // default color _id is undefined, and also if preview[category].isOccupied it won't have _id
@@ -510,10 +535,10 @@ export default function Marketplace(props) {
                         {modalForm.type === 'deleteCategory' && <DeleteCategory {...props} {...modalForm.props} />}
                     </Modal>
                 }
-                <div className="marketplacePreview">
+                {isMobile || <div className="marketplacePreview">
                     {generate.previewObject(preview)}
                     {generate.previewDescription(preview)}
-                </div>
+                </div>}
                 <div className="wearableCategories">
                     {generate.categoriesList(categories)}
                 </div>
@@ -524,6 +549,14 @@ export default function Marketplace(props) {
                 </div>
             </div>
             {viewingAsTeacher && <button onClick={teacherOperations.addWearable}>Add new wearable</button>}
+            {isMobile &&
+                <div className="viewCart">
+                    <button onClick={() => studentOperations.viewCart()}>
+                        <i className="fas fa-shopping-cart"></i>
+                        {newItemsInCart > 0 && <span>{newItemsInCart}</span>}
+                    </button>
+                </div>
+            }
         </>
     );
 }

@@ -63,8 +63,8 @@ export default function App() {
             children: content
         });
     }
-    const updateModal = (modalContent, set = setModal) => {
-        if (modalContent) return set(modalContent);
+    const updateModal = (modalContent, set = setModal, customProps = {}) => {
+        if (modalContent) return set({ content: modalContent, customProps });
         const box = document.querySelector('.Modal');
         if (!box) return set(false);
         box.classList.remove('active');
@@ -92,7 +92,7 @@ export default function App() {
                 </Route>
                 <Route path="/">
                     <div className="App">
-                        {modal && <Modal exit={() => updateModal(false)} children={modal} />}
+                        {modal && <Modal exit={() => updateModal(false)} children={modal?.content} {...modal?.customProps} />}
                         {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
                         {isLoaded ? app() : <Loading />}
                     </div>

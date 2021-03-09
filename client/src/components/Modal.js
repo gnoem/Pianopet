@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { elementHasParent } from '../utils';
 
 function Modal(props) {
     const { exit } = props;
@@ -10,10 +11,18 @@ function Modal(props) {
     }, []);
     useEffect(() => {
         const exitModal = (e) => {
+            if (props.ignoreClick) { // will be an array like ['.Modal', '#menu li']
+                console.log('ignoring clicks from', props.ignoreClick)
+                for (let selector of props.ignoreClick) {
+                    if (elementHasParent(e.target, selector)) return;
+                }
+            }
             if (!modalContent.current) return () => {
                 window.removeEventListener('click', exitModal);
             }
-            if (!modalContent.current.contains(e.target)) exit();
+            if (!modalContent.current.contains(e.target)) {
+                exit();
+            }
         }
         window.addEventListener('click', exitModal);
         return () => {
