@@ -26,11 +26,6 @@ const generateErrorReport = (errors) => {
         return obj;
     }, {});
     return report;
-    // for each object in array,
-    // if object.location === 'body' then
-    // find object.param
-    // then find object.msg
-    // and push to new object
 }
 
 class Controller {
@@ -165,6 +160,16 @@ class Controller {
                 success: teacher,
                 accessToken
             });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
+    }
+    validateTeacherCode = (req, res) => {
+        const { teacherCode } = req.params;
+        const run = async () => {
+            const [teacher, teacherError] = await handle(Teacher.findOne({ _id: teacherCode }));
+            if (teacherError) throw new Error(`Error finding teacher ${teacherCode}`);
+            if (!teacher) throw new Error(`Teacher ${teacherCode} not found`);
+            res.send({ success: true, teacher });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }

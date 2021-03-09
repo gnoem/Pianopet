@@ -113,6 +113,7 @@
     --deep-accent-color: #fc6f56;
     --caution: #ff4343;
     --deep-caution: #ad1b1b;
+    --great-success: #0f8604;
     --input-bg: #222F44;
 }
 html, body {
@@ -281,9 +282,14 @@ input[type=submit], button {
     border-radius: 999px;
     line-height: 1.5rem;
 }
+input:disabled {
+    cursor: not-allowed;
+}
+input[type=text]:disabled {
+    color: #aaa;
+}
 input[type=submit]:disabled, button:disabled {
     background: var(--input-bg);
-    cursor: not-allowed;
 }
 span.error {
     color: var(--caution);
@@ -356,19 +362,18 @@ button.loadingAnimation svg * {
 .Input input.nope {
     animation: 0.5s invalid-input 1;
 }
-.Error {
+.Hint {
     position: absolute;
     top: 0;
     right: 0.7rem;
     height: 100%;
     z-index: 500;
 }
-.Error span.icon {
+.Hint span.icon {
     position: absolute;
     top: 50%;
     right: 0;
     transform: translate3d(0, -50%, 0);
-    background: var(--deep-caution);
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 999px;
@@ -378,12 +383,12 @@ button.loadingAnimation svg * {
     cursor: pointer;
     border: 1px solid #fff;
 }
-.Error span.icon i {
+.Hint span.icon i {
     margin: -1px 0 0 -0.5px; /* to offset 1px border */
     color: #fff;
     font-size: 0.7rem;
 }
-.Error span.message {
+.Hint span.message {
     position: absolute;
     top: 100%;
     right: 0;
@@ -391,13 +396,18 @@ button.loadingAnimation svg * {
     font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
-    background: var(--deep-caution);
     border: 1px solid #fff;
     padding: 0.3rem 0.6rem;
     border-radius: 0.5rem;
     border-top-right-radius: 0;
     opacity: 0;
     transition: 0.2s;
+}
+.Hint.error span {
+    background: var(--deep-caution);
+}
+.Hint.success span {
+    background: var(--great-success);
 }
 
 /* MAIN APP + DASHBOARD STRUCTURE */

@@ -24,7 +24,7 @@ export const validate = {
         check('teacherCode')
             .not().isEmpty().withMessage('This field is required')
             .custom(teacherCode => {
-                return Teacher.findOne({ teacherCode }).then(teacher => {
+                return Teacher.findOne({ _id: teacherCode }).then(teacher => {
                     if (!teacher) return Promise.reject('Invalid teacher code')
                 });
             })

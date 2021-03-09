@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function Input(props) {
-    const { type, name, label, error, onChange, onInput } = props;
+    const { type, name, label, defaultValue, readOnly, disabled, hint, onChange, onInput } = props;
+    const { type: hintType, message: hintMessage } = hint;
+    const inputClass = hintType === 'error' ? 'nope' : '';
     const inputRef = useRef(null);
     return (
         <div className="Input">
@@ -10,19 +12,22 @@ export default function Input(props) {
                 <input
                     name={name}
                     type={type}
-                    className={error ? 'nope' : null}
+                    defaultValue={defaultValue}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                    className={inputClass}
                     onChange={onChange}
                     onInput={onInput}
                     ref={inputRef}
                 />
-                <Error error={error} inputRef={inputRef} />
+                <Hint type={hintType} message={hintMessage} />
             </div>
         </div>
     );
 }
 
-function Error(props) {
-    const { error, inputRef } = props;
+function Hint(props) {
+    const { type, message, inputRef } = props;
     const [show, setShow] = useState(false);
     const messageRef = useRef(null);
     useEffect(() => {
@@ -35,13 +40,18 @@ function Error(props) {
         }
         messageRef.current.style.opacity = '1';
     }, [messageRef, inputRef, show]);
-    // calculate width manually
-    // set max width of span.message length to input.length (useref) and turn off whitespace nowrap
-    if (!error) return null;
+    const showIcon = () => {
+        switch (type) {
+            case 'success': return <i className="fas fa-check"></i>;
+            case 'failure': return <i className="fas fa-exclamation"></i>;
+            default: return <i className="fas fa-exclamation"></i>;
+        }
+    }
+    if (!message) return null;
     return (
-        <div className={`${show ? 'show ' : ''}Error`}>
-            <span className="icon" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}><i className="fas fa-exclamation"></i></span>
-            {show && <span className="message" ref={messageRef}>{error}</span>}
+        <div className={`${show ? 'show ' : ''}${type === 'success' ? 'success ' : 'error '}Hint`}>
+            <span className="icon" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>{showIcon()}</span>
+            {show && <span className="message" ref={messageRef}>{message}</span>}
         </div>
     );
 }

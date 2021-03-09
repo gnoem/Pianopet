@@ -12,6 +12,8 @@ export default function (app) {
     // TEACHER
     app.route('/teacher')
         .post(validate.teacherSignup, Controller.teacherSignup);
+    app.route('/teacherCode/:teacherCode')
+        .get(Controller.validateTeacherCode);
     app.route('/teacher/:id')
         .get(Controller.getTeacher)
         .put(Controller.editAccount);

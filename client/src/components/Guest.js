@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import Input from './Input';
+import { useLocation } from 'react-router-dom';
+
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
 
 export default function Guest(props) {
-    const [view, setView] = useState({ type: 'student', action: 'login' });
+    const { signup } = props;
+    const [view, setView] = useState(() => {
+        if (signup) return { type: 'student', action: 'signup' };
+        return { type: 'student', action: 'login' };
+    });
+    let invite = useQuery().get('t');
     const updateView = (type, action) => setView({ type, action });
     return (
         <div className="Guest">
@@ -11,7 +21,7 @@ export default function Guest(props) {
             </div>
             <div>
                 {view.action === 'login' && <Login {...view} {...props} updateView={updateView} />}
-                {view.action === 'signup' && <Signup {...view} {...props} updateView={updateView} />}
+                {view.action === 'signup' && <Signup {...view} {...props} invite={invite} updateView={updateView} />}
             </div>
         </div>
     );
@@ -60,7 +70,11 @@ function Login(props) {
     const oppositeType = type === 'student'
         ? 'teacher'
         : 'student';
-    return (
+    const inputHint = (inputName) => {
+        if (formError?.[inputName]) return { type: 'error', message: formError[inputName] };
+        return { type: null, message: null };
+    }
+        return (
         <div className="Login">
             <h1>{uppercaseFirstLetter(type)} Login</h1>
             <form onSubmit={handleLogin} autoComplete="off">
@@ -70,7 +84,7 @@ function Login(props) {
                     label="Username"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    error={formError?.username}
+                    hint={inputHint('username')}
                 />
                 <Input
                     type="password"
@@ -78,7 +92,7 @@ function Login(props) {
                     label="Password"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    error={formError?.password}
+                    hint={inputHint('password')}
                 />
                 <input type="submit" />
             </form>
@@ -94,10 +108,32 @@ function Login(props) {
 }
 
 function Signup(props) {
-    const { type } = props;
+    const { type, action, invite } = props;
     const [formData, setFormData] = useState({});
     const [formError, setFormError] = useState({});
-    useEffect(() => setFormData({}), [type]);
+    const [teacherCodeIsValid, setTeacherCodeIsValid] = useState(null);
+    useEffect(() => {
+        if (!invite) return;
+        const checkTeacherCode = async () => {
+            const response = await fetch(`/teacherCode/${invite}`);
+            const body = await response.json();
+            if (!body.success) return setFormError(prevState => ({
+                ...prevState,
+                teacherCode: 'Invalid teacher code'
+            }));
+            if (body.teacher) return setTeacherCodeIsValid(`Teacher: ${body.teacher.firstName} ${body.teacher.lastName}`);
+            return setTeacherCodeIsValid(`Looks good!`);
+        }
+        checkTeacherCode();
+        setFormData(prevState => ({
+            ...prevState,
+            teacherCode: invite
+        }));
+    }, [invite]);
+    useEffect(() => {
+        if ((type === 'student') && (action === 'signup')) return setFormData({ teacherCode: invite });
+        return setFormData({});
+    }, [type, invite, action]);
     const updateFormData = (e) => {
         setFormData(prevState => ({
             ...prevState,
@@ -114,6 +150,7 @@ function Signup(props) {
     const handleSignup = async (e) => {
         e.preventDefault();
         setFormError({});
+        console.dir(formData);
         const response = await fetch('/student', {
             method: 'POST',
             headers: {
@@ -131,6 +168,15 @@ function Signup(props) {
     const oppositeType = type === 'student'
         ? 'teacher'
         : 'student';
+    const inputHint = (inputName) => {
+        if (formError?.[inputName]) return { type: 'error', message: formError[inputName] };
+        return { type: null, message: null };
+    }
+    const teacherCodeHint = () => {
+        if (formError?.teacherCode) return { type: 'error', message: formError?.teacherCode };
+        if (invite && teacherCodeIsValid) return { type: 'success', message: teacherCodeIsValid }
+        return { type: null, message: null };
+    }
     return (
         <div className="Signup">
             <h1>{uppercaseFirstLetter(type)} Signup</h1>
@@ -143,7 +189,7 @@ function Signup(props) {
                             label="First name:"
                             onChange={updateFormData}
                             onInput={resetFormError}
-                            error={formError?.firstName}
+                            hint={inputHint('firstName')}
                         />
                     </div>
                     <div>
@@ -153,7 +199,7 @@ function Signup(props) {
                             label="Last name:"
                             onChange={updateFormData}
                             onInput={resetFormError}
-                            error={formError?.lastName}
+                            hint={inputHint('lastName')}
                         />
                     </div>
                 </div>
@@ -163,7 +209,7 @@ function Signup(props) {
                     label="Email address:"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    error={formError?.email}
+                    hint={inputHint('email')}
                 />
                 <span className="formHint">For password recovery only. We'll never send you marketing emails or share your contact information with third parties.</span>
                 <div className="half" style={type === 'teacher' ? { marginBottom: '0' } : null}>
@@ -174,7 +220,7 @@ function Signup(props) {
                             label="Choose a username:"
                             onChange={updateFormData}
                             onInput={resetFormError}
-                            error={formError?.username}
+                            hint={inputHint('username')}
                         />
                     </div>
                     <div>
@@ -184,7 +230,7 @@ function Signup(props) {
                             label="Choose a password:"
                             onChange={updateFormData}
                             onInput={resetFormError}
-                            error={formError?.password}
+                            hint={inputHint('password')}
                         />
                     </div>
                 </div>
@@ -193,9 +239,10 @@ function Signup(props) {
                         type="text"
                         name="teacherCode"
                         label="Teacher code:"
+                        defaultValue={invite || ''}
                         onChange={updateFormData}
                         onInput={resetFormError}
-                        error={formError?.teacherCode}
+                        hint={teacherCodeHint()}
                     />
                 }
                 <input type="submit" />

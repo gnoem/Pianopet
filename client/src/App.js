@@ -6,6 +6,11 @@ import Student from './components/Student';
 import Teacher from './components/Teacher';
 import Modal from './components/Modal';
 import ContextMenu from './components/ContextMenu';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route
+} from 'react-router-dom';
 
 export default function App() {
     const [user, setUser] = useState({
@@ -80,10 +85,19 @@ export default function App() {
         if (user.teacher) return <Teacher {...state} refreshData={getData} />;
     }
     return (
-        <div className="App">
-            {modal && <Modal exit={() => updateModal(false)} children={modal} />}
-            {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
-            {isLoaded ? app() : <Loading />}
-        </div>
+        <Router>
+            <Switch>
+                <Route path="/signup">
+                    <Guest signup={true} />
+                </Route>
+                <Route path="/">
+                    <div className="App">
+                        {modal && <Modal exit={() => updateModal(false)} children={modal} />}
+                        {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
+                        {isLoaded ? app() : <Loading />}
+                    </div>
+                </Route>
+            </Switch>
+        </Router>
     );
 }

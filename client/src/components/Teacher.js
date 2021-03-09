@@ -118,20 +118,7 @@ function Home() {
     return (
         <div className="Main padme">
             <h1>Dashboard</h1>
-            <ul>
-                <li>View student dashboard</li>
-                <ul>
-                    <li>Add homework</li>
-                    <li>Log assignment progress</li>
-                    <li>Give coins</li>
-                    <li>Award badges</li>
-                </ul>
-                <li>General - apply to all students</li>
-                <ul>
-                    <li>Add/edit/delete badges</li>
-                    <li>Add/edit/delete closet items</li>
-                </ul>
-            </ul>
+            maybe we'll have a nice pretty grid of each student's avatars here for better access
         </div>
     );
 }
