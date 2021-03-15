@@ -19,7 +19,7 @@ export const validate = {
                 });
             }),
         check('password')
-            .isLength({ min: 6, max: 15 }).withMessage('Password must be between 6 and 15 characters')
+            .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
             .not().isEmpty().withMessage('This field is required'),
         check('teacherCode')
             .not().isEmpty().withMessage('This field is required')
@@ -45,6 +45,6 @@ export const validate = {
                 });
             }),
         check('password')
-            .isLength({ min: 6, max: 15 }).withMessage('Password must be between 6 and 15 characters')
+            .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
     ]
 }
