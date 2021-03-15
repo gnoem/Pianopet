@@ -326,13 +326,12 @@ class Controller {
             if (studentsError) throw new Error(`Error retrieving students with this wearable`);
             // removeFromStudents will be an array of promises to spread out into upcoming Promise.all() along with wearable.deleteOne()
             const removeFromStudents = students.map(student => {
-                const removeWearable = (id, arrays) => {
-                    for (let array of arrays) {
-                        const index = array.indexOf(id);
-                        if (index !== -1) array.splice(index, 1);
-                    }
+                const removeWearable = (id, array) => {
+                    const index = array.indexOf(id);
+                    if (index !== -1) array.splice(index, 1);
                 }
-                removeWearable(_id, [student.closet, student.avatar]);
+                removeWearable(_id, student.closet);
+                removeWearable(_id, student.avatar);
                 return student.save();
             });
             const [success, error] = await handle(Promise.all([
@@ -468,7 +467,15 @@ class Controller {
             const newBadge = { id: badgeId, redeemed: false };
             if (!student.badges) student.badges = [];
             student.badges.push(newBadge);
-            const [success, saveError] = await handle(student.save());
+            const [badge, findBadgeError] = await handle(Badge.findOne({ _id: badgeId }));
+            if (findBadgeError) throw new Error(`Error finding badge ${badgeId}`);
+            const updateAwardedTo = () => {
+                if (!badge.awardedTo) badge.awardedTo = [];
+                const index = badge.awardedTo.indexOf(_id);
+                if (index === -1) badge.awardedTo.push(_id);
+            }
+            updateAwardedTo();
+            const [success, saveError] = await handle(Promise.all([student.save(), badge.save()]));
             if (saveError) throw new Error(`Error saving student ${_id}`);
             res.send({ success });
         }
@@ -500,11 +507,19 @@ class Controller {
             if (studentError) throw new Error(`Error finding student ${_id}`);
             if (!student) throw new Error(`Student ${_id} not found`);
             if (!student.closet) student.closet = [wearableId];
-            if (student.closet.includes(wearableId))
-                throw new Error(`Student already owns this wearable`);
+            if (student.closet.includes(wearableId)) throw new Error(`Student already owns this wearable`);
             student.closet.push(wearableId);
             student.coins -= wearableCost;
-            const [success, saveError] = await handle(student.save());
+            const [wearable, findWearableError] = await handle(Wearable.findOne({ _id: wearableId }));
+            if (findWearableError) throw new Error(`Error finding wearable`);
+            if (!wearable) throw new Error(`Wearable not found`);
+            const addStudentIdToWearable = () => {
+                if (!wearable.ownedBy) wearable.ownedBy = [];
+                const index = wearable.ownedBy.indexOf(_id);
+                if (index === -1) wearable.ownedBy.push(_id);
+            }
+            addStudentIdToWearable();
+            const [success, saveError] = await handle(Promise.all([student.save(), wearable.save()]));
             if (saveError) throw new Error(`Error saving student`);
             res.send({ success });
         }

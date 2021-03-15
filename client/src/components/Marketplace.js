@@ -32,6 +32,7 @@ export default function Marketplace(props) {
                 if (!wearableId) break; // means there's something wrong - db 'wearable.occupies' array possibly corrupted, random undefined
                 const getWearableObjectFromId = (id) => wearables.find(item => item._id === id);
                 const wearable = getWearableObjectFromId(wearableId);
+                if (!wearable) break; // probably the wearable has just been deleted
                 const category = getCategoryObject.fromId(wearable.category);
                 const { _id, name, src, value, image, occupies } = getWearableObjectFromId(wearableId)
                 updatedObject[category.name] = { _id, name, src, value, image, occupies };
@@ -156,7 +157,6 @@ export default function Marketplace(props) {
                     if (!body) return console.log('no response from server');
                     if (!body.success) return console.log(body.error);
                     shrinkit(wearableRefs.current[_id], true);
-                    console.dir(body.wearablesUpdated);
                     props.refreshData();
                     props.updateModal(false);
                 }
@@ -256,14 +256,14 @@ export default function Marketplace(props) {
                     </form>
                 </div>
             );
-            if (originalName === 'Color') content = (
+            if (originalName === 'Color') content = () => (
                 <div className="modalBox">
                     <h2>Not allowed</h2>
                     Sorry, this is a default category and can't be renamed.
                     <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
                 </div>
             );
-            props.updateModal(content);
+            props.updateModal(content());
         },
         confirmDeleteCategory: (category) => {
             if (category.name === 'Color') {
@@ -293,7 +293,6 @@ export default function Marketplace(props) {
                 const body = await response.json();
                 if (!body) return console.log('no response from server');
                 if (!body.success) return console.log(body.error);
-                console.dir(body);
                 //todo shrink it down in the list before it disappears
                 props.refreshData().then(data => {
                     if (!newCategory) return;
@@ -533,6 +532,11 @@ export default function Marketplace(props) {
             return list;
         }
     }
+    const state = {
+        getCategoryObject,
+        updateCategory: setCategory,
+        updateModalForm: setModalForm
+    }
     return (
         <>
             <div className="Marketplace">
@@ -547,9 +551,10 @@ export default function Marketplace(props) {
                     {generate.previewObject(preview)}
                     {generate.previewDescription(preview)}
                 </div>}
-                <div className="wearableCategories">
+                <CategoriesList {...props} {...state} />
+                {/* <div className="wearableCategories">
                     {generate.categoriesList(categories)}
-                </div>
+                </div> */}
                 <div className="wearablesList">
                     <div className={category?.name === 'Color' ? 'blobs' : null}>
                         {generate.wearablesList(category)}
@@ -567,6 +572,184 @@ export default function Marketplace(props) {
             }
         </>
     );
+}
+
+function CategoriesList(props) {
+    const { viewingAsTeacher, teacher, wearables, categories, getCategoryObject } = props;
+    const [mouseIsDown, setMouseIsDown] = useState(false);
+    const categoryButtonRefs = useRef({});
+    const initDrag = () => {
+        if (!mouseIsDown) return;
+        // const thisButton = categoryButtonRefs.current[mouseIsDown];
+    }
+    const teacherOperations = {
+        newCategoryFromDropdown: async (categoryName) => {
+            const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    _id: teacher._id,
+                    categoryName
+                })
+            });
+            const body = await response.json();
+            if (!body) return console.log('no response from server');
+            if (!body.success) return console.log(body.error);
+            props.refreshData();
+            return body;
+        },
+        addOrEditCategory: (e, category) => {
+            e.preventDefault();
+            if (!viewingAsTeacher) return;
+            const originalName = category?.name;
+            const editingCategory = !!category;
+            const handleAddOrEditCategory = async (e, categoryName) => {
+                e.preventDefault();
+                props.updateModal(content({ loadingIcon: true }));
+                const fromDropdown = !!categoryName;
+                const formData = editingCategory
+                    ?   { _id: category._id, categoryName: e.target[0].value }
+                    :   { categoryName: fromDropdown ? categoryName : e.target[0].value }
+                const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
+                    method: editingCategory ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log(body.error);
+                props.refreshData();
+                if (editingCategory) {
+                    if (category === getCategoryObject.fromName(categoryName)?._id) props.updateCategory(e.target[0].value);
+                }
+                props.updateModal(false);
+            }
+            let content = (options = {
+                loadingIcon: false
+            }) => (
+                <div className="modalBox">
+                    <h2>{editingCategory ? 'Edit' : 'Add new'} category</h2>
+                    <form onSubmit={handleAddOrEditCategory} autoComplete="off">
+                        <label htmlFor="categoryName">Category name:</label>
+                        <input type="text" name="categoryName" defaultValue={editingCategory ? originalName : ''} />
+                        <div className="buttons">
+                            {options.loadingIcon
+                                ? <Loading />
+                                : <input type="submit" />
+                            }
+                        </div>
+                    </form>
+                </div>
+            );
+            if (originalName === 'Color') content = () => (
+                <div className="modalBox">
+                    <h2>Not allowed</h2>
+                    Sorry, this is a default category and can't be renamed.
+                    <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
+                </div>
+            );
+            props.updateModal(content());
+        },
+        confirmDeleteCategory: (category) => {
+            if (category.name === 'Color') {
+                let notAllowed = (
+                    <div className="modalBox">
+                        <h2>Not allowed</h2>
+                        Sorry, this is a default category and can't be deleted.
+                        <div className="buttons"><button onClick={() => props.updateModal(false)}>Go back</button></div>
+                    </div>
+                );
+                return props.updateModal(notAllowed);
+            }
+            // check if empty
+            const handleDelete = async (e, newCategory = false) => {
+                e.preventDefault();
+                if (!newCategory) props.updateModal(content({ loadingIcon: true }));
+                const response = await fetch(`/teacher/${teacher._id}/wearable-category`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _id: category._id,
+                        newCategory
+                    })
+                });
+                const body = await response.json();
+                if (!body) return console.log('no response from server');
+                if (!body.success) return console.log(body.error);
+                //todo shrink it down in the list before it disappears
+                props.refreshData().then(data => {
+                    if (!newCategory) return;
+                    const newCategoryObject = data.categories.find(item => item._id === newCategory);
+                    props.updateCategory(newCategoryObject);
+                });
+                props.updateModal(false);
+            }
+            const categoryIsEmpty = (() => !wearables.some(wearable => wearable.category === category._id))();
+            let content = (options = { loadingIcon: false }) => (
+                <div className="modalBox">
+                    <h2>Delete this category</h2>
+                    Are you sure you want to delete the category "{category.name}"?
+                    {options.loadingIcon
+                        ?   <Loading />
+                        :   <form className="buttons" onSubmit={handleDelete}>
+                                <button type="submit">Yes, I'm sure</button>
+                                <button type="button" className="greyed" onClick={() => props.updateModal(false)}>Cancel</button>
+                            </form>
+                        }
+                </div>
+            );
+            if (categoryIsEmpty) return props.updateModal(content());
+            const formProps = {
+                category,
+                handleDelete,
+                closeModal: () => props.gracefullyCloseModal(props.updateModalForm),
+                newCategory: (categoryName) => teacherOperations.newCategoryFromDropdown(categoryName)
+            }
+            props.updateModalForm({ type: 'deleteCategory', props: {...formProps} });
+        },
+        editOrDeleteCategory: (e, category) => {
+            if (!viewingAsTeacher) return;
+            e.preventDefault();
+            let content = (
+                <ul className="editDelete">
+                    <li><button onClick={(e) => teacherOperations.addOrEditCategory(e, category)}>Edit</button></li>
+                    <li><button onClick={(e) => teacherOperations.confirmDeleteCategory(category)}>Delete</button></li>
+                </ul>
+            );
+            props.updateContextMenu(e, content);
+        }
+    }
+    const generate = {
+        categoriesList: (categories) => {
+            const array = categories.map(category => (
+                <button
+                  ref={(el) => categoryButtonRefs.current[category._id] = el}
+                  key={`wearableCategories-toolbar-${category.name}`}
+                  onClick={() => props.updateCategory(category)}
+                  onMouseDown={() => setMouseIsDown(category._id)}
+                  onMouseUp={() => setMouseIsDown(false)}
+                  onMouseMove={initDrag}
+                  onContextMenu={(e) => teacherOperations.editOrDeleteCategory(e, category)}>
+                    {category.name}
+                </button>
+            ))
+            if (viewingAsTeacher) array.push(
+                <button key="wearableCategories-toolbar-addNew" className="add" onClick={teacherOperations.addOrEditCategory}></button>
+            );
+            return array;
+        },
+    }
+    return (
+        <div className="wearableCategories">
+            {generate.categoriesList(categories)}
+        </div>
+    )
 }
 
 function AddOrEditColor(props) {
