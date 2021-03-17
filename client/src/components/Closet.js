@@ -26,6 +26,7 @@ export default function Closet(props) {
             });
         },
         wearablesList: (category) => {
+            if (!category) return null;
             const currentCategory = category.name;
             const handleClick = ({ category, occupies, _id, name, src, image }) => {
                 const categoryName = getCategoryObject.fromId(category)?.name ?? category;
@@ -118,6 +119,9 @@ export default function Closet(props) {
             return list;
         }
     }
+    if (!closet.length) return (
+        <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
+    );
     return (
         <div className="Closet">
             <div id="demo" onClick={() => console.dir(avatar)}></div>
@@ -125,7 +129,7 @@ export default function Closet(props) {
                 {generate.categoriesList(closet)}
             </div>
             <div className="wearablesList">
-                <div className={category.name === 'Color' ? 'blobs' : null}>
+                <div className={category?.name === 'Color' ? 'blobs' : null}>
                     {generate.wearablesList(category)}
                 </div>
             </div>
