@@ -93,8 +93,8 @@ function StudentProfileDropdown(props) {
               updateContextMenu={() => setExpanded(false)}
               children={(
                 <ul>
-                    <li><button className="myAccount" onClick={() => props.updateView('account')}>My Account</button></li>
-                    <li><button className="settings" onClick={() => props.updateView('settings')}>Settings</button></li>
+                    <li><button className="myAccount" onClick={() => props.updateView({ type: 'account' })}>My Account</button></li>
+                    <li><button className="settings" onClick={() => props.updateView({ type: 'settings' })}>Settings</button></li>
                     <li><button className="logout" onClick={props.logout}>Logout</button></li>
                 </ul>
             )} />
