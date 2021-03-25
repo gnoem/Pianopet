@@ -13,7 +13,6 @@ export const Gateway = () => {
     const { modal, createModal } = useContext(ModalContext);
     useEffect(() => {
         User.auth().then(handleSuccess).catch(err => {
-            console.log('fix proxy error idiot!!!', err);
             setAccessToken(false);
             handleError(err, { createModal });
         });
