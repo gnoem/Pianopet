@@ -4,7 +4,7 @@ import Loading from './components/Loading';
 import Guest from './components/Guest';
 import Student from './components/Student';
 import Teacher from './components/Teacher';
-import Modal from './components/Modal';
+import {Modal} from './components/Modal/index.js';
 import ContextMenu from './components/ContextMenu';
 import {
     BrowserRouter as Router,
@@ -63,6 +63,9 @@ export default function App() {
             children: content
         });
     }
+    const utils = {
+        updateModal: (content, type = 'simple', options = {}) => setModal({ content, type, options })
+    }
     const updateModal = (modalContent, set = setModal, customProps = {}) => {
         if (modalContent) return set({ content: modalContent, customProps });
         const box = document.querySelector('.Modal');
@@ -70,19 +73,20 @@ export default function App() {
         box.classList.remove('active');
         setTimeout(() => set(false), 200);
     }
-    const state = {
+    const inherit = {
         modal,
         isMobile,
         ...userData,
         logout,
-        updateModal,
+        updateModal: utils.updateModal,
         updateContextMenu,
-        gracefullyCloseModal: (fn) => updateModal(false, fn)
+        gracefullyCloseModal: (fn) => updateModal(false, fn),
+        refreshData: getData
     }
     const app = () => {
         if (!user.student && !user.teacher) return <Guest />;
-        if (user.student) return <Student {...state} refreshData={getData} />;
-        if (user.teacher) return <Teacher {...state} refreshData={getData} />;
+        if (user.student) return <Student {...inherit} />;
+        if (user.teacher) return <Teacher {...inherit} />;
     }
     return (
         <Router>
@@ -92,7 +96,8 @@ export default function App() {
                 </Route>
                 <Route path="/">
                     <div className="App">
-                        {modal && <Modal exit={() => updateModal(false)} children={modal?.content} {...modal?.customProps} />}
+                        {/* {modal && <Modal exit={() => updateModal(false)} children={modal?.content} {...modal?.customProps} />} */}
+                        {modal && <Modal {...inherit} {...modal} setModal={setModal} exit={() => setModal(null)} />}
                         {contextMenu && <ContextMenu {...contextMenu} updateContextMenu={setContextMenu} />}
                         {isLoaded ? app() : <Loading />}
                     </div>

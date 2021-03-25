@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { handle, FormError, ServerError, formErrorReport } from './utils.js';
 import { Student, Teacher, Homework, Wearable, Category, Badge } from '../models/index.js';
 
 const secretKey = process.env.SECRET_KEY;
@@ -13,12 +14,6 @@ patterns:
     but throw error if index === -1
 */
 
-const handle = (promise) => {
-    return promise
-        .then(data => ([data, undefined]))
-        .catch(err => Promise.resolve([undefined, err]));
-}
-const FormError = (fieldName, errorMessage) => ({ [fieldName]: errorMessage });
 const generateErrorReport = (errors) => {
     const report = errors.reduce((obj, error) => {
         if (error.location !== 'body') return null;
@@ -34,18 +29,31 @@ class Controller {
     }
     auth = (req, res) => {
         const accessToken = req.cookies?.auth;
-        if (!accessToken) return res.send({ student: false, teacher: false });
+        if (!accessToken) return res.status(401).send({ token: false });
         const decoded = jwt.verify(accessToken, secretKey);
         const run = async () => {
             const [student, studentError] = await handle(Student.findOne({ _id: decoded.id }));
-            if (studentError) throw new Error(`Error finding student ${_id}`);
-            if (student) return this.getStudent(res, student); // todo figure out if better way to res.send than passing res
+            if (studentError) throw new ServerError(500, `Error finding user ${_id}`, studentError);
+            if (student) return res.status(200).send({ token: true, isStudent: true, _id: student._id });
             const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
-            if (teacherError) throw new Error(`Error finding user ${_id}`);
-            if (!teacher) throw new Error(`User ${_id} not found`); // and delete cookie? todo figure out
+            if (teacherError) throw new ServerError(500, `Error finding user ${_id}`, teacherError);
+            if (!teacher) throw new ServerError(500, `User ${_id} not found`); // and delete cookie? todo figure out
+            res.status(200).send({ token: true, isStudent: false, _id: teacher._id });
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
+    getUser = (req, res) => {
+        const { _id } = req.params;
+        const run = async () => {
+            const [student, studentError] = await handle(Student.findOne({ _id }));
+            if (studentError) throw new ServerError(500, `Error finding user`, studentError);
+            if (student) return this.getStudent(res, student); // todo figure out if better way to res.send than passing res
+            const [teacher, teacherError] = await handle(Teacher.findOne({ _id }));
+            if (teacherError) throw new ServerError(500, `Error finding user`, teacherError);
+            if (!teacher) throw new ServerError(500, `User not found`); // and delete cookie? todo figure out
             this.getTeacher(res, teacher);
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     getStudent = (res, student) => {
         const { teacherCode } = student;
@@ -56,13 +64,13 @@ class Controller {
                 Category.find({ teacherCode }),
                 Badge.find({ teacherCode })
             ]));
-            if (dataError) throw new Error(`Error retrieving data associated with teacher ${teacherCode}`);
-            if (!foundData) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            if (dataError) throw new ServerError(500, `Error retrieving data associated with teacher ${teacherCode}`, dataError);
+            if (!foundData) throw new ServerError(500, `Could not find any data associated with teacher ${teacherCode}`);
             const [teacher, wearables, categories, badges] = foundData;
-            const studentData = { student, teacher, wearables, categories, badges };
-            res.send({ success: true, studentData });
+            const studentData = { isStudent: true, student, teacher, wearables, categories, badges };
+            res.status(200).send(studentData);
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     getTeacher = (res, teacher) => {
         const { _id: teacherCode } = teacher;
@@ -73,20 +81,21 @@ class Controller {
                 Category.find({ teacherCode }),
                 Badge.find({ teacherCode })
             ]));
-            if (dataError) throw new Error(`Error retrieving data for teacher ${teacherCode}`);
-            if (!foundData) throw new Error(`Could not find any data associated with teacher ${teacherCode}`);
+            if (dataError) throw new ServerError(500, `Error retrieving data for teacher ${teacherCode}`, dataError);
+            if (!foundData) throw new ServerError(500, `Could not find any data associated with teacher ${teacherCode}`);
             const [students, wearables, categories, badges] = foundData;
-            const teacherData = { teacher, students, wearables, categories, badges };
-            res.send({ success: true, teacherData });
+            const teacherData = { isStudent: false, teacher, students, wearables, categories, badges };
+            res.status(200).send(teacherData);
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
+    
     login = (req, res) => {
         const { role, username, password } = req.body;
         const run = async () => {
             const User = role === 'student' ? Student : Teacher;
             const [user, userError] = await handle(User.findOne({ username }));
-            if (userError) throw new Error(`Error finding ${role} ${username}`);
+            if (userError) throw new ServerError(500, `Error finding ${role} ${username}`, userError);
             if (!user) throw FormError('username', 'User not found');
             const passwordIsValid = bcrypt.compareSync(password, user.password);
             if (!passwordIsValid) throw FormError('password', 'Invalid password');
@@ -98,14 +107,15 @@ class Controller {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.send({ success: user });
+            res.status(200).send({ user });
         }
-        run().catch(err => res.send({ success: false, error: err }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     logout = (req, res) => {
         res.clearCookie('auth');
         res.redirect('/');
     }
+    
     studentSignup = (req, res) => {
         const { firstName, lastName, email, username, password, teacherCode } = req.body;
         const { errors } = validationResult(req);
@@ -137,8 +147,8 @@ class Controller {
     }
     teacherSignup = (req, res) => {
         const { firstName, lastName, email, username, password } = req.body;
-        const { errors } = validationResult(req).array();
-        if (errors.length) return res.send({ success: false, error: generateErrorReport(errors) });
+        const { errors } = validationResult(req);
+        if (errors.length) return res.status(422).send({ error: generateErrorReport(errors) });
         const run = async () => {
             const [teacher, teacherError] = await handle(Teacher.create({
                 firstName,
@@ -156,12 +166,9 @@ class Controller {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.send({
-                success: teacher,
-                accessToken
-            });
+            res.status(201).send({ accessToken });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     validateTeacherCode = (req, res) => {
         const { teacherCode } = req.params;
@@ -203,6 +210,16 @@ class Controller {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
+    
+    getHomework = (req, res) => {
+        const { id: studentId } = req.params;
+        const run = async () => {
+            const [homework, homeworkError] = await handle(Homework.find({ studentId }).sort({ date: 'desc' }));
+            if (homeworkError) throw new ServerError(500, `Error finding homework for student`, homeworkError);
+            res.status(200).send({ homework });
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
     addHomework = (req, res) => {
         const { id: studentId } = req.params;
         const run = async () => {
@@ -221,15 +238,7 @@ class Controller {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
-    getHomework = (req, res) => {
-        const { id: studentId } = req.params;
-        const run = async () => {
-            const [homework, homeworkError] = await handle(Homework.find({ studentId }).sort({ date: 'desc' }));
-            if (homeworkError) throw new Error(`Error finding homework for student ${studentId}`);
-            res.send({ success: true, homework });
-        }
-        run().catch(err => res.send({ success: false, error: err.message }));
-    }
+    
     editHomework = (req, res) => {
         const { id: _id } = req.params;
         const { date, headline, assignments } = req.body;
@@ -245,18 +254,18 @@ class Controller {
         run().catch(err => res.send({ success: false, error: err.message }));
     }
     updateProgress = (req, res) => {
-        const { id: _id } = req.params;
+        const { _id } = req.params;
         const { index, value } = req.body;
         const run = async () => {
-            let [homework, homeworkError] = await handle(Homework.findOne({ _id }));
-            if (homeworkError) throw new Error(`Error finding homework ${_id}`);
-            if (!homework) throw new Error(`Homework ${_id} not found`);
-            homework.assignments[index].progress = value;
-            const [success, saveError] = await handle(homework.save());
-            if (saveError) throw new Error(`Error saving homework`);
-            res.send({ success });
+            let [foundHomework, findHomeworkError] = await handle(Homework.findOne({ _id }));
+            if (findHomeworkError) throw new ServerError(500, `Error finding homework`, findHomeworkError);
+            if (!foundHomework) throw new ServerError(500, `Homework not found`);
+            foundHomework.assignments[index].progress = value;
+            const [homework, saveError] = await handle(foundHomework.save());
+            if (saveError) throw new ServerError(500, `Error saving homework`, saveError);
+            res.send({ homework });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     updateRecorded = (req, res) => {
         // todo maybe combine this one and update progress? difference is literally one line
@@ -347,9 +356,9 @@ class Controller {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
         const run = async () => {
-            const [badge, badgeError] = await handle(Badge.create({ teacherCode, name, src, value }));
-            if (badgeError) throw new Error(`Error creating new badge`);
-            res.send({ success: badge });
+            const [badge, createBadgeError] = await handle(Badge.create({ teacherCode, name, src, value }));
+            if (createBadgeError) throw new ServerError(500, `Error creating new badge`, createBadgeError);
+            res.status(201).send({ badge });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }

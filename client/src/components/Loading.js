@@ -1,12 +1,12 @@
 import { ReactComponent as LoadingIcon } from './Loading.svg';
 
 function Loading(props) {
-    const { width, height } = props;
-    const style = {};
-    if (width) style.width = width + 'px';
-    if (height) style.height = height + 'px';
+    const { mini, width, height, style } = props;
+    const iconStyle = style ?? {};
+    if (width) iconStyle.width = width + 'px';
+    if (height) iconStyle.height = height + 'px';
     return (
-        <div className={`Loading${height ? ' mini' : ''}`} style={style}>
+        <div className={`Loading${mini ? ' mini' : ''}`} style={iconStyle}>
             <LoadingIcon />
         </div>
     )

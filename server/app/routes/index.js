@@ -5,7 +5,8 @@ export default function (app) {
     app.post('/custom', Controller.custom);
 
     // COMMON
-    app.get('/auth', Controller.auth);
+    app.post('/auth', Controller.auth);
+    app.get('/data/:_id', Controller.getUser);
     app.post('/login', Controller.login);
     app.get('/logout', Controller.logout);
 
@@ -29,9 +30,9 @@ export default function (app) {
         .put(Controller.editWearable)
         .delete(Controller.deleteWearable);
     app.route('/badge')
-        .post(Controller.addBadge);
+        .post(validate.badgeName, Controller.addBadge);
     app.route('/badge/:id')
-        .put(Controller.editBadge)
+        .put(validate.badgeName, Controller.editBadge)
         .delete(Controller.deleteBadge);
     
     // STUDENT
@@ -46,6 +47,8 @@ export default function (app) {
     app.route('/student/homework/:id')
         .put(Controller.editHomework)
         .delete(Controller.deleteHomework);
+    app.route('/homework/:_id/progress')
+        .put(Controller.updateProgress);
     app.put('/assignment/:id/progress', Controller.updateProgress);
     app.put('/assignment/:id/recorded', Controller.updateRecorded);
     app.put('/student/:id/coins', Controller.updateCoins);

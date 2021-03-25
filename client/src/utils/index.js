@@ -16,3 +16,5 @@ export const shrinkit = (element, destroy = false) => {
     element.classList.add('goodbye');
     if (destroy) setTimeout(() => element.style.display = 'none', 200);
 }
+
+export const formatCoins = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

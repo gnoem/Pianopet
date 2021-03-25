@@ -356,6 +356,41 @@ button.loadingAnimation svg * {
     }
 }
 
+code {
+    font-size: 0.8rem;
+    line-height: 1rem;
+    padding: 0 0.2rem;
+    letter-spacing: -0.02rem;
+}
+details summary {
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: #333;
+    outline: none;
+}
+details .errorDetails {
+    white-space: pre-line;
+    word-wrap: break-word;
+    display: block;
+    padding: 0.2rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+    max-height: 6rem;
+    overflow: auto;
+}
+details .errorDetails code {
+    font-size: 0.7rem;
+    line-height: 1rem;
+    display: block;
+}
+details .errorDetails code.greyed {
+    color: #666;
+}
+details .errorDetails code + code.greyed {
+    margin-top: 0.5rem;
+}
+
 /* CUSTOM INPUT */
 .Input + .Input {
     margin-top: 1.5rem;

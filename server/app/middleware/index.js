@@ -2,6 +2,16 @@ import { check } from 'express-validator';
 import { Student, Teacher } from '../models/index.js';
 
 export const validate = {
+    badgeName: [
+        check('name')
+            .not().isEmpty().withMessage('This field is required').bail()
+            .isLength({ max: 50 }).withMessage('Max 50 characters'),
+            // todo check if exists
+        check('src')
+            .not().isEmpty().withMessage('This field is required'),
+        check('value')
+            .not().isEmpty().withMessage('This field is required')
+    ],
     studentSignup: [
         check('firstName')
             .not().isEmpty().withMessage('This field is required'),
