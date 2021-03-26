@@ -4,11 +4,12 @@ export const useFormData = (initialState = {}) => {
     const [formData, setFormData] = useState(initialState);
     const updateFormData = (e) => setFormData(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
     const resetFormData = () => setFormData(initialState);
-    return [formData, updateFormData, resetFormData];
+    return [formData, setFormData, updateFormData, resetFormData];
 }
 
 export const useFormError = (initialState = {}) => {
     const [formError, setFormError] = useState(initialState);
+    const updateFormError = (errors) => setFormError(prevState => ({ ...prevState, ...errors }));
     const resetFormError = (e) => setFormError(prevState => {
         if (!prevState?.[e.target.name]) return prevState;
         const newState = {...prevState};
@@ -18,5 +19,5 @@ export const useFormError = (initialState = {}) => {
     const warnFormError = (inputName) => {
         if (formError?.[inputName]) return { type: 'error', message: formError[inputName] };
     }
-    return [setFormError, resetFormError, warnFormError];
+    return [updateFormError, resetFormError, warnFormError];
 }

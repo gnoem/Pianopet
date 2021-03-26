@@ -26,7 +26,7 @@ const BadgeListItem = ({ badge, className, onClick, onContextMenuClick }) => {
                  alt={badge.name}
                  src={badge.src}
                  onClick={isStudent ? null : onClick}
-                 onContextMenu={isStudent ? null : onContextMenuClick} />
+                 onContextMenu={isStudent ? null : (e) => onContextMenuClick(e, badge)} />
             <span className="badgeName">{badge.name}</span>
             <span onClick={isStudent ? onClick : null}>
                 <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />

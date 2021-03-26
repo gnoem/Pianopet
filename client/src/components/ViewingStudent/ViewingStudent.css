@@ -1,0 +1,17 @@
+.ViewingStudent {
+    display: grid;
+    grid-template: auto 1fr / 1fr auto;
+    grid-template-areas:
+        'header sidebar'
+        'content sidebar';
+    column-gap: 3rem;
+}
+.ViewingStudent .HomeworkHeader {
+    grid-area: header;
+}
+.ViewingStudent .Homework {
+    grid-area: content;
+}
+.ViewingStudent .ViewingStudentSidebar {
+    grid-area: sidebar;
+}

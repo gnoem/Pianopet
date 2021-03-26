@@ -4,26 +4,27 @@ import { handleError } from '../../services';
 import { Input } from './Input';
 import { Button } from './Button';
 
-export const Form = ({ children, title, submit, onSubmit, handleSuccess, handleFormError, reset, updateReset }) => {
+export const Form = ({ children, modal, className, title, submit, onSubmit, handleSuccess, handleFormError, reset, updateReset }) => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const { createModal } = useContext(ModalContext);
+    const { createModal, closeModal } = useContext(ModalContext);
     const formRef = useRef(null);
     useEffect(() => {
-        console.log('reset changed');
         if (!reset) return;
         formRef?.current?.reset();
         updateReset(false);
     }, [reset, formRef.current]);
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (loading) return; // prevent multiple form submissions
         setLoading(true);
         onSubmit()
             .then(result => {
                 setSuccess(true);
                 setLoading(false);
                 setTimeout(() => {
-                    setSuccess(false);
+                    if (!modal) setSuccess(false);
+                    else closeModal();
                     handleSuccess(result);
                 }, 1200); // check + checkmark-shrink animation duration in Button.css
             })
@@ -32,10 +33,13 @@ export const Form = ({ children, title, submit, onSubmit, handleSuccess, handleF
                 handleError(err, { handleFormError, createModal })
             });
     }
-    const submitShouldInherit = { loading, success };
+    const submitShouldInherit = { loading, success, modal, closeModal };
     const customSubmit = submit ? React.cloneElement(submit, submitShouldInherit) : null;
     return (
-        <form onSubmit={handleSubmit} autoComplete="off" ref={formRef}>
+        <form onSubmit={handleSubmit}
+              autoComplete="off"
+              className={className ?? ''}
+              ref={formRef}>
             <h2>{title}</h2>
             {children}
             {customSubmit ?? <Submit {...submitShouldInherit} />}
@@ -43,8 +47,12 @@ export const Form = ({ children, title, submit, onSubmit, handleSuccess, handleF
     );
 }
 
-export const Submit = ({ value, nvm, cancel, loading, success, disabled, buttonClass }) => {
+export const Submit = ({ value, modal, nvm, cancel, closeModal, loading, success, disabled, buttonClass }) => {
     // todo change onCancel to just cancel
+    const handleCancel = () => {
+        cancel?.();
+        if (modal) closeModal();
+    }
     return (
         <div className="buttons">
             <Button type="submit"
@@ -52,7 +60,7 @@ export const Submit = ({ value, nvm, cancel, loading, success, disabled, buttonC
                     {...{ success, loading, disabled }}>
                 {value ?? 'Submit'}
             </Button>
-            {(cancel !== false) && <button type="button" className="greyed" onClick={cancel}>{nvm ?? 'Cancel'}</button>}
+            {(cancel !== false) && <button type="button" className="greyed" onClick={handleCancel}>{nvm ?? 'Cancel'}</button>}
         </div>
     );
 }

@@ -3,23 +3,28 @@ import { DataContext, ViewContext } from "../../contexts";
 import Loading from "../Loading";
 import PianopetBase from "../PianopetBase";
 
-export const Avatar = () => {
+export const Avatar = ({ student }) => {
+    const { isStudent, avatar, wearables, categories, createAvatarObject } = useContext(DataContext);
+    const [avatarObject, setAvatarObject] = useState(isStudent ? avatar : null);
     const [color, setColor] = useState(null);
     const { updateView } = useContext(ViewContext);
-    const { isStudent, avatar } = useContext(DataContext);
     useEffect(() => {
-        if (!avatar) return;
-        setColor(avatar.Color?.src);
-    }, [avatar]);
+        if (isStudent && avatarObject) setColor(avatarObject.Color?.src);
+        if (!isStudent) {
+            const obj = createAvatarObject(student?.avatar, wearables, categories);
+            setAvatarObject(obj);
+            setColor(obj?.Color?.src);
+        }
+    }, [student]);
     const handleClick = () => {
         if (isStudent) updateView({ type: 'closet' });
     }
     const generateAvatar = () => {
-        if (avatar === null) return <Loading />;
-        return Object.keys(avatar).map(key => {
+        if (avatarObject === null) return <Loading />;
+        return Object.keys(avatarObject).map(key => {
             if (key === 'Color') return null;
-            if (avatar[key].isOccupied) return null;
-            const { _id, src, image } = avatar[key];
+            if (avatarObject[key].isOccupied) return null;
+            const { _id, src, image } = avatarObject[key];
             const style = {
                 top: `${image.y}%`,
                 left: `${image.x}%`,

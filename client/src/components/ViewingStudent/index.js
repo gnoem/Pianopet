@@ -1,3 +1,4 @@
+import "./ViewingStudent.css";
 import { useEffect, useState } from "react";
 import { formatCoins } from "../../utils";
 import { Homework } from "../Homework";
@@ -5,10 +6,10 @@ import { Avatar } from "../Avatar/index.js";
 
 export const ViewingStudent = ({ student }) => {
     return (
-        <>
+        <div className="ViewingStudent">
             <Homework {...{ student }} />
             <Sidebar {...{ student }} />
-        </>
+        </div>
     );
 }
 
@@ -16,9 +17,9 @@ const Sidebar = ({ student }) => {
     return (
         <div className="ViewingStudentSidebar">
             <div className="avatarContainer">
-                <Avatar />
+                <Avatar {...{ student }} />
             </div>
-            <StudentCoins {...{ student }} />
+            <StudentCoins {...{ student, isStudent: false }} />
             <div className="StudentStats">
                 <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
                 <span className="statsLabel">{student.badges.length}</span>
@@ -30,6 +31,9 @@ const Sidebar = ({ student }) => {
 const StudentCoins = ({ student }) => {
     const [makingChanges, setMakingChanges] = useState(false);
     const [coinsCount, setCoinsCount] = useState(student.coins);
+    useEffect(() => {
+        setCoinsCount(student.coins);
+    }, [student]);
     const handleUpdateCoins = () => console.log('updating coins');
     const editCoinsButtons = (() => (
         <div>

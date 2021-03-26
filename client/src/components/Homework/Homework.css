@@ -1,0 +1,8 @@
+.Homework {
+    margin: 2rem 0;
+}
+@media (max-width: 900px) {
+    .Homework {
+        margin: 1rem 0 calc(12.5vh - 2rem); /* 12.5vh is height of bottom bar, 2rem is padding on .Main */
+    }
+}

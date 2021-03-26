@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { DataContext, ViewContext } from "../../contexts"
 import { Account } from "../Account";
 import { Dropdown } from "../Dropdown/index.js";
@@ -37,6 +37,7 @@ const TeacherSidebar = ({ students, view, updateView }) => {
     })();
     return (
         <Sidebar>
+            <label>Select a student:</label>
             <Dropdown
                 style={{ minWidth: '14rem' }}
                 onChange={handleSelection}

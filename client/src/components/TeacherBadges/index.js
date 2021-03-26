@@ -1,15 +1,24 @@
 import { useContext } from "react"
-import { DataContext } from "../../contexts"
+import { DataContext, ModalContext } from "../../contexts"
 import { Badges } from "../Badges"
 
 export const TeacherBadges = () => {
     const { badges } = useContext(DataContext);
-    const addNewBadge = () => console.log('add new badge');
+    const { createModal, createContextMenu } = useContext(ModalContext);
+    const addNewBadge = () => createModal('createBadge', 'form');
     const ifNoneMessage = "You haven't added any badges yet!";
     const onClick = () => console.log('handle click badge');
-    const onContextMenuClick = (e) => {
+    const onContextMenuClick = (e, badge) => {
         e.preventDefault();
-        console.log('edit or delete badge');
+        const editBadge = () => createModal('editBadge', 'form', { badge });
+        const deleteBadge = () => createModal('deleteBadge', 'form', { badge });
+        const listItems = [
+            { display: 'Edit', onClick: editBadge },
+            { display: 'Delete', onClick: deleteBadge }
+        ];
+        createContextMenu(e, listItems, {
+            className: 'editdelete'
+        });
     }
     return (
         <div className="TeacherBadges">

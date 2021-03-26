@@ -5,7 +5,7 @@ export const Input = ({ type, name, label, className, defaultValue, onChange, on
     const inputRef = useRef(null);
     return (
         <div className="Input">
-            <label htmlFor={name}>{label}</label>
+            {label && <label htmlFor={name}>{label}</label>}
             <div>
                 <input
                     type={type}
@@ -18,7 +18,7 @@ export const Input = ({ type, name, label, className, defaultValue, onChange, on
                     ref={inputRef} />
                 {inputHint && <InputHint {...inputHint} inputRef={inputRef} />}
             </div>
-            <InputNote>{note}</InputNote>
+            {note && <InputNote>{note}</InputNote>}
         </div>
     );
 }
