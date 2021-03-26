@@ -1,13 +1,15 @@
 import { useContext } from "react";
 import { DataContext, ViewContext } from "../../contexts";
+import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
+import { StudentBadges } from "../StudentBadges";
 import { StudentCloset } from "../StudentCloset";
 import { StudentHomework } from "../StudentHomework";
 import { StudentMarketplace } from "../StudentMarketplace";
 import { StudentSidebar } from "../StudentSidebar";
 
 export const Student = () => {
-    const { student, refreshData } = useContext(DataContext);
+    const { student } = useContext(DataContext);
     const { view, updateView } = useContext(ViewContext);
     return (
         <>
@@ -21,24 +23,25 @@ export const Student = () => {
                 <ProfileDropdown {...{ user: student, updateView }} />
             </Header>
             <StudentSidebar />
-            <StudentMain {...{ view, student, refreshData }} />
+            <StudentMain {...{ view, updateView, student }} />
         </>
     );
 }
 
-const StudentMain = ({ view, student, refreshData }) => {
+const StudentMain = ({ view, student, updateView }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return <StudentHomework {...{ student }} />;
-            case 'closet': return <StudentCloset {...{ student, refreshData }} />;
+            case 'closet': return <StudentCloset />;
             case 'marketplace': return <StudentMarketplace />;
-            case 'badges': return 'badges';
-            case 'my-account': return 'my account';
+            case 'badges': return <StudentBadges />;
+            case 'my-account': return <Account />;
             default: return 'uhhhh'
         }
     }
     return (
         <div className="Main">
+            <button onClick={() => updateView({ type: 'my-account' })}>account</button>
             {content()}
         </div>
     );

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
 export const useFormData = (initialState = {}) => {
-    const [formData, setFormData] = useState({ ...initialState });
+    const [formData, setFormData] = useState(initialState);
     const updateFormData = (e) => setFormData(prevState => ({ ...prevState, [e.target.name]: e.target.value }));
-    return [formData, updateFormData];
+    const resetFormData = () => setFormData(initialState);
+    return [formData, updateFormData, resetFormData];
 }
 
 export const useFormError = (initialState = {}) => {

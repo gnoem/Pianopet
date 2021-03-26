@@ -224,7 +224,7 @@ input + .formHint, div.Input + .formHint {
 }
 
 /* FORMS - LABELS, INPUTS, BUTTONS */
-form.divide > div.half {
+form > div.half {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(2, calc(50% - 0.5rem)); /* annoying that grid gap isn't included in total width */
@@ -290,6 +290,7 @@ input[type=text]:disabled {
 }
 input[type=submit]:disabled, button:disabled {
     background: var(--input-bg);
+    cursor: not-allowed;
 }
 span.error {
     color: var(--caution);

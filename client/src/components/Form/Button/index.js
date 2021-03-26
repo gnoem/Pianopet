@@ -1,14 +1,14 @@
 import './Button.css';
 import Loading from '../../Loading';
 
-export const Button = ({ type, className, loading, success, children, onClick }) => {
+export const Button = ({ type, className, loading, success, disabled, children, onClick }) => {
     const statusIcon = (() => {
         if (success) return <SuccessAnimation />;
         if (loading) return <Loading />;
         return null;
     })();
     return (
-        <button type={type} className={className ?? ''} onClick={onClick}>
+        <button type={type} className={className ?? ''} onClick={onClick} disabled={disabled}>
             {statusIcon}
             <span data-ghost={!!statusIcon}>{children}</span>
         </button>

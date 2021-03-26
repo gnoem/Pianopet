@@ -1,6 +1,9 @@
 .Input + .Input {
     margin-top: 1.3rem;
 }
+form > div.half .Input {
+    margin: 0;
+}
 .Input > div {
     position: relative;
 }
