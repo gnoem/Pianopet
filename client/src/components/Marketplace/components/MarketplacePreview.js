@@ -39,7 +39,7 @@ const PreviewImage = ({ preview }) => {
 }
 
 const PreviewDescription = ({ preview, student, isStudent }) => {
-    if (!isStudent) return;
+    if (!isStudent) return null;
     const previewItems = [];
     for (let category in preview) {
         if (preview[category]._id) { // default color _id is undefined, and also if preview[category].isOccupied it won't have _id

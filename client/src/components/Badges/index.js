@@ -7,7 +7,7 @@ export const Badges = ({ badgeList, ifNoneMessage, checkClassName, onClick, onCo
         return badgeList.map(badge => (
             <BadgeListItem
                 key={`badgeListItem-${badge._id}`}
-                className={checkClassName(badge)}
+                className={checkClassName?.(badge)}
                 {...{ badge, onClick, onContextMenuClick }} />
         ));
     }

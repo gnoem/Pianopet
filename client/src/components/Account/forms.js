@@ -67,7 +67,9 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
 
 export const ChangePassword = ({ user, isStudent, refreshData }) => {
     const [reset, setReset] = useState(false);
-    const [formData, updateFormData, resetFormData] = useFormData({});
+    const [formData, updateFormData, resetFormData] = useFormData({
+        role: isStudent ? 'student' : 'teacher'
+    });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => Promise.resolve('changing password');
     const onSuccess = () => {

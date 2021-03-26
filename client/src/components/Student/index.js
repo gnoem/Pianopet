@@ -4,7 +4,7 @@ import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
 import { StudentBadges } from "../StudentBadges";
 import { StudentCloset } from "../StudentCloset";
-import { StudentHomework } from "../StudentHomework";
+import { Homework } from "../Homework";
 import { StudentMarketplace } from "../StudentMarketplace";
 import { StudentSidebar } from "../StudentSidebar";
 
@@ -31,7 +31,7 @@ export const Student = () => {
 const StudentMain = ({ view, student, updateView }) => {
     const content = () => {
         switch (view.type) {
-            case 'home': return <StudentHomework {...{ student }} />;
+            case 'home': return <Homework {...{ student }} />;
             case 'closet': return <StudentCloset />;
             case 'marketplace': return <StudentMarketplace />;
             case 'badges': return <StudentBadges />;

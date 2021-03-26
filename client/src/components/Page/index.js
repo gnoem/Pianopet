@@ -26,7 +26,7 @@ export const Header = ({ children, /* isMobile, */ view, updateView }) => {
                 {expanded && children}
             </div>
         </div>
-    )
+    );
     return (
         <>
             <div className="Logo">
