@@ -8,7 +8,7 @@ import { TeacherMarketplace } from "../TeacherMarketplace";
 import { ViewingStudent } from "../ViewingStudent";
 
 export const Teacher = () => {
-    const { teacher, students } = useContext(DataContext);
+    const { teacher, students, categories } = useContext(DataContext);
     const { view, updateView } = useContext(ViewContext);
     return (
         <>
@@ -22,7 +22,7 @@ export const Teacher = () => {
                 <ProfileDropdown {...{ user: teacher, updateView }} />
             </Header>
             <TeacherSidebar {...{ students, view, updateView }} />
-            <TeacherMain {...{ view }} />
+            <TeacherMain {...{ view, categories }} />
         </>
     );
 }
@@ -48,12 +48,12 @@ const TeacherSidebar = ({ students, view, updateView }) => {
     );
 }
 
-const TeacherMain = ({ view }) => {
+const TeacherMain = ({ view, categories }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return 'home';
             case 'student': return <ViewingStudent student={view.student} />;
-            case 'marketplace': return <TeacherMarketplace />;
+            case 'marketplace': return <TeacherMarketplace {...{ categories }} />;
             case 'badges': return <TeacherBadges />;
             case 'my-account': return <Account />;
             default: return 'default';

@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ModalContext } from '../../contexts';
-import { handleError } from '../../services';
-import { Input } from './Input';
-import { Button } from './Button';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ModalContext } from "../../contexts";
+import { handleError } from "../../services";
+import { Input, InputDropdown } from "./Input";
+import { Checkbox } from "./Checkbox";
+import { Button } from "./Button";
 
 export const Form = ({ children, modal, className, title, submit, onSubmit, handleSuccess, handleFormError, reset, updateReset }) => {
     const [loading, setLoading] = useState(false);
@@ -65,4 +66,4 @@ export const Submit = ({ value, modal, nvm, cancel, closeModal, loading, success
     );
 }
 
-export { Input, Button }
+export { Input, InputDropdown, Checkbox, Button }

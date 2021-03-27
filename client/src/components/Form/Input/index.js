@@ -1,5 +1,6 @@
 import "./Input.css";
 import { useState, useEffect, useRef } from "react";
+import { Dropdown } from "../../Dropdown/index.js";
 
 export const Input = ({ type, name, label, className, defaultValue, onChange, onInput, note, inputHint, disabled }) => {
     const inputRef = useRef(null);
@@ -19,6 +20,15 @@ export const Input = ({ type, name, label, className, defaultValue, onChange, on
                 {inputHint && <InputHint {...inputHint} inputRef={inputRef} />}
             </div>
             {note && <InputNote>{note}</InputNote>}
+        </div>
+    );
+}
+
+export const InputDropdown = ({ name, label, defaultValue, listItems, onChange, addNew, style }) => {
+    return (
+        <div className="Input">
+            {label && <label htmlFor={name}>{label}</label>}
+            <Dropdown {...{ name, label, defaultValue, listItems, onChange, addNew, style }} />
         </div>
     );
 }

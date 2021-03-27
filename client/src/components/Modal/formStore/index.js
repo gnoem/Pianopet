@@ -3,8 +3,9 @@ import dayjs from "dayjs";
 import { Category, Badge } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Form, Input, Submit } from "../../Form";
+import { ManageWearable } from "./ManageWearable";
 
-const ModalForm = (props) => {
+export const ModalForm = (props) => {
     const { children } = props;
     return (
         <Form modal={true} {...props}>
@@ -17,6 +18,8 @@ export const formStore = {
     createHomework: (props) => <ManageHomework {...props} />,
     editHomework: (props) => <ManageHomework {...props} />,
     deleteHomework: (props) => <DeleteHomework {...props} />,
+    createWearable: (props) => <ManageWearable {...props} />,
+    editWearable: (props) => <ManageWearable {...props} />,
     createCategory: (props) => <CreateCategory {...props} />,
     editCategory: (props) => <EditCategory {...props} />,
     createBadge: (props) => <CreateBadge {...props} />,
@@ -27,11 +30,12 @@ export const formStore = {
 // Homework
 // Wearable
 
-const ManageHomework = ({ homework }) => {
+const ManageHomework = ({ user: student, homework }) => {
     const addingNew = !homework;
     const emptyAssignment = { label: '', progress: 0 };
     const defaultAssignments = ['', '', '', ''].map(() => emptyAssignment)
     const [formData, setFormData, updateFormData] = useFormData({
+        studentId: homework?.studentId ?? student._id,
         date: homework?.date?.split('T')[0] ?? dayjs().format('YYYY-MM-DD'),
         headline: homework?.headline ?? '',
         assignments: homework?.assignments ?? defaultAssignments

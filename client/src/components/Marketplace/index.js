@@ -6,7 +6,11 @@ import { handleUpdatePreview } from "./utils";
 export const Marketplace = () => {
     const isMobile = false;
     const { isStudent, student, avatar, updateAvatar, categories, getCategoryObject, wearables } = useContext(DataContext);
-    const [category, setCategory] = useState(categories[0]);
+    const defaultCategory = {
+        name: 'Color',
+        _id: 0
+    }
+    const [category, setCategory] = useState(categories[0] ?? defaultCategory);
     const [preview, setPreview] = useState(avatar ?? {});
     const previewObject = isMobile ? [avatar, updateAvatar] : [preview, setPreview];
     const updatePreview = handleUpdatePreview(previewObject, wearables, getCategoryObject);

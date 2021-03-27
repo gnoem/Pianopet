@@ -31,6 +31,12 @@ export const Homework = {
     deleteHomework: async (_id) => await del(`/homework/${_id}`)
 }
 
+export const Wearable = {
+    createWearable: async (formData) => await post('/wearable', formData),
+    editWearable: async (_id, formData) => await post(`/wearable/${_id}`, formData),
+    deleteWearable: async (_id) => await del(`/wearable/${_id}`)
+}
+
 export const Category = {
     createCategory: async (formData) => await post('/category', formData),
     editCategory: async (_id, formData) => await put(`/category/${_id}`, formData),

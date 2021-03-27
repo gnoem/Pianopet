@@ -296,43 +296,41 @@ class Controller {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
-    addWearable = (req, res) => {
-        // todo validate name
-        const { teacherCode, name, category, occupies, src, value, image } = req.body;
+    
+    // these have been updated
+    createWearable = (req, res) => {
+        const formData = req.body;
         const run = async () => {
-            const [wearable, wearableError] = await handle(Wearable.create({
-                teacherCode, name, category, occupies, src, value, image
-            }));
-            if (wearableError) throw new Error(`Error creating new wearable`);
-            res.send({ success: wearable });
+            const [wearable, createWearableError] = await handle(Wearable.create(formData));
+            if (createWearableError) throw new ServerError(500, `Error creating new wearable`, createWearableError);
+            res.status(201).send({ wearable });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     editWearable = (req, res) => {
-        const { id: _id } = req.params;
-        // todo validate name
-        const { name, category, occupies, src, value, image } = req.body;
+        const { _id } = req.params;
+        const formData = req.body;
         const run = async () => {
-            let [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
-            if (wearableError) throw new Error(`Error finding wearable ${_id}`);
-            if (!wearable) throw new Error(`Wearable ${_id} not found`);
-            wearable = Object.assign(wearable, { name, category, occupies, src, value, image });
-            const [success, saveError] = await handle(wearable.save());
-            if (saveError) throw new Error(`Error saving wearable`);
-            res.send({ success });
+            let [foundWearable, findWearableError] = await handle(Wearable.findOne({ _id }));
+            if (findWearableError) throw new ServerError(500, `Error finding wearable`, findWearableError);
+            if (!foundWearable) throw new ServerError(500, `Wearable not found`);
+            foundWearable = Object.assign(foundWearable, formData);
+            const [wearable, saveWearableError] = await handle(wearable.save());
+            if (saveWearableError) throw new ServerError(500, `Error saving wearable`, saveWearableError);
+            res.status(200).send({ wearable });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     deleteWearable = (req, res) => {
-        const { id: _id } = req.params;
+        const { _id } = req.params;
         const run = async () => {
             const [wearable, wearableError] = await handle(Wearable.findOne({ _id }));
-            if (wearableError) throw new Error(`Error finding wearable ${_id}`);
-            if (!wearable) throw new Error(`Wearable ${_id} not found`);
+            if (wearableError) throw new ServerError(500, `Error finding wearable`, wearableError);
+            if (!wearable) throw new ServerError(500, `Wearable not found`);
             // loop through students in wearable.ownedBy and remove wearable._id from student.closet and student.avatar arrays
             const studentIds = wearable.ownedBy || [];
             const [students, studentsError] = await handle(Promise.all(studentIds.map(studentId => Student.findOne({ _id: studentId }))));
-            if (studentsError) throw new Error(`Error retrieving students with this wearable`);
+            if (studentsError) throw new ServerError(500, `Error retrieving students with this wearable`, studentsError);
             // removeFromStudents will be an array of promises to spread out into upcoming Promise.all() along with wearable.deleteOne()
             const removeFromStudents = students.map(student => {
                 const removeWearable = (id, array) => {
@@ -343,15 +341,18 @@ class Controller {
                 removeWearable(_id, student.avatar);
                 return student.save();
             });
-            const [success, error] = await handle(Promise.all([
+            const [_, error] = await handle(Promise.all([
                 wearable.deleteOne(),
                 ...removeFromStudents
             ]));
-            if (error) throw new Error(`Error deleting wearable ${_id}`);
-            res.send({ success });
+            if (error) throw new ServerError(500, `Error deleting wearable`, error);
+            res.status(204).end();
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
+
+
+    
     addBadge = (req, res) => {
         // todo validate name
         const { teacherCode, name, src, value } = req.body;
@@ -402,6 +403,72 @@ class Controller {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
+    
+
+    // these have been updated
+    createCategory = (req, res) => {
+        const { teacherCode, name } = req.body;
+        const run = async () => {
+            const [category, createCategoryError] = await handle(Category.create({ teacherCode, name }));
+            if (createCategoryError) throw new ServerError(500, `Error creating new category`, createCategoryError);
+            res.status(201).send({ category });
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
+    editCategory = (req, res) => {
+        const { _id } = req.params;
+        const { name } = req.body;
+        const run = async () => {
+            let [foundCategory, findCategoryError] = await handle(Category.findOne({ _id }));
+            if (findCategoryError) throw new ServerError(500, `Error finding category`, findCategoryError);
+            if (!foundCategory) throw new ServerError(500, `Category not found`);
+            foundCategory = Object.assign(foundCategory, { name });
+            const [category, saveError] = await handle(foundCategory.save());
+            if (saveError) throw new ServerError(500, `Error saving category`, saveError);
+            res.send({ category });
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
+    deleteCategory = (req, res) => {
+        const { _id } = req.params;
+        const { teacherCode, newCategory } = req.body;
+        const run = async () => {
+            let [foundCategory, findCategoryError] = await handle(Category.findOne({ _id }));
+            if (findCategoryError) throw new ServerError(500, `Error finding category`);
+            if (!foundCategory) throw new ServerError(500, `Category not found`);
+             // reassign wearables to specified category
+            const reassignWearables = (async () => {
+                if (!newCategory) return;
+                const [foundWearables, findWearablesToReassignError] = await handle(Wearable.find({ category: _id }));
+                if (findWearablesToReassignError) throw new ServerError(500, `Error finding wearables to new category`, findWearablesToReassignError);
+                return foundWearables.map(wearable => {
+                    wearable.category = newCategory;
+                    return wearable.save();
+                });
+            })();
+            // remove category id from all wearables whose 'occupies regions' array includes it
+            let [allWearables, findWearablesError] = await handle(Wearable.find({ teacherCode }));
+            if (findWearablesError) throw new ServerError(500, `Error finding wearables with the teacherCode ${teacherCode}`);
+            const updateWearableOccupies = allWearables.map(wearable => {
+                const index = wearable.occupies.indexOf(_id);
+                if (index !== -1) {
+                    wearable.occupies.splice(index, 1);
+                    return wearable.save();
+                }
+            });
+            const [_, updateError] = await handle(Promise.all([
+                foundCategory.deleteOne(),
+                ...reassignWearables,
+                ...updateWearableOccupies
+            ]));
+            if (updateError) throw new ServerError(`Error updating wearables`, 500);
+            res.send({ success: { category: foundCategory } });
+        }
+        run().catch(err => res.send({ success: false, error: err.message }));
+    }
+    
+
+    
     addWearableCategory = (req, res) => {
         const { id: teacherCode } = req.params;
         // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)

@@ -2,7 +2,7 @@
     position: relative;
     display: inline-block;
     text-align: left;
-    z-index: 0; /* todo test more */
+    z-index: 30; /* todo test more */
 }
 .dropdownDisplay {
     border: 1px solid #ddd;

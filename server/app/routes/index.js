@@ -10,6 +10,17 @@ export default function (app) {
     app.post('/login', Controller.login);
     app.get('/logout', Controller.logout);
 
+    app.route('/wearable')
+        .post(Controller.createWearable);
+    app.route('/wearable/:_id')
+        .put(Controller.editWearable)
+        .delete(Controller.deleteWearable);
+    app.route('/category')
+        .post(Controller.createCategory);
+    app.route('/category/:_id')
+        .put(Controller.editCategory)
+        .delete(Controller.deleteCategory);
+
     // TEACHER
     app.route('/teacher')
         .post(validate.teacherSignup, Controller.teacherSignup);
@@ -24,11 +35,11 @@ export default function (app) {
         .post(Controller.addWearableCategory)
         .put(Controller.editWearableCategory)
         .delete(Controller.deleteWearableCategory);
-    app.route('/wearable')
-        .post(Controller.addWearable);
-    app.route('/wearable/:id')
+    /* app.route('/wearable')
+        .post(Controller.addWearable); */
+    /* app.route('/wearable/:id')
         .put(Controller.editWearable)
-        .delete(Controller.deleteWearable);
+        .delete(Controller.deleteWearable); */
     app.route('/badge')
         .post(validate.badgeName, Controller.addBadge);
     app.route('/badge/:id')
