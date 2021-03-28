@@ -6,7 +6,7 @@ export const Checkbox = ({ label, checked, onChange }) => {
             <div className="checkboxElement">
                 <input type="checkbox" onChange={onChange} checked={checked} />
                 <span className="svg">
-                    <svg viewBox="0 0 12 9"><polyline points="1 5 4 8 11 1"></polyline></svg>
+                    <svg viewBox="0 0 16 16"><polyline points="3 9 6 12 13 5"></polyline></svg>
                 </span>
             </div>
             <label>{label}</label>

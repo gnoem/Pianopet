@@ -1,17 +1,31 @@
+import { useContext } from "react";
+import { ModalContext } from "../../../contexts";
 import { CategoryList } from "../../Wearables";
 
-export const MarketplaceCategories = ({ isStudent, categories, updateCategory }) => {
+export const MarketplaceCategories = ({ isStudent, wearables, categories, updateCategory }) => {
+    const { createModal, createContextMenu } = useContext(ModalContext);
     const marketplaceCategories = () => {
-        const array = categories.map(category => (
-            <button
-              key={`wearableCategories-toolbar-${category.name}`}
-              onClick={() => updateCategory(category)}
-              onContextMenu={() => console.log('edit or delete category')}>
-                {category.name}
-            </button>
-        ))
+        const array = categories.map(category => {
+            const editOrDeleteCategory = (e) => {
+                e.preventDefault();
+                if (isStudent) return null;
+                const listItems = [
+                    { display: 'Edit', onClick: () => createModal('editCategory', 'form', { category }) },
+                    { display: 'Delete', onClick: () => createModal('deleteCategory', 'form', { category, wearables })}
+                ]
+                createContextMenu(e, listItems, { className: 'editdelete' });
+            }
+            return (
+                <button
+                key={`wearableCategories-toolbar-${category.name}`}
+                onClick={() => updateCategory(category)}
+                onContextMenu={editOrDeleteCategory}>
+                    {category.name}
+                </button>
+            );
+        });
         if (!isStudent) array.push(
-            <button key="wearableCategories-toolbar-addNew" className="add" onClick={() => console.log('add new category')}></button>
+            <button key="wearableCategories-toolbar-addNew" className="add" onClick={() => createModal('createCategory', 'form')}></button>
         );
         return array;
     }

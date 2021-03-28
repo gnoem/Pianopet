@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { User } from "../../api";
 import { ModalContext, ViewContextProvider } from "../../contexts";
 import { handleError } from "../../services";
-import { ContextMenu } from "../ContextMenu/index.js";
+import { ContextMenu } from "../Menu";
 import { Dashboard } from "../Dashboard/index.js";
 import { Guest } from "../Guest/index.js";
 import { Modal } from "../Modal/index.js";

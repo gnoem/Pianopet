@@ -17,7 +17,7 @@ export const Form = ({ children, modal, className, title, submit, onSubmit, hand
     }, [reset, formRef.current]);
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (loading) return; // prevent multiple form submissions
+        if (loading || success) return; // prevent multiple form submissions from spamming button
         setLoading(true);
         onSubmit()
             .then(result => {

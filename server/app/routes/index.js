@@ -31,15 +31,6 @@ export default function (app) {
         .put(Controller.editAccount);
     app.route('/teacher/:id/password')
         .put(Controller.editPassword);
-    app.route('/teacher/:id/wearable-category') // todo fix route name hierarchy
-        .post(Controller.addWearableCategory)
-        .put(Controller.editWearableCategory)
-        .delete(Controller.deleteWearableCategory);
-    /* app.route('/wearable')
-        .post(Controller.addWearable); */
-    /* app.route('/wearable/:id')
-        .put(Controller.editWearable)
-        .delete(Controller.deleteWearable); */
     app.route('/badge')
         .post(validate.badgeName, Controller.addBadge);
     app.route('/badge/:id')

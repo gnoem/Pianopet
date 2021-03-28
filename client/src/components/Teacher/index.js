@@ -8,7 +8,7 @@ import { TeacherMarketplace } from "../TeacherMarketplace";
 import { ViewingStudent } from "../ViewingStudent";
 
 export const Teacher = () => {
-    const { teacher, students, categories } = useContext(DataContext);
+    const { teacher, students } = useContext(DataContext);
     const { view, updateView } = useContext(ViewContext);
     return (
         <>
@@ -17,12 +17,11 @@ export const Teacher = () => {
                     <button className="stealth" onClick={() => updateView({ type: 'home' })}>Home</button>
                     <button className="stealth" onClick={() => updateView({ type: 'marketplace' })}>Marketplace</button>
                     <button className="stealth" onClick={() => updateView({ type: 'badges' })}>Badges</button>
-                    <button className="stealth" onClick={() => updateView({ type: 'my-account' })}>Account</button>
                 </Nav>
                 <ProfileDropdown {...{ user: teacher, updateView }} />
             </Header>
             <TeacherSidebar {...{ students, view, updateView }} />
-            <TeacherMain {...{ view, categories }} />
+            <TeacherMain {...{ view }} />
         </>
     );
 }
@@ -37,23 +36,32 @@ const TeacherSidebar = ({ students, view, updateView }) => {
     })();
     return (
         <Sidebar>
-            <label>Select a student:</label>
-            <Dropdown
-                style={{ minWidth: '14rem' }}
-                onChange={handleSelection}
-                listItems={studentList}
-                restoreDefault={view.type !== 'student'}
-            />
+            <h2>Control Panel</h2>
+            {students.length ? (
+                <div>
+                    <label>Select a student:</label>
+                    <Dropdown
+                        style={{ minWidth: '14rem' }}
+                        onChange={handleSelection}
+                        listItems={studentList}
+                        restoreDefault={view.type !== 'student'}
+                    />
+                </div>
+            ) : (
+                <div>
+                    You haven't added any students yet!
+                </div>
+            )}
         </Sidebar>
     );
 }
 
-const TeacherMain = ({ view, categories }) => {
+const TeacherMain = ({ view }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return 'home';
             case 'student': return <ViewingStudent student={view.student} />;
-            case 'marketplace': return <TeacherMarketplace {...{ categories }} />;
+            case 'marketplace': return <TeacherMarketplace />;
             case 'badges': return <TeacherBadges />;
             case 'my-account': return <Account />;
             default: return 'default';

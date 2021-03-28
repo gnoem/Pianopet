@@ -1,18 +1,20 @@
+import { useState, useEffect, useRef, useContext } from "react";
 import { Category, Wearable } from "../../../api";
-import { useState, useEffect, useRef } from "react";
+import { DataContext } from "../../../contexts";
 import { useFormData, useFormError } from "../../../hooks";
 import { handleError } from "../../../services";
 import { Input, InputDropdown, Checkbox, Submit } from "../../Form";
 import { ModalForm } from ".";
 import PianopetBase from "../../PianopetBase";
 
-export const ManageWearable = ({ user: teacher, wearable, categories, createModal, refreshData }) => {
+export const ManageWearable = ({ user: teacher, wearable, createModal, refreshData }) => {
     const addingNew = !wearable;
+    const { categories } = useContext(DataContext);
     const filteredCategories = categories.filter(item => item.name !== 'Color');
-    const [formData, setFormData, updateFormData] = useFormData({
+    const [formData, updateFormData, setFormDataDirectly] = useFormData({
         teacherCode: wearable?.teacherCode ?? teacher._id,
         name: wearable?.name ?? '',
-        category: wearable?.category?._id ?? filteredCategories[0]?._id,
+        category: wearable?.category ?? filteredCategories[0]?._id,
         src: wearable?.src ?? '',
         value: wearable?.value ?? '',
         occupies: wearable?.occupies ?? [],
@@ -27,7 +29,7 @@ export const ManageWearable = ({ user: teacher, wearable, categories, createModa
         if (addingNew) return Wearable.createWearable(formData);
         return Wearable.editWearable(wearable._id, formData);
     }
-    const handleSuccess = ({ wearable }) => console.log(wearable);
+    const handleSuccess = () => refreshData();
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
                    title={addingNew ? 'Add new wearable' : 'Edit this wearable'}
@@ -46,17 +48,19 @@ export const ManageWearable = ({ user: teacher, wearable, categories, createModa
                         addingNew,
                         wearable,
                         teacher,
-                        setFormData,
+                        setFormDataDirectly,
                         filteredCategories,
                         createModal,
                         refreshData
                     }} />
-                    <OccupiedRegionsInput {...{
-                        wearable,
-                        formData,
-                        setFormData,
-                        filteredCategories
-                    }} />
+                    {filteredCategories.length > 1 && (
+                        <OccupiedRegionsInput {...{
+                            wearable,
+                            formData,
+                            setFormDataDirectly,
+                            filteredCategories
+                        }} />
+                    )}
                     <Input
                         type="text"
                         name="src"
@@ -66,7 +70,7 @@ export const ManageWearable = ({ user: teacher, wearable, categories, createModa
                         onInput={resetFormError}
                         inputHint={warnFormError('src')} />
                     <Input
-                        type="text"
+                        type="number"
                         name="value"
                         label="Wearable value:"
                         defaultValue={formData?.value}
@@ -74,23 +78,23 @@ export const ManageWearable = ({ user: teacher, wearable, categories, createModa
                         onInput={resetFormError}
                         inputHint={warnFormError('value')} />
                 </div>
-                <ManageWearableImage {...{ formData, setFormData }} />
+                <ManageWearableImage {...{ formData, setFormDataDirectly }} />
             </div>
         </ModalForm>
     );
 }
 
-const WearableCategoryInput = ({ addingNew, wearable, teacher, setFormData, filteredCategories, createModal, refreshData }) => {
+const WearableCategoryInput = ({ addingNew, wearable, teacher, setFormDataDirectly, filteredCategories, createModal, refreshData }) => {
     const updateCategoryFormData = (value) => {
-        setFormData(prevState => ({ ...prevState, category: value }));
+        setFormDataDirectly(prevState => ({ ...prevState, category: value }));
     }
     const categoryDropdown = {
         defaultValue: () => {
             const listItems = categoryDropdown.listItems();
             if (addingNew) return listItems[0];
-            const wearableCategory = listItems.find(item => item._id === wearable?.category?._id);
-            if (!wearableCategory) return listItems[0];
-            return wearableCategory;
+            const index = listItems.findIndex(item => item.value === wearable?.category);
+            if (index === -1) return listItems[0];
+            return listItems[index];
         },
         listItems: () => {
             return filteredCategories.map(category => ({
@@ -121,12 +125,12 @@ const WearableCategoryInput = ({ addingNew, wearable, teacher, setFormData, filt
             defaultValue={categoryDropdown.defaultValue()}
             listItems={categoryDropdown.listItems()}
             onChange={updateCategoryFormData}
-            addNew={addNewCategory}
-            warnFormError={null/* todo */} />
+            addNew={addNewCategory} // NOTE: validation errors for "addNew" are handled inside dropdown component
+            style={{ minWidth: '10rem' }} />
     );
 }
 
-const OccupiedRegionsInput = ({ wearable, formData, setFormData, filteredCategories }) => {
+const OccupiedRegionsInput = ({ wearable, formData, setFormDataDirectly, filteredCategories }) => {
     const occupiesRegionsInput = () => {
         const additionalCategories = filteredCategories.filter(item => item._id !== formData.category);
         const updateOccupies = (e, category) => {
@@ -142,13 +146,15 @@ const OccupiedRegionsInput = ({ wearable, formData, setFormData, filteredCategor
                     return arrayToReturn;
                 }
             }
-            setFormData(prevState => ({
+            setFormDataDirectly(prevState => ({
                 ...prevState,
                 occupies: updatedArray(prevState.occupies)
             }));
         }
         return additionalCategories.map(category => (
-            <OccupiedRegionsCheckbox {...{ category, wearable, formData, updateOccupies }} />
+            <OccupiedRegionsCheckbox
+                key={`occupiedRegionsInput-${category._id}`}
+                {...{ category, wearable, formData, updateOccupies }} />
         ));
     }
     return (
@@ -177,7 +183,7 @@ const OccupiedRegionsCheckbox = ({ category, wearable, formData, updateOccupies 
     );
 }
 
-const ManageWearableImage = ({ formData, setFormData }) => {
+const ManageWearableImage = ({ formData, setFormDataDirectly }) => {
     const { src, image } = formData;
     const preview = useRef(null);
     const draggable = useRef(null);
@@ -189,7 +195,7 @@ const ManageWearableImage = ({ formData, setFormData }) => {
     });
     const [elementOffset, setElementOffset] = useState(null);
     const updateImage = (newStuff) => {
-        setFormData(prevState => ({
+        setFormDataDirectly(prevState => ({
             ...prevState,
             image: {
                 ...prevState.image,

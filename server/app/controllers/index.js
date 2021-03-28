@@ -315,7 +315,7 @@ class Controller {
             if (findWearableError) throw new ServerError(500, `Error finding wearable`, findWearableError);
             if (!foundWearable) throw new ServerError(500, `Wearable not found`);
             foundWearable = Object.assign(foundWearable, formData);
-            const [wearable, saveWearableError] = await handle(wearable.save());
+            const [wearable, saveWearableError] = await handle(foundWearable.save());
             if (saveWearableError) throw new ServerError(500, `Error saving wearable`, saveWearableError);
             res.status(200).send({ wearable });
         }
@@ -361,31 +361,31 @@ class Controller {
             if (createBadgeError) throw new ServerError(500, `Error creating new badge`, createBadgeError);
             res.status(201).send({ badge });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     editBadge = (req, res) => {
         const { id: _id } = req.params;
         // todo validate name
         const run = async () => {
-            let [badge, badgeError] = await handle(Badge.findOne({ _id }));
-            if (badgeError) throw new Error(`Error finding badge ${_id}`);
-            if (!badge) throw new Error(`Badge ${_id} not found`);
-            badge = Object.assign(badge, req.body);
-            const [success, saveError] = await handle(badge.save());
-            if (saveError) throw new Error(`Error saving badge`);
-            res.send({ success });
+            let [foundBadge, findBadgeError] = await handle(Badge.findOne({ _id }));
+            if (findBadgeError) throw new ServerError(500, `Error finding badge`, findBadgeError);
+            if (!foundBadge) throw new ServerError(500, `Badge not found`);
+            foundBadge = Object.assign(foundBadge, req.body);
+            const [badge, saveError] = await handle(foundBadge.save());
+            if (saveError) throw new ServerError(500, `Error saving badge`, saveError);
+            res.status(200).send({ badge });
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
     deleteBadge = (req, res) => {
         const { id: _id } = req.params;
         const run = async () => {
-            const [badge, badgeError] = await handle(Badge.findOne({ _id }));
-            if (badgeError) throw new Error(`Error finding badge ${_id}`);
-            if (!badge) throw new Error(`Badge ${_id} not found`);
-            const studentIds = badge.awardedTo || [];
+            const [foundBadge, findBadgeError] = await handle(Badge.findOne({ _id }));
+            if (findBadgeError) throw new ServerError(500, `Error finding badge`, findBadgeError);
+            if (!foundBadge) throw new ServerError(500, `Badge not found`);
+            const studentIds = foundBadge.awardedTo || [];
             const [students, studentsError] = await handle(Promise.all(studentIds.map(studentId => Student.findOne({ _id: studentId }))));
-            if (studentsError) throw new Error(`Error retrieving students with this badge`);
+            if (studentsError) throw new ServerError(500, `Error retrieving students with this badge`, studentsError);
             const removeFromStudents = students.map(student => {
                 const removeBadge = (id, array) => {
                     const index = array.findIndex(object => object.id === id);
@@ -395,19 +395,21 @@ class Controller {
                 return student.save();
             });
             const [success, error] = await handle(Promise.all([
-                badge.deleteOne(),
+                foundBadge.deleteOne(),
                 ...removeFromStudents
             ]));
             if (error) throw new Error(`Error deleting badge ${_id}`);
-            res.send({ success });
+            const [badge, updatedStudents] = success;
+            res.status(200).send({ badge, updatedStudents });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     
 
-    // these have been updated
+    // these are all good
     createCategory = (req, res) => {
         const { teacherCode, name } = req.body;
+        // todo validate name
         const run = async () => {
             const [category, createCategoryError] = await handle(Category.create({ teacherCode, name }));
             if (createCategoryError) throw new ServerError(500, `Error creating new category`, createCategoryError);
@@ -416,8 +418,10 @@ class Controller {
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     editCategory = (req, res) => {
+        // todo validate name
         const { _id } = req.params;
         const { name } = req.body;
+        console.log(name);
         const run = async () => {
             let [foundCategory, findCategoryError] = await handle(Category.findOne({ _id }));
             if (findCategoryError) throw new ServerError(500, `Error finding category`, findCategoryError);
@@ -436,16 +440,13 @@ class Controller {
             let [foundCategory, findCategoryError] = await handle(Category.findOne({ _id }));
             if (findCategoryError) throw new ServerError(500, `Error finding category`);
             if (!foundCategory) throw new ServerError(500, `Category not found`);
-             // reassign wearables to specified category
-            const reassignWearables = (async () => {
-                if (!newCategory) return;
-                const [foundWearables, findWearablesToReassignError] = await handle(Wearable.find({ category: _id }));
-                if (findWearablesToReassignError) throw new ServerError(500, `Error finding wearables to new category`, findWearablesToReassignError);
-                return foundWearables.map(wearable => {
-                    wearable.category = newCategory;
-                    return wearable.save();
-                });
-            })();
+             // if there exist wearables in this category, reassign those wearables to specified new category
+            const [foundWearables, findWearablesToReassignError] = await handle(Wearable.find({ category: _id }));
+            if (findWearablesToReassignError) throw new ServerError(500, `Error finding wearables to new category`, findWearablesToReassignError);
+            const reassignWearables = foundWearables.map(wearable => {
+                wearable.category = newCategory;
+                return wearable.save();
+            });
             // remove category id from all wearables whose 'occupies regions' array includes it
             let [allWearables, findWearablesError] = await handle(Wearable.find({ teacherCode }));
             if (findWearablesError) throw new ServerError(500, `Error finding wearables with the teacherCode ${teacherCode}`);
@@ -456,19 +457,20 @@ class Controller {
                     return wearable.save();
                 }
             });
-            const [_, updateError] = await handle(Promise.all([
+            const [success, updateError] = await handle(Promise.all([
                 foundCategory.deleteOne(),
                 ...reassignWearables,
                 ...updateWearableOccupies
             ]));
-            if (updateError) throw new ServerError(`Error updating wearables`, 500);
-            res.send({ success: { category: foundCategory } });
+            if (updateError) throw new ServerError(500, `Error updating wearables`, updateError);
+            const [category, reassignedWearables, updatedWearableOccupies] = success;
+            res.status(200).send({ category, reassignedWearables, updatedWearableOccupies });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     
 
-    
+    // these are no good
     addWearableCategory = (req, res) => {
         const { id: teacherCode } = req.params;
         // todo validate name - can't be duplicate, also can't be "Color" (case insensitive)
@@ -526,6 +528,8 @@ class Controller {
         }
         run().catch(err => res.send({ success: false, error: err.message }));
     }
+    
+    
     updateBadges = (req, res) => {
         const { id: _id } = req.params;
         const { badgeId } = req.body;

@@ -1,6 +1,6 @@
 import "./formStore.css";
 import dayjs from "dayjs";
-import { Category, Badge } from "../../../api";
+import { Category, Badge, Wearable } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Form, Input, Submit } from "../../Form";
 import { ManageWearable } from "./ManageWearable";
@@ -20,8 +20,10 @@ export const formStore = {
     deleteHomework: (props) => <DeleteHomework {...props} />,
     createWearable: (props) => <ManageWearable {...props} />,
     editWearable: (props) => <ManageWearable {...props} />,
+    deleteWearable: (props) => <DeleteWearable {...props} />,
     createCategory: (props) => <CreateCategory {...props} />,
     editCategory: (props) => <EditCategory {...props} />,
+    deleteCategory: (props) => <DeleteCategory {...props} />,
     createBadge: (props) => <CreateBadge {...props} />,
     editBadge: (props) => <EditBadge {...props} />,
     deleteBadge: (props) => <DeleteBadge {...props} />
@@ -34,7 +36,7 @@ const ManageHomework = ({ user: student, homework }) => {
     const addingNew = !homework;
     const emptyAssignment = { label: '', progress: 0 };
     const defaultAssignments = ['', '', '', ''].map(() => emptyAssignment)
-    const [formData, setFormData, updateFormData] = useFormData({
+    const [formData, updateFormData, setFormDataDirectly] = useFormData({
         studentId: homework?.studentId ?? student._id,
         date: homework?.date?.split('T')[0] ?? dayjs().format('YYYY-MM-DD'),
         headline: homework?.headline ?? '',
@@ -51,7 +53,7 @@ const ManageHomework = ({ user: student, homework }) => {
             arrayToReturn[index] = assignment;
             return arrayToReturn;
         }
-        setFormData(prevState => ({
+        setFormDataDirectly(prevState => ({
             ...prevState,
             assignments: updatedAssignmentsArray(prevState?.assignments)
         }));
@@ -131,14 +133,25 @@ const DeleteHomework = ({ refreshData }) => {
     );
 }
 
-const CreateCategory = ({ user: teacher, refreshData, closeModal }) => {
+const DeleteWearable = ({ wearable, refreshData }) => {
+    const handleSubmit = () => Wearable.deleteWearable(wearable._id);
+    const handleSuccess = () => refreshData();
+    return (
+        <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
+              title="Are you sure?"
+              className="hasImage"
+              submit={<Submit value="Yes, I'm sure" />}>
+            <div>Are you sure you want to delete the wearable <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
+            <img src={wearable.src} alt={wearable.name} />
+        </ModalForm>
+    );
+}
+
+const CreateCategory = ({ user: teacher, refreshData }) => {
     const [formData, updateFormData] = useFormData({ teacherCode: teacher._id });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => Category.createCategory(formData);
-    const handleSuccess = () => {
-        refreshData();
-        closeModal();
-    }
+    const handleSuccess = () => refreshData();
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
               title="Create new category">
@@ -152,17 +165,14 @@ const CreateCategory = ({ user: teacher, refreshData, closeModal }) => {
     );
 }
 
-const EditCategory = ({ category, refreshData, closeModal }) => {
+const EditCategory = ({ category, refreshData }) => {
     const [formData, updateFormData] = useFormData({ name: category.name });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => Category.editCategory(category._id, formData);
-    const handleSuccess = () => {
-        refreshData();
-        closeModal();
-    }
+    const handleSuccess = () => refreshData();
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
-              title="Create new category">
+              title="Edit this category">
             <Input type="text"
                    name="name"
                    label="Category name:"
@@ -170,6 +180,31 @@ const EditCategory = ({ category, refreshData, closeModal }) => {
                    onChange={updateFormData}
                    onInput={resetFormError}
                    inputHint={warnFormError('name')} />
+        </ModalForm>
+    );
+}
+
+const DeleteCategory = ({ category, wearables, refreshData }) => {
+    const handleSubmit = () => Category.deleteCategory(category._id);
+    const handleSuccess = (result) => {
+        console.log(result);
+        refreshData();
+    }
+    const categoryIsEmpty = (() => {
+        const someWearableHasCategory = wearables.find(wearable => wearable.category === category._id);
+        if (someWearableHasCategory) return false;
+        return true;
+    })();
+    if (!categoryIsEmpty) return (
+        <div>
+            can't delete this category because it contains  wearlbles
+        </div>
+    );
+    return (
+        <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
+              title="Are you sure?"
+              submit={<Submit value="Yes, I'm sure" />}>
+            Are you sure you want to delete the category <b>{category.name}</b>? This action cannot be undone.
         </ModalForm>
     );
 }
