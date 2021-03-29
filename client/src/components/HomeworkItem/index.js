@@ -8,7 +8,7 @@ export const HomeworkItem = ({ isStudent, homework }) => {
     const { _id, assignments } = homework;
     const homeworkAssignments = () => {
         return assignments.map((info, index) => (
-            <Assignment key={`homeworkAssignment-${_id}-${index}`} {...info} {...{ index, _id }} />
+            <Assignment key={`homeworkAssignment-${_id}-${index}`} {...info} {...{ isStudent, index, _id }} />
         ));
     }
     return (

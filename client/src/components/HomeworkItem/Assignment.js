@@ -3,7 +3,7 @@ import { Homework } from "../../api";
 import { HomeworkContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
 
-export const Assignment = ({ _id, index, label, progress, recorded }) => {
+export const Assignment = ({ isStudent, _id, index, label, progress, recorded }) => {
     const [visualProgress, setVisualProgress] = useState(progress);
     const { refreshHomework } = useContext(HomeworkContext);
     const { createModal } = useContext(ModalContext);
@@ -20,13 +20,13 @@ export const Assignment = ({ _id, index, label, progress, recorded }) => {
         <li>
             <div>
                 <div>{label}</div>
-                <ProgressIndicator {...{ visualProgress, recorded, updateHomeworkProgress }} />
+                <ProgressIndicator {...{ isStudent, visualProgress, recorded, updateHomeworkProgress }} />
             </div>
         </li>
     );
 }
 
-const ProgressIndicator = ({ visualProgress, recorded, updateHomeworkProgress }) => {
+const ProgressIndicator = ({ isStudent, visualProgress, recorded, updateHomeworkProgress }) => {
     const updateRecorded = () => {
         console.log('clicked  record assignment progress');
     }
@@ -41,10 +41,12 @@ const ProgressIndicator = ({ visualProgress, recorded, updateHomeworkProgress })
                 className={`stealth${visualProgress === 4 ? ' disabled' : ''}`}
                 style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
             </div>
-            <div className={`coinsEarned${recorded ? ' coinsAdded' : ''}`} onClick={recorded ? null : updateRecorded}>
-                <img className="coinIcon" alt="coin icon" src="assets/Coin_ico.png" />
-                <span>{`${visualProgress * 20}`}</span>
-            </div>
+            {isStudent && (
+                <div className={`coinsEarned${recorded ? ' coinsAdded' : ''}`} onClick={recorded ? null : updateRecorded}>
+                    <img className="coinIcon" alt="coin icon" src="assets/Coin_ico.png" />
+                    <span>{`${visualProgress * 20}`}</span>
+                </div>
+            )}
         </div>
     );
 }

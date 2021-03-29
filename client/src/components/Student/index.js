@@ -23,12 +23,12 @@ export const Student = () => {
                 <ProfileDropdown {...{ user: student, updateView }} />
             </Header>
             <StudentSidebar />
-            <StudentMain {...{ view, updateView, student }} />
+            <StudentMain {...{ view, student }} />
         </>
     );
 }
 
-const StudentMain = ({ view, student, updateView }) => {
+const StudentMain = ({ view, student }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return <Homework {...{ student }} />;
@@ -41,7 +41,6 @@ const StudentMain = ({ view, student, updateView }) => {
     }
     return (
         <div className="Main">
-            <button onClick={() => updateView({ type: 'my-account' })}>account</button>
             {content()}
         </div>
     );

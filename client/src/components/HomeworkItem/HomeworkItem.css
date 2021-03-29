@@ -102,8 +102,7 @@
 }
 .HomeworkItem .ProgressIndicator {
     display: grid;
-    grid-template-columns: 1fr 3rem;
-    margin-right: 1.5rem;
+    grid-template-columns: 1fr auto;
 }
 .HomeworkItem .progress {
     display: grid;
@@ -137,9 +136,10 @@
 }
 .HomeworkItem .coinsEarned {
     display: inline-flex;
+    width: 3rem;
     vertical-align: middle;
     place-items: center;
-    margin-left: 0.5rem;
+    margin-right: 1rem;
     color: #aaa;
     cursor: pointer;
 }
