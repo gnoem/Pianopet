@@ -15,7 +15,8 @@ export const Dashboard = ({ userId, isStudent }) => {
     if (!isLoaded) return <Loading />;
     return (
         <div className={`Dashboard ${isStudent ? 'Student' : 'Teacher'}`}>
-            {isStudent ? <Student /> : <Teacher />}
+            {isStudent && <Student />}
+            {(isStudent === false) && <Teacher />}
         </div>
     );
 }

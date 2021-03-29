@@ -92,8 +92,9 @@ class Controller {
     
     login = (req, res) => {
         const { role, username, password } = req.body;
+        const isStudent = role === 'student';
         const run = async () => {
-            const User = role === 'student' ? Student : Teacher;
+            const User = isStudent ? Student : Teacher;
             const [user, userError] = await handle(User.findOne({ username }));
             if (userError) throw new ServerError(500, `Error finding ${role} ${username}`, userError);
             if (!user) return res.status(422).send({ error: { username: 'User not found' } });
@@ -107,7 +108,7 @@ class Controller {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.status(200).send({ user });
+            res.status(200).send({ user, isStudent });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
