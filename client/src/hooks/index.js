@@ -20,5 +20,6 @@ export const useFormError = (initialState = {}) => {
     const warnFormError = (inputName) => {
         if (formError?.[inputName]) return { type: 'error', message: formError[inputName] };
     }
-    return [updateFormError, resetFormError, warnFormError];
+    const setFormErrorDirectly = () => setFormError(initialState);
+    return [updateFormError, resetFormError, warnFormError, setFormErrorDirectly];
 }

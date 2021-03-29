@@ -49,7 +49,8 @@ export const handleError = async (res) => {
     const { message, error } = await handleResponse(res);
     switch (res.status) {
         case 404: throw new ClientError({ status: res.status, message });
-        case 422: throw new ValidationError({ error });
+        case 422:{
+            console.log('validationerror'); throw new ValidationError({ error });}
         case 500: throw new ServerError({ status: res.status, message, error });
         default: throw new UnknownError();
     }

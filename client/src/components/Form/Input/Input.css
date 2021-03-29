@@ -4,6 +4,9 @@
 form div.half .Input {
     margin: 0;
 }
+form div.half + .Input, .Input + div.half {
+    margin-top: 1.5rem;
+}
 .Input > div {
     position: relative;
 }

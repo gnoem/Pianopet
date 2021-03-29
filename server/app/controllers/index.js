@@ -14,7 +14,7 @@ patterns:
     but throw error if index === -1
 */
 
-const generateErrorReport = (errors) => {
+const validationErrorReport = (errors) => {
     const report = errors.reduce((obj, error) => {
         if (error.location !== 'body') return null;
         obj[error.param] = error.msg;
@@ -96,9 +96,9 @@ class Controller {
             const User = role === 'student' ? Student : Teacher;
             const [user, userError] = await handle(User.findOne({ username }));
             if (userError) throw new ServerError(500, `Error finding ${role} ${username}`, userError);
-            if (!user) throw FormError('username', 'User not found');
+            if (!user) return res.status(422).send({ error: { username: 'User not found' } });
             const passwordIsValid = bcrypt.compareSync(password, user.password);
-            if (!passwordIsValid) throw FormError('password', 'Invalid password');
+            if (!passwordIsValid) return res.status(422).send({ error: { password: 'Invalid password' } });
             const accessToken = jwt.sign({ id: user.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
@@ -119,7 +119,7 @@ class Controller {
     studentSignup = (req, res) => {
         const { firstName, lastName, email, username, password, teacherCode } = req.body;
         const { errors } = validationResult(req);
-        if (errors.length) return res.send({ success: false, error: generateErrorReport(errors) });
+        if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
         const run = async () => {
             const [student, studentError] = await handle(Student.create({
                 firstName,
@@ -129,7 +129,7 @@ class Controller {
                 password: bcrypt.hashSync(password, 8),
                 teacherCode
             }));
-            if (studentError) throw new Error(`Error creating new student`);
+            if (studentError) throw new ServerError(500, `Error creating new student`, studentError);
             const accessToken = jwt.sign({ id: student.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
@@ -138,17 +138,14 @@ class Controller {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.send({
-                success: student,
-                accessToken
-            });
+            res.status(201).send({ user: student, isStudent: true });
         }
-        run().catch(err => res.send({ success: false, error: err.message }));
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     teacherSignup = (req, res) => {
         const { firstName, lastName, email, username, password } = req.body;
         const { errors } = validationResult(req);
-        if (errors.length) return res.status(422).send({ error: generateErrorReport(errors) });
+        if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
         const run = async () => {
             const [teacher, teacherError] = await handle(Teacher.create({
                 firstName,
@@ -157,7 +154,7 @@ class Controller {
                 username,
                 password: bcrypt.hashSync(password, 8)
             }));
-            if (teacherError) throw new Error(`Error creating new student`);
+            if (teacherError) throw new ServerError(500, `Error creating new teacher`, teacherError);
             const accessToken = jwt.sign({ id: teacher.id }, secretKey, {
                 expiresIn: 86400 // 24 hours
             });
@@ -166,7 +163,7 @@ class Controller {
                 secure: false,
                 maxAge: 3600000 // 1,000 hours
             });
-            res.status(201).send({ accessToken });
+            res.status(201).send({ user: teacher, isStudent: false });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }

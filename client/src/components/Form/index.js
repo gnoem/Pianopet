@@ -41,7 +41,7 @@ export const Form = ({ children, modal, className, title, submit, onSubmit, hand
               autoComplete="off"
               className={className ?? ''}
               ref={formRef}>
-            <h2>{title}</h2>
+            {title && <h2>{title}</h2>}
             {children}
             {customSubmit ?? <Submit {...submitShouldInherit} />}
         </form>

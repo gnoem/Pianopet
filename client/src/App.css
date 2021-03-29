@@ -543,6 +543,9 @@ details .errorDetails code + code.greyed {
 .Guest label {
     text-align: left;
 }
+.Guest form {
+    margin-bottom: 1.5rem;
+}
 form.pad input[type=text], form.pad input[type=password] {
     margin-bottom: 1rem;
 }

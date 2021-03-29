@@ -20,13 +20,13 @@ export const Teacher = () => {
                 </Nav>
                 <ProfileDropdown {...{ user: teacher, updateView }} />
             </Header>
-            <TeacherSidebar {...{ students, view, updateView }} />
+            <TeacherSidebar {...{ teacher, students, view, updateView }} />
             <TeacherMain {...{ view }} />
         </>
     );
 }
 
-const TeacherSidebar = ({ students, view, updateView }) => {
+const TeacherSidebar = ({ teacher, students, view, updateView }) => {
     const handleSelection = (student) => updateView({ type: 'student', student });
     const studentList = (() => {
         return students.map(student => ({
@@ -49,9 +49,14 @@ const TeacherSidebar = ({ students, view, updateView }) => {
                 </div>
             ) : (
                 <div>
-                    You haven't added any students yet!
+                    No students yet!
                 </div>
             )}
+            <hr />
+            <div className="teacherCode">
+                <strong className="smol">Teacher code:</strong>
+                <div>{teacher._id}</div>
+            </div>
         </Sidebar>
     );
 }
