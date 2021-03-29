@@ -1,15 +1,33 @@
-import { useContext } from "react";
-import { DataContext } from "../../contexts";
+import React, { useContext, useRef } from "react";
+import { DataContext, ModalContext } from "../../contexts";
 
-export const Badges = ({ badgeList, ifNoneMessage, checkClassName, onClick, onContextMenuClick }) => {
+export const Badges = ({ badgeList, createModal, ifNoneMessage, checkClassName }) => {
+    const { createContextMenu } = useContext(ModalContext);
+    const badgeRefs = useRef({});
     const listItems = () => {
         if (!badgeList?.length) return ifNoneMessage;
-        return badgeList.map(badge => (
-            <BadgeListItem
-                key={`badgeListItem-${badge._id}`}
-                className={checkClassName?.(badge)}
-                {...{ badge, onClick, onContextMenuClick }} />
-        ));
+        return badgeList.map(badge => {
+            const onClick = () => console.log('handle click badge');
+            const onContextMenuClick = (e, badge) => {
+                e.preventDefault();
+                const editBadge = () => createModal('editBadge', 'form', { badge });
+                const deleteBadge = () => createModal('deleteBadge', 'form', { badge, element: badgeRefs.current[badge._id] });
+                const listItems = [
+                    { display: 'Edit', onClick: editBadge },
+                    { display: 'Delete', onClick: deleteBadge }
+                ];
+                createContextMenu(e, listItems, {
+                    className: 'editdelete'
+                });
+            }
+            return (
+                <BadgeListItem
+                    ref={(el) => badgeRefs.current[badge._id] = el}
+                    key={`badgeListItem-${badge._id}`}
+                    className={checkClassName?.(badge)}
+                    {...{ badge, onClick, onContextMenuClick }} />
+            )
+        });
     }
     return (
         <div className="BadgeList">
@@ -18,10 +36,10 @@ export const Badges = ({ badgeList, ifNoneMessage, checkClassName, onClick, onCo
     );
 }
 
-const BadgeListItem = ({ badge, className, onClick, onContextMenuClick }) => {
+const BadgeListItem = React.forwardRef(({ badge, className, onClick, onContextMenuClick }, ref) => {
     const { isStudent } = useContext(DataContext);
     return (
-        <div className={`badgeItem ${className ?? ''}`}>
+        <div ref={ref} className={`badgeItem ${className ?? ''}`}>
             <img className="badgeImage"
                  alt={badge.name}
                  src={badge.src}
@@ -34,4 +52,4 @@ const BadgeListItem = ({ badge, className, onClick, onContextMenuClick }) => {
             </span>
         </div>
     );
-}
+})

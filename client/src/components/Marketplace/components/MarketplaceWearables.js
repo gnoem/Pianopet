@@ -13,11 +13,12 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
                 if (student.closet.includes(wearable._id)) return true;
                 return false;
             })();
+            const handleClick = () => updatePreview(wearable);
             const contextMenuClick = (e) => {
                 e.preventDefault();
                 const listItems = [
                     { display: 'Edit', onClick: () => createModal('editWearable', 'form', { wearable }) },
-                    { display: 'Delete', onClick: () => createModal('deleteWearable', 'form', { wearable }) },
+                    { display: 'Delete', onClick: () => createModal('deleteWearable', 'form', { wearable, element: wearableRefs.current[wearable._id] }) },
                 ];
                 createContextMenu(e, listItems, { className: 'editdelete' });
             }
@@ -27,9 +28,10 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
                     key={`${category.name}-wearable-${wearable.name}`}
                     className={ownsWearable ? 'owned' : ''}
                     includeCost={true}
-                    onClick={() => updatePreview(wearable)}
-                    onContextMenu={contextMenuClick}
-                    {...{ wearable, currentCategory: category.name }}
+                    onClick={handleClick}
+                    onContextMenu={isStudent ? null : contextMenuClick}
+                    currentCategory={category.name}
+                    wearable={wearable}
                 />
             );
         });

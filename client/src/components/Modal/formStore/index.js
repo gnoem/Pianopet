@@ -133,9 +133,18 @@ const DeleteHomework = ({ refreshData }) => {
     );
 }
 
-const DeleteWearable = ({ wearable, refreshData }) => {
+const DeleteWearable = ({ wearable, element, refreshData }) => {
     const handleSubmit = () => Wearable.deleteWearable(wearable._id);
-    const handleSuccess = () => refreshData();
+    const handleSuccess = () => {
+        if (element) {
+            element.classList.add('goodbye');
+            setTimeout(() => {
+                refreshData();
+            }, 200);
+            return;
+        }
+        refreshData();
+    }
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
               title="Are you sure?"
@@ -280,9 +289,18 @@ const EditBadge = ({ badge, refreshData, closeModal }) => {
     );
 }
 
-const DeleteBadge = ({ refreshData, closeModal }) => {
-    const handleSubmit = () => Promise.resolve('deleting badge');
-    const handleSuccess = () => refreshData().then(closeModal);
+const DeleteBadge = ({ badge, element, refreshData }) => {
+    const handleSubmit = () => Badge.deleteBadge(badge._id);
+    const handleSuccess = () => {
+        if (element) {
+            element.classList.add('goodbye');
+            setTimeout(() => {
+                refreshData();
+            }, 200);
+            return;
+        }
+        refreshData();
+    }
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
               title="Are you sure?"

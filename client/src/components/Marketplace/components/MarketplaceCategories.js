@@ -8,7 +8,6 @@ export const MarketplaceCategories = ({ isStudent, wearables, categories, update
         const array = categories.map(category => {
             const editOrDeleteCategory = (e) => {
                 e.preventDefault();
-                if (isStudent) return null;
                 const listItems = [
                     { display: 'Edit', onClick: () => createModal('editCategory', 'form', { category }) },
                     { display: 'Delete', onClick: () => createModal('deleteCategory', 'form', { category, wearables })}
@@ -19,7 +18,7 @@ export const MarketplaceCategories = ({ isStudent, wearables, categories, update
                 <button
                 key={`wearableCategories-toolbar-${category.name}`}
                 onClick={() => updateCategory(category)}
-                onContextMenu={editOrDeleteCategory}>
+                onContextMenu={isStudent ? null : editOrDeleteCategory}>
                     {category.name}
                 </button>
             );

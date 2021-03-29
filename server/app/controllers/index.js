@@ -396,7 +396,7 @@ class Controller {
                 foundBadge.deleteOne(),
                 ...removeFromStudents
             ]));
-            if (error) throw new Error(`Error deleting badge ${_id}`);
+            if (error) throw new ServerError(500, `Error deleting badge`, error);
             const [badge, updatedStudents] = success;
             res.status(200).send({ badge, updatedStudents });
         }

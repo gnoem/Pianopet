@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { DataContext } from "../../contexts";
 import Splat from "../Splat";
 
@@ -20,7 +20,7 @@ export const WearablesList = ({ category, children }) => {
     );
 }
 
-export const WearableItem = ({ className, includeCost, wearable, currentCategory, onClick, onContextMenu }) => {
+export const WearableItem = React.forwardRef(({ className, includeCost, wearable, currentCategory, onClick, onContextMenu }, ref) => {
     const { getCategoryObject } = useContext(DataContext);
     const wearableCategory = getCategoryObject.fromId(wearable.category)?.name;
     if (wearableCategory !== currentCategory) return null;
@@ -28,7 +28,8 @@ export const WearableItem = ({ className, includeCost, wearable, currentCategory
         ? <Splat color={wearable.src} />
         : <img alt={wearable.name} src={wearable.src} />;
     return (
-        <button className={className}
+        <button ref={ref}
+                className={className}
                 onClick={onClick}
                 onContextMenu={onContextMenu}>
             {buttonImage}
@@ -41,7 +42,7 @@ export const WearableItem = ({ className, includeCost, wearable, currentCategory
             )}
         </button>
     );
-}
+});
 
 export const DefaultColorItem = ({ avatar, handleClick }) => {
     const hasDefaultColor = (() => {
