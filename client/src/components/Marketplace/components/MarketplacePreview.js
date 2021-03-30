@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { ModalContext } from "../../../contexts";
+import { Coins } from "../../Coins";
 import PianopetBase from "../../PianopetBase";
 
 export const MarketplacePreview = ({ preview, student, isStudent }) => {
@@ -49,6 +50,7 @@ const PreviewDescription = ({ preview, student, isStudent }) => {
             const isOwned = student.closet.includes(preview[category]._id);
             const buyWearable = () => {
                 createModal('buyWearable', 'form', { wearable: preview[category] });
+                // todo update avatar with new wearable!!!
             }
             previewItems.push(
                 <li key={`marketplacePreviewDescription-${category}`}>
@@ -56,8 +58,7 @@ const PreviewDescription = ({ preview, student, isStudent }) => {
                     {isStudent && isOwned
                         ? <span className="owned"></span>
                         : <button onClick={buyWearable}>
-                            <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
-                            <span className="wearableValue">{preview[category].value}</span>
+                            <Coins>{preview[category].value}</Coins>
                           </button>
                     }
                 </li>

@@ -110,11 +110,11 @@ function StudentCoins(props) {
     const addCoins = (amount) => {
         setCoinsCount(coinsCount + amount);
     }
-    const formatCoins = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const formatNumber = (number) => number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return (
         <div className="StudentStats">
             <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-            <span className="statsLabel">{formatCoins(coinsCount)}</span>
+            <span className="statsLabel">{formatNumber(coinsCount)}</span>
             <div className="editCoinsButton">
                 {makingChanges ? editCoinsButtons() : <button className="stealth link" onClick={() => setMakingChanges(true)}>Edit</button>}
             </div>

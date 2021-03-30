@@ -1,11 +1,13 @@
 import "./formStore.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Student, Category, Badge, Wearable, Homework } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
+import { formatNumber } from "../../../utils";
 import { Form, Input, Submit } from "../../Form";
 import { StudentDropdown } from "../../Dropdown/index.js";
 import { ManageWearable } from "./ManageWearable";
 import dayjs from "dayjs";
+import { Coins } from "../../Coins";
 
 export const ModalForm = (props) => {
     const { children } = props;
@@ -135,7 +137,8 @@ const DeleteHomework = ({ homework, refreshHomework }) => {
 
 const DeleteWearable = ({ wearable, element, refreshData }) => {
     const handleSubmit = () => Wearable.deleteWearable(wearable._id);
-    const handleSuccess = () => {
+    const handleSuccess = (success) => {
+        console.dir(success);
         if (element) {
             element.classList.add('goodbye');
             setTimeout(() => {
@@ -179,7 +182,7 @@ const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
               title="Confirm purchase"
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
-            <div>Are you sure you want to purchase the wearable <b>{wearable.name}</b> for <b>{wearable.value} coins</b>? This will leave you with <b>{remainder} coins</b>.</div>
+            <div>Are you sure you want to purchase the wearable <b>{wearable.name}</b> for <Coins inline={true}>{wearable.value}</Coins>? This will leave you with <Coins inline={true}>{remainder}</Coins>.</div>
             <img src={wearable.src} alt={wearable.name} />
         </ModalForm>
     );
@@ -344,7 +347,7 @@ const DeleteBadge = ({ badge, element, refreshData }) => {
 
 const AwardBadge = ({ students, badge, refreshData }) => {
     const [recipientId, setRecipientId] = useState(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState({});
     const handleSubmit = () => Student.updateBadges(recipientId, { badgeId: badge._id });
     const handleSuccess = () => {
         refreshData();
@@ -354,8 +357,7 @@ const AwardBadge = ({ students, badge, refreshData }) => {
               title="Award badge">
             <p>Choose a student to award this badge to:</p>
             <div style={{ textAlign: 'center' }}>
-                <StudentDropdown students={students} onChange={setRecipientId}/>
-                {error && <span className="error">{error}</span>}
+                <StudentDropdown students={students} onChange={setRecipientId} error={error.student} />
             </div>
         </ModalForm>
     );

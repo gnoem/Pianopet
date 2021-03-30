@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { Student } from "../../api";
-import { DataContext } from "../../contexts";
+import { DataContext, ModalContext } from "../../contexts";
+import { handleError } from "../../services";
 import { CategoryList, WearableItem, DefaultColorItem, WearablesList } from "../Wearables";
 import { createAvatarObjectForUpdate } from "./utils";
 
@@ -44,10 +45,15 @@ const ClosetCategories = ({ closet, categories, updateCategory }) => {
 
 const ClosetWearablesList = ({ closet, category, wearables, avatar }) => {
     const { student, updateAvatar, getCategoryObject, refreshData } = useContext(DataContext);
+    const { createModal } = useContext(ModalContext);
     const handleUpdateAvatar = async (updatedAvatar) => {
         updateAvatar(updatedAvatar); // go ahead and update UI - we are assuming api call will be successful
         const formData = Object.keys(updatedAvatar).map(key => updatedAvatar[key]._id);
-        Student.updateAvatar(student._id, { avatar: formData }).then(() => {console.log('put on clothes');refreshData()});
+        Student.updateAvatar(student._id, { avatar: formData }).then(() => {
+            refreshData();
+        }).catch(err => {
+            handleError(err, { createModal });
+        });
     }
     const wearablesList = () => {
         if (!category) return null;

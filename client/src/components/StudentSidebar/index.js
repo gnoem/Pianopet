@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { DataContext, ViewContext } from "../../contexts";
-import { formatCoins } from "../../utils";
+import { formatNumber } from "../../utils";
 import { Avatar } from "../Avatar/index.js";
 import { Sidebar } from "../Page";
 
-export const StudentSidebar = () => {
+export const StudentSidebar = ({ student }) => {
     return (
         <Sidebar>
             <div className="StudentSidebar">
                 <StudentAvatar>
-                    <Avatar />
+                    <Avatar {...{ student }} />
                 </StudentAvatar>
                 <StudentStats />
             </div>
@@ -31,7 +31,7 @@ const StudentStats = () => {
     return (
         <div className="studentStats">
             <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-            <span className="statsLabel" onClick={() => updateView({ type: 'marketplace' })}>{formatCoins(student.coins)}</span>
+            <span className="statsLabel" onClick={() => updateView({ type: 'marketplace' })}>{formatNumber(student.coins)}</span>
             <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
             <span className="statsLabel" onClick={() => updateView({ type: 'badges' })}>{student.badges.length.toString()}</span>
         </div>

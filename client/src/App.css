@@ -259,7 +259,7 @@ form.hasImage h2 {
 form.hasImage > div:first-of-type {
     grid-area: content;
 }
-form.hasImage img {
+form.hasImage > img {
     grid-area: image;
     width: 100%;
     height: auto;
@@ -899,19 +899,13 @@ img.statsIcon {
     line-height: 1.4rem;
 }
 .marketplacePreview > ul button {
-    padding: 0 0.3rem;
-    line-height: 1.4rem;
+    padding: 0.3rem;
     border-radius: 0.3rem;
+    line-height: 0;
+    font-size: 0;
+}
+.marketplacePreview > ul button .Coins {
     font-size: 0.7rem;
-}
-.marketplacePreview > ul button img.coin, .marketplacePreview > ul button span {
-    display: inline-block;
-    vertical-align: middle;
-}
-.marketplacePreview > ul img.coin {
-    width: auto;
-    height: 1rem;
-    margin-right: 0.3rem;
 }
 .Modal .marketplacePreview > ul {
     border: 1px solid #ccc;

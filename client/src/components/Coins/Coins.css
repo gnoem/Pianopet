@@ -1,0 +1,17 @@
+.Coins {
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+}
+.Coins img {
+    height: 1em;
+    margin-right: 0.3rem;
+}
+.Coins.inline {
+    align-items: baseline;
+}
+.Coins.inline img {
+    display: flex;
+    align-self: center;
+    margin-right: 0.2rem;
+}

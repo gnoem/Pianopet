@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { DataContext } from "../../contexts";
+import { Coins } from "../Coins";
 import Splat from "../Splat";
 
 export const CategoryList = ({ children }) => {
@@ -35,10 +36,7 @@ export const WearableItem = React.forwardRef(({ className, includeCost, wearable
             {buttonImage}
             <span>{wearable.name}</span>
             {includeCost && (
-                <span>
-                    <img alt="coin icon" src="assets/Coin_ico.png" />
-                    <span>{wearable.value}</span>
-                </span>
+                <Coins>{wearable.value}</Coins>
             )}
         </button>
     );

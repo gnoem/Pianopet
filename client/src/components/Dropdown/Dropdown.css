@@ -1,4 +1,4 @@
-.Dropdown {
+.Dropdown > div {
     position: relative;
     display: inline-block;
     text-align: left;
@@ -25,16 +25,16 @@
     transform: translate3d(0, -50%, 0);
     transition: 0.2s;
 }
-.Dropdown.expanded .dropdownDisplay {
+.Dropdown.expanded > div .dropdownDisplay {
     border-radius: 0.5rem 0.5rem 0 0;
 }
-.Dropdown.expanded .dropdownDisplay::after {
+.Dropdown.expanded > div .dropdownDisplay::after {
     transform: translate3d(0, -50%, 0) rotate(-90deg);
 }
-.Dropdown.expanded .dropdownList {
+.Dropdown.expanded > div .dropdownList {
     transform: translate3d(0, 0.5rem, 0);
 }
-.Dropdown.scrollable .dropdownList {
+.Dropdown.scrollable > div .dropdownList {
     overflow: auto;
 }
 .dropdownDisplay, .dropdownList button {
@@ -106,4 +106,8 @@
 }
 .addNew .inputHint.error {
     color: var(--caution);
+}
+.Dropdown .error {
+    margin: auto;
+    margin-top: 0.2rem;
 }

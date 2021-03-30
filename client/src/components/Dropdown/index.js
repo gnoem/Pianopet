@@ -2,7 +2,7 @@ import "./Dropdown.css";
 import { useEffect, useRef, useState } from "react";
 import { elementHasParent } from "../../utils";
 
-export const Dropdown = ({ defaultValue, listItems, restoreDefault, onChange, addNew, style }) => {
+export const Dropdown = ({ defaultValue, listItems, restoreDefault, onChange, addNew, style, error }) => {
     const [display, setDisplay] = useState(() => {
         if (!listItems || !listItems.length) return 'Add new...';
         if (!defaultValue) return 'Select one';
@@ -11,6 +11,7 @@ export const Dropdown = ({ defaultValue, listItems, restoreDefault, onChange, ad
     const [isOpen, setIsOpen] = useState(false);
     const [hasScrollbar, setHasScrollbar] = useState(false);
     const [addingNew, setAddingNew] = useState(false);
+    const dropdownContainer = useRef(null);
     const dropdownList = useRef(null);
     useEffect(() => {
         const closeDropdown = (e) => {
@@ -76,9 +77,12 @@ export const Dropdown = ({ defaultValue, listItems, restoreDefault, onChange, ad
         return array;
     }
     return (
-        <div className={`Dropdown${isOpen ? ' expanded' : ''}${hasScrollbar ? ' scrollable' : ''}`} style={style}>
-            <div className="dropdownDisplay" onClick={toggleIsOpen}>{display}</div>
-            <ul className="dropdownList" ref={dropdownList}>{generateList()}</ul>
+        <div className={`Dropdown${isOpen ? ' expanded' : ''}${hasScrollbar ? ' scrollable' : ''}`}>
+            <div style={style} ref={dropdownContainer}>
+                <div className="dropdownDisplay" onClick={toggleIsOpen}>{display}</div>
+                <ul className="dropdownList" ref={dropdownList}>{generateList()}</ul>
+            </div>
+            {error && <span className="error" style={{ maxWidth: `${dropdownList.current?.scrollWidth}px` ?? 'auto' }}>{error}</span>}
         </div>
     );
 }
@@ -129,7 +133,7 @@ const AddNew = ({ addNew, addingNew, updateAddingNew, updateIsOpen, updateDispla
     );
 }
 
-export const StudentDropdown = ({ students, onChange }) => {
+export const StudentDropdown = ({ students, onChange, error }) => {
     const studentList = students.map(({ _id, firstName, lastName }) => ({
         value: _id,
         display: `${firstName} ${lastName}`
@@ -139,6 +143,7 @@ export const StudentDropdown = ({ students, onChange }) => {
             style={{ minWidth: '15rem' }}
             defaultValue={{ value: null, display: 'Select one...' }}
             listItems={studentList}
-            onChange={onChange}/>
+            onChange={onChange}
+            error={error} />
     );
 }

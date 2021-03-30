@@ -22,7 +22,7 @@ export const Student = () => {
                 </Nav>
                 <ProfileDropdown {...{ user: student, updateView }} />
             </Header>
-            <StudentSidebar />
+            <StudentSidebar {...{ student }} />
             <StudentMain {...{ view, student }} />
         </>
     );

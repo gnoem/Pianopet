@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from "react";
 import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
-import { formatCoins } from "../../utils";
+import { formatNumber } from "../../utils";
 import { Homework } from "../Homework";
 import { Avatar } from "../Avatar/index.js";
 
@@ -61,7 +61,7 @@ const StudentCoins = ({ student }) => {
     return (
         <div className="StudentStats">
             <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-            <span className="statsLabel">{formatCoins(coinsCount)}</span>
+            <span className="statsLabel">{formatNumber(coinsCount)}</span>
             <div className="editCoinsButton">
                 {makingChanges
                     ? editCoinsButtons

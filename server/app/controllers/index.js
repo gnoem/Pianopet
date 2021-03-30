@@ -526,7 +526,8 @@ class Controller {
                 foundWearable.save()
             ]));
             if (saveError) throw new ServerError(500, `Error saving student`, saveError);
-            res.status(200).send({ success });
+            const [student, wearable] = success;
+            res.status(200).send({ student, wearable });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
