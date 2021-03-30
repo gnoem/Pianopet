@@ -12,7 +12,7 @@ export const TeacherBadges = () => {
             <h1>Badges</h1>
             <Badges
                 badgeList={badges}
-                {...{ ifNoneMessage, createModal }} />
+                {...{ ifNoneMessage }} />
             <button onClick={addNewBadge}>Add new badge</button>
         </div>
     );

@@ -16,7 +16,7 @@ export class ServerError extends Error {
     }
 }
 
-export const formErrorReport = (errors) => {
+export const validationErrorReport = (errors) => {
     const report = errors.reduce((obj, error) => {
         if (error.location !== 'body') return null;
         obj[error.param] = error.msg;

@@ -48,7 +48,7 @@ export const Form = ({ children, modal, className, title, submit, onSubmit, hand
     );
 }
 
-export const Submit = ({ value, modal, nvm, cancel, closeModal, loading, success, disabled, buttonClass }) => {
+export const Submit = ({ value, modal, nvm, cancel, closeModal, onClick, loading, success, disabled, buttonClass }) => {
     // todo change onCancel to just cancel
     const handleCancel = () => {
         cancel?.();
@@ -58,7 +58,7 @@ export const Submit = ({ value, modal, nvm, cancel, closeModal, loading, success
         <div className="buttons">
             <Button type="submit"
                     className={buttonClass}
-                    {...{ success, loading, disabled }}>
+                    {...{ onClick, success, loading, disabled }}>
                 {value ?? 'Submit'}
             </Button>
             {(cancel !== false) && <button type="button" className="greyed" onClick={handleCancel}>{nvm ?? 'Cancel'}</button>}

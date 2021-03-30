@@ -6,16 +6,17 @@ import { formStore } from "./formStore";
 import { Error, customErrorStore } from "./Alert";
 
 export const Modal = ({ children, content, type, options, ignoreClick, selfDestruct }) => {
-    const { isStudent, student, teacher, refreshData } = useContext(DataContext);
+    const data = useContext(DataContext);
     const { setModal, createModal, closeModal } = useContext(ModalContext);
+    const { isStudent, student, teacher } = data;
     const user = isStudent ? student : teacher;
     const formContent = () => {
         switch (type) {
             case 'form': return formStore[content]({ 
                 user,
+                ...data,
                 ...options,
-                refreshData,
-                createModal,
+                createModal, //?
                 closeModal
             });
             case 'error': return <Error>{content}</Error>;

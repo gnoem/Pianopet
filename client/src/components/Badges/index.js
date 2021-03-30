@@ -1,13 +1,26 @@
 import React, { useContext, useRef } from "react";
+import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";
+import { handleError } from "../../services";
 
-export const Badges = ({ badgeList, createModal, ifNoneMessage, checkClassName }) => {
-    const { createContextMenu } = useContext(ModalContext);
+export const Badges = ({ badgeList, ifNoneMessage, checkClassName }) => {
+    const { createContextMenu, createModal } = useContext(ModalContext);
+    const { isStudent, student, refreshData } = useContext(DataContext);
     const badgeRefs = useRef({});
     const listItems = () => {
         if (!badgeList?.length) return ifNoneMessage;
         return badgeList.map(badge => {
-            const onClick = () => console.log('handle click badge');
+            const onClick = () => {
+                if (isStudent) {
+                    Student.updateBadgeRedeemed(student._id, badge).then(() => {
+                        refreshData();
+                    }).catch(err => {
+                        handleError(err, { createModal });
+                    });
+                    return;
+                }
+                createModal('awardBadge', 'form', { badge });
+            }
             const onContextMenuClick = (e, badge) => {
                 e.preventDefault();
                 const editBadge = () => createModal('editBadge', 'form', { badge });
@@ -25,7 +38,7 @@ export const Badges = ({ badgeList, createModal, ifNoneMessage, checkClassName }
                     ref={(el) => badgeRefs.current[badge._id] = el}
                     key={`badgeListItem-${badge._id}`}
                     className={checkClassName?.(badge)}
-                    {...{ badge, onClick, onContextMenuClick }} />
+                    {...{ isStudent, badge, onClick, onContextMenuClick }} />
             )
         });
     }
@@ -36,8 +49,7 @@ export const Badges = ({ badgeList, createModal, ifNoneMessage, checkClassName }
     );
 }
 
-const BadgeListItem = React.forwardRef(({ badge, className, onClick, onContextMenuClick }, ref) => {
-    const { isStudent } = useContext(DataContext);
+const BadgeListItem = React.forwardRef(({ isStudent, badge, className, onClick, onContextMenuClick }, ref) => {
     return (
         <div ref={ref} className={`badgeItem ${className ?? ''}`}>
             <img className="badgeImage"

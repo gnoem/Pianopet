@@ -1,5 +1,8 @@
 import "./ViewingStudent.css";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { Student } from "../../api";
+import { DataContext, ModalContext } from "../../contexts";
+import { handleError } from "../../services";
 import { formatCoins } from "../../utils";
 import { Homework } from "../Homework";
 import { Avatar } from "../Avatar/index.js";
@@ -29,12 +32,21 @@ const Sidebar = ({ student }) => {
 }
 
 const StudentCoins = ({ student }) => {
+    const { createModal } = useContext(ModalContext);
+    const { refreshData } = useContext(DataContext);
     const [makingChanges, setMakingChanges] = useState(false);
     const [coinsCount, setCoinsCount] = useState(student.coins);
     useEffect(() => {
         setCoinsCount(student.coins);
     }, [student]);
-    const handleUpdateCoins = () => console.log('updating coins');
+    const handleUpdateCoins = () => {
+        return Student.updateCoins(student._id, { coins: coinsCount }).then(() => {
+            setMakingChanges(false);
+            refreshData();
+        }).catch(err => {
+            handleError(err, { createModal });
+        });
+    }
     const editCoinsButtons = (() => (
         <div>
             <button className="stealth link" onClick={() => addCoins(-10)}><i className="fas fa-minus-circle"></i></button>

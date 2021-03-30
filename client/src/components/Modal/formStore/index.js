@@ -1,9 +1,11 @@
 import "./formStore.css";
-import dayjs from "dayjs";
-import { Category, Badge, Wearable } from "../../../api";
+import { useEffect, useState } from "react";
+import { Student, Category, Badge, Wearable } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Form, Input, Submit } from "../../Form";
+import { StudentDropdown } from "../../Dropdown/index.js";
 import { ManageWearable } from "./ManageWearable";
+import dayjs from "dayjs";
 
 export const ModalForm = (props) => {
     const { children } = props;
@@ -21,12 +23,14 @@ export const formStore = {
     createWearable: (props) => <ManageWearable {...props} />,
     editWearable: (props) => <ManageWearable {...props} />,
     deleteWearable: (props) => <DeleteWearable {...props} />,
+    buyWearable: (props) => <BuyWearable {...props} />,
     createCategory: (props) => <CreateCategory {...props} />,
     editCategory: (props) => <EditCategory {...props} />,
     deleteCategory: (props) => <DeleteCategory {...props} />,
     createBadge: (props) => <CreateBadge {...props} />,
     editBadge: (props) => <EditBadge {...props} />,
-    deleteBadge: (props) => <DeleteBadge {...props} />
+    deleteBadge: (props) => <DeleteBadge {...props} />,
+    awardBadge: (props) => <AwardBadge {...props} />
 }
 
 // Homework
@@ -151,6 +155,35 @@ const DeleteWearable = ({ wearable, element, refreshData }) => {
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
             <div>Are you sure you want to delete the wearable <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
+            <img src={wearable.src} alt={wearable.name} />
+        </ModalForm>
+    );
+}
+
+const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
+    const handleSubmit = () => {
+        return Student.updateCloset(student._id, {
+            wearableId: wearable._id,
+            wearableCost: wearable.value
+        });
+    }
+    const handleSuccess = () => {
+        refreshData();
+    }
+    const remainder = student.coins - wearable.value;
+    if (remainder < 0) return (
+        <div>
+            <h2>Not enough coins</h2>
+            You don't have enough coins to buy this item!
+            <Submit onClick={closeModal} value="Close" cancel={false} />
+        </div>
+    );
+    return (
+        <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
+              title="Confirm purchase"
+              className="hasImage"
+              submit={<Submit value="Yes, I'm sure" />}>
+            <div>Are you sure you want to purchase the wearable <b>{wearable.name}</b> for <b>{wearable.value} coins</b>? This will leave you with <b>{remainder} coins</b>.</div>
             <img src={wearable.src} alt={wearable.name} />
         </ModalForm>
     );
@@ -306,6 +339,25 @@ const DeleteBadge = ({ badge, element, refreshData }) => {
               title="Are you sure?"
               submit={<Submit value="Yes, I'm sure" />}>
             Are you sure you want to delete this badge? This action cannot be undone.
+        </ModalForm>
+    );
+}
+
+const AwardBadge = ({ students, badge, refreshData }) => {
+    const [recipientId, setRecipientId] = useState(null);
+    const [error, setError] = useState(null);
+    const handleSubmit = () => Student.updateBadges(recipientId, { badgeId: badge._id });
+    const handleSuccess = () => {
+        refreshData();
+    }
+    return (
+        <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={setError}
+              title="Award badge">
+            <p>Choose a student to award this badge to:</p>
+            <div style={{ textAlign: 'center' }}>
+                <StudentDropdown students={students} onChange={setRecipientId}/>
+                {error && <span className="error">{error}</span>}
+            </div>
         </ModalForm>
     );
 }

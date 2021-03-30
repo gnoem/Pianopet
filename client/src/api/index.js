@@ -21,12 +21,13 @@ export const Student = {
     updateAvatar: async (_id, formData) => await put(`/student/${_id}/avatar`, formData),
     updateCloset: async (_id, formData) => await put(`/student/${_id}/closet`, formData),
     updateBadges: async (_id, formData) => await put(`/student/${_id}/badges`, formData),
+    updateBadgeRedeemed: async (_id, badge) => await put(`/student/${_id}/badge`, badge),
     deleteAccount: async (_id) => await del(`/student/${_id}`)
 }
 
 export const Homework = {
     createHomework: async (formData) => await post('/homework', formData),
-    editHomework: async (_id, formData) => await put(`/homework/${_id}`, formData),
+    editHomework: async (_id, formData) => await put(`/homework/${_id}/content`, formData),
     updateProgress: async (_id, formData) => await put(`/homework/${_id}/progress`, formData),
     updateRecorded: async (_id, formData) => await put(`/homework/${_id}/recorded`, formData),
     deleteHomework: async (_id) => await del(`/homework/${_id}`)
@@ -47,6 +48,5 @@ export const Category = {
 export const Badge = {
     createBadge: async (formData) => await post('/badge', formData),
     editBadge: async (_id, formData) => await put(`/badge/${_id}`, formData),
-    updateRedeemed: async (_id, formData) => await put(`/badge/${_id}/redeemed`, formData),
     deleteBadge: async (_id) => await del(`/badge/${_id}`)
 }

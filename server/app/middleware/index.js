@@ -1,13 +1,31 @@
 import { check } from 'express-validator';
 import { isObjectId } from '../controllers/utils.js';
-import { Student, Teacher } from '../models/index.js';
+import { Student, Teacher, Category } from '../models/index.js';
 
 export const validate = {
-    badgeName: [
+    wearable: [
+        check('name')
+            .not().isEmpty().withMessage('This field is required').bail()
+            .isLength({ max: 60 }).withMessage('Max 60 characters'),
+        check('src')
+            .not().isEmpty().withMessage('This field is required'),
+        check('value')
+            .not().isEmpty().withMessage('This field is required')
+    ],
+    category: [
+        check('name')
+            .not().isEmpty().withMessage('This field is required').bail()
+            .isLength({ max: 25 }).withMessage('Max 25 characters').bail()
+            .custom(name => {
+                return Category.findOne({ name }).then(category => {
+                    if (category) return Promise.reject('Category name already exists');
+                });
+            })
+    ],
+    badge: [
         check('name')
             .not().isEmpty().withMessage('This field is required').bail()
             .isLength({ max: 50 }).withMessage('Max 50 characters'),
-            // todo check if exists
         check('src')
             .not().isEmpty().withMessage('This field is required'),
         check('value')

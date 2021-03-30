@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { ModalContext } from "../../../contexts";
 import PianopetBase from "../../PianopetBase";
 
 export const MarketplacePreview = ({ preview, student, isStudent }) => {
@@ -39,17 +41,21 @@ const PreviewImage = ({ preview }) => {
 }
 
 const PreviewDescription = ({ preview, student, isStudent }) => {
+    const { createModal } = useContext(ModalContext);
     if (!isStudent) return null;
     const previewItems = [];
     for (let category in preview) {
         if (preview[category]._id) { // default color _id is undefined, and also if preview[category].isOccupied it won't have _id
             const isOwned = student.closet.includes(preview[category]._id);
+            const buyWearable = () => {
+                createModal('buyWearable', 'form', { wearable: preview[category] });
+            }
             previewItems.push(
                 <li key={`marketplacePreviewDescription-${category}`}>
                     <span className="wearableName">{preview[category].name}</span>
                     {isStudent && isOwned
                         ? <span className="owned"></span>
-                        : <button onClick={() => console.log('buy wearable')}>
+                        : <button onClick={buyWearable}>
                             <img className="coin" alt="coin icon" src="assets/Coin_ico.png" />
                             <span className="wearableValue">{preview[category].value}</span>
                           </button>

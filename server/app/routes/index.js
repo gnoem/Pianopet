@@ -10,53 +10,56 @@ export default function (app) {
     app.post('/login', Controller.login);
     app.get('/logout', Controller.logout);
 
+    app.route('/homework')
+        .post(Controller.createHomework);
+    app.route('/homework/:_id/:action')
+        .put(Controller.editHomework);
+    app.route('/homework/:_id')
+        .delete(Controller.deleteHomework);
     app.route('/wearable')
-        .post(Controller.createWearable);
+        .post(validate.wearable, Controller.createWearable);
     app.route('/wearable/:_id')
-        .put(Controller.editWearable)
+        .put(validate.wearable, Controller.editWearable)
         .delete(Controller.deleteWearable);
     app.route('/category')
-        .post(Controller.createCategory);
+        .post(validate.category, Controller.createCategory);
     app.route('/category/:_id')
-        .put(Controller.editCategory)
+        .put(validate.category, Controller.editCategory)
         .delete(Controller.deleteCategory);
+    app.route('/badge')
+        .post(validate.badge, Controller.addBadge);
+    app.route('/badge/:_id')
+        .put(validate.badge, Controller.editBadge)
+        .delete(Controller.deleteBadge);
 
     // TEACHER
     app.route('/teacher')
         .post(validate.teacherSignup, Controller.teacherSignup);
     app.route('/teacherCode/:teacherCode')
         .get(Controller.validateTeacherCode);
-    app.route('/teacher/:id')
+    app.route('/teacher/:_id')
         .get(Controller.getTeacher)
         .put(Controller.editAccount);
-    app.route('/teacher/:id/password')
+    app.route('/teacher/:_id/password')
         .put(Controller.editPassword);
-    app.route('/badge')
-        .post(validate.badgeName, Controller.addBadge);
-    app.route('/badge/:id')
-        .put(validate.badgeName, Controller.editBadge)
-        .delete(Controller.deleteBadge);
     
     // STUDENT
-    app.post('/student', validate.studentSignup, Controller.studentSignup);
-    app.route('/student/:id')
+    app.route('/student')
+        .post(validate.studentSignup, Controller.studentSignup);
+    app.route('/student/:_id')
         .put(Controller.editAccount);
-    app.route('/student/:id/password')
+    app.route('/student/:_id/password')
         .put(Controller.editPassword);
-    app.route('/student/:id/homework')
-        .get(Controller.getHomework)
-        .post(Controller.addHomework);
-    app.route('/student/homework/:id')
-        .put(Controller.editHomework)
-        .delete(Controller.deleteHomework);
-    app.route('/homework/:_id/progress')
-        .put(Controller.updateProgress);
-    app.put('/assignment/:id/progress', Controller.updateProgress);
-    app.put('/assignment/:id/recorded', Controller.updateRecorded);
-    app.put('/student/:id/coins', Controller.updateCoins);
-    app.put('/student/:id/badges', Controller.updateBadges);
-    app.route('/student/:id/badge/redeemed')
+    app.route('/student/:_id/homework')
+        .get(Controller.getHomework);
+    app.route('/student/:_id/coins')
+        .put(Controller.updateCoins);
+    app.route('/student/:_id/badges')
+        .put(Controller.updateBadges);
+    app.route('/student/:_id/badge')
         .put(Controller.updateBadgeRedeemed);
-    app.put('/student/:id/closet', Controller.updateCloset);
-    app.put('/student/:id/avatar', Controller.updateAvatar);
+    app.route('/student/:_id/closet')
+        .put(Controller.updateCloset);
+    app.route('/student/:_id/avatar')
+        .put(Controller.updateAvatar);
 }

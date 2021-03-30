@@ -128,3 +128,17 @@ const AddNew = ({ addNew, addingNew, updateAddingNew, updateIsOpen, updateDispla
         </li>
     );
 }
+
+export const StudentDropdown = ({ students, onChange }) => {
+    const studentList = students.map(({ _id, firstName, lastName }) => ({
+        value: _id,
+        display: `${firstName} ${lastName}`
+    }))
+    return (
+        <Dropdown
+            style={{ minWidth: '15rem' }}
+            defaultValue={{ value: null, display: 'Select one...' }}
+            listItems={studentList}
+            onChange={onChange}/>
+    );
+}
