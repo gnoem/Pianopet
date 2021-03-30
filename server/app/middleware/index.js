@@ -16,8 +16,8 @@ export const validate = {
         check('name')
             .not().isEmpty().withMessage('This field is required').bail()
             .isLength({ max: 25 }).withMessage('Max 25 characters').bail()
-            .custom(name => {
-                return Category.findOne({ name }).then(category => {
+            .custom((name, { req }) => {
+                return Category.findOne({ name, teacherCode: req.body.teacherCode }).then(category => {
                     if (category) return Promise.reject('Category name already exists');
                 });
             })

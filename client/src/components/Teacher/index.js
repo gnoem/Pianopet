@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { DataContext, ViewContext } from "../../contexts"
 import { Account } from "../Account";
 import { Dropdown } from "../Dropdown/index.js";
@@ -9,7 +9,16 @@ import { ViewingStudent } from "../ViewingStudent";
 
 export const Teacher = () => {
     const { teacher, students } = useContext(DataContext);
-    const { view, updateView } = useContext(ViewContext);
+    const { view, updateView, updateCurrentStudent } = useContext(ViewContext);
+    useEffect(() => {
+        if (view.type !== 'student') return;
+        const refreshCurrentStudent = () => {
+            const currentStudent = view.student;
+            const updatedStudent = students.find(student => student._id === currentStudent._id);
+            updateCurrentStudent(updatedStudent);
+        }
+        refreshCurrentStudent();
+    }, [students]);
     return (
         <>
             <Header {...{ view, updateView }}>

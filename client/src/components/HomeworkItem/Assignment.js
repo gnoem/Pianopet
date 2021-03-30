@@ -1,18 +1,19 @@
 import { useState, useContext } from "react";
-import { Homework } from "../../api";
-import { HomeworkContext, ModalContext } from "../../contexts";
+import { Student, Homework } from "../../api";
+import { DataContext, HomeworkContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
 
 export const Assignment = ({ isStudent, _id, index, label, progress, recorded }) => {
     const [visualProgress, setVisualProgress] = useState(progress);
     const { refreshHomework } = useContext(HomeworkContext);
     const { createModal } = useContext(ModalContext);
-    const updateHomeworkProgress = async (value) => {
+    const updateHomeworkProgress = (value) => {
         setVisualProgress(value);
         Homework.updateProgress(_id, { index, value })
             .then(refreshHomework)
             .catch(err => {
                 setVisualProgress(progress);
+                console.log('wrong')
                 handleError(err, { createModal });
             });
     }
@@ -20,15 +21,25 @@ export const Assignment = ({ isStudent, _id, index, label, progress, recorded })
         <li>
             <div>
                 <div>{label}</div>
-                <ProgressIndicator {...{ isStudent, visualProgress, recorded, updateHomeworkProgress }} />
+                <ProgressIndicator {...{ _id, index, isStudent, visualProgress, recorded, refreshHomework, updateHomeworkProgress }} />
             </div>
         </li>
     );
 }
 
-const ProgressIndicator = ({ isStudent, visualProgress, recorded, updateHomeworkProgress }) => {
+const ProgressIndicator = ({ isStudent, _id, index, visualProgress, recorded, refreshHomework, updateHomeworkProgress }) => {
+    const coinsOwed = visualProgress * 20;
+    const { refreshData } = useContext(DataContext);
+    const { createModal } = useContext(ModalContext);
     const updateRecorded = () => {
-        console.log('clicked  record assignment progress');
+        Homework.updateRecorded(_id, { index, recorded: true, coinsOwed })
+            .then(() => {
+                refreshHomework();
+                refreshData();
+            })
+            .catch(err => {
+                handleError(err, { createModal });
+            });
     }
     return (
         <div className="ProgressIndicator">
@@ -41,10 +52,10 @@ const ProgressIndicator = ({ isStudent, visualProgress, recorded, updateHomework
                 className={`stealth${visualProgress === 4 ? ' disabled' : ''}`}
                 style={{ visibility: recorded ? 'hidden' : 'visible' }}><i className="fas fa-plus-circle"></i></button>
             </div>
-            {isStudent && (
+            {isStudent || (
                 <div className={`coinsEarned${recorded ? ' coinsAdded' : ''}`} onClick={recorded ? null : updateRecorded}>
                     <img className="coinIcon" alt="coin icon" src="assets/Coin_ico.png" />
-                    <span>{`${visualProgress * 20}`}</span>
+                    <span>{`${coinsOwed}`}</span>
                 </div>
             )}
         </div>

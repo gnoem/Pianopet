@@ -1,6 +1,6 @@
 import "./formStore.css";
 import { useEffect, useState } from "react";
-import { Student, Category, Badge, Wearable } from "../../../api";
+import { Student, Category, Badge, Wearable, Homework } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Form, Input, Submit } from "../../Form";
 import { StudentDropdown } from "../../Dropdown/index.js";
@@ -33,12 +33,9 @@ export const formStore = {
     awardBadge: (props) => <AwardBadge {...props} />
 }
 
-// Homework
-// Wearable
-
-const ManageHomework = ({ user: student, homework }) => {
+const ManageHomework = ({ student, homework, refreshHomework }) => {
     const addingNew = !homework;
-    const emptyAssignment = { label: '', progress: 0 };
+    const emptyAssignment = { label: '', progress: 0, recorded: false };
     const defaultAssignments = ['', '', '', ''].map(() => emptyAssignment)
     const [formData, updateFormData, setFormDataDirectly] = useFormData({
         studentId: homework?.studentId ?? student._id,
@@ -52,7 +49,8 @@ const ManageHomework = ({ user: student, homework }) => {
             const arrayToReturn = [...prevArray];
             const assignment = {
                 label: value,
-                progress: 0
+                progress: prevArray[index].progress,
+                recorded: prevArray[index].recorded
             }
             arrayToReturn[index] = assignment;
             return arrayToReturn;
@@ -62,14 +60,12 @@ const ManageHomework = ({ user: student, homework }) => {
             assignments: updatedAssignmentsArray(prevState?.assignments)
         }));
     }
-    const handleSubmit = async () => {
-        if (addingNew) return console.log('adding new homework');
-        return console.log('editing existing homework');
+    const handleSubmit = () => {
+        if (addingNew) return Homework.createHomework(formData);
+        else return Homework.editHomework(homework._id, formData)
     }
     const handleSuccess = () => {
-        console.log('success');
-        //refreshData(); // refresh homework!
-        //closeModal();
+        refreshHomework();
     }
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
@@ -125,9 +121,9 @@ const ManageHomework = ({ user: student, homework }) => {
     );
 }
 
-const DeleteHomework = ({ refreshData }) => {
-    const handleSubmit = () => Promise.resolve('deleting hoemwork');
-    const handleSuccess = () => refreshData();
+const DeleteHomework = ({ homework, refreshHomework }) => {
+    const handleSubmit = () => Homework.deleteHomework(homework._id);
+    const handleSuccess = () => refreshHomework();
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess}
               title="Are you sure?"
@@ -208,7 +204,10 @@ const CreateCategory = ({ user: teacher, refreshData }) => {
 }
 
 const EditCategory = ({ category, refreshData }) => {
-    const [formData, updateFormData] = useFormData({ name: category.name });
+    const [formData, updateFormData] = useFormData({
+        teacherCode: category.teacherCode,
+        name: category.name
+    });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => Category.editCategory(category._id, formData);
     const handleSuccess = () => refreshData();

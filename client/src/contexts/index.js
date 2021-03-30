@@ -128,6 +128,12 @@ export const ViewContextProvider = ({ children }) => {
                 ...prevView,
                 unsavedChanges: value
             }));
+        },
+        updateCurrentStudent: (student) => {
+            setView(prevView => ({
+                ...prevView,
+                student
+            }));
         }
     }
     return (

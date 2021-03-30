@@ -1,6 +1,6 @@
 import "./HomeworkItem.css";
 import { useContext } from "react";
-import { ModalContext } from "../../contexts";
+import { HomeworkContext, ModalContext } from "../../contexts";
 import { prettifyDate } from "../../utils";
 import { Assignment } from "./Assignment";
 
@@ -23,10 +23,11 @@ export const HomeworkItem = ({ isStudent, homework }) => {
 
 const HomeworkHeader = ({ isStudent, homework }) => {
     const { date, headline } = homework;
+    const { refreshHomework } = useContext(HomeworkContext);
     const { createContextMenu, createModal } = useContext(ModalContext);
     const buttonClick = (e) => {
-        const editHomework = () => createModal('editHomework', 'form', { homework })
-        const deleteHomework = () => createModal('deleteHomework', 'form', { homework });
+        const editHomework = () => createModal('editHomework', 'form', { homework, refreshHomework })
+        const deleteHomework = () => createModal('deleteHomework', 'form', { homework, refreshHomework });
         const listItems = [
             { display: 'Edit', onClick: editHomework },
             { display: 'Delete', onClick: deleteHomework }

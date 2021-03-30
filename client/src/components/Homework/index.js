@@ -30,7 +30,7 @@ export const Homework = ({ student }) => {
             />
         ));
     }
-    const addNewHomework = () => createModal('createHomework', 'form');
+    const addNewHomework = () => createModal('createHomework', 'form', { student, refreshHomework: getHomework });
     return (
         <HomeworkContext.Provider value={{ homework, refreshHomework: getHomework }}>
             <div className="HomeworkHeader">

@@ -226,22 +226,26 @@ class Controller {
             })();
             const [editedHomework, editHomeworkError] = await handle(dispatch(foundHomework, req.body));
             if (editHomeworkError) throw new ServerError(500, `Dispatch error for ${action}`, editHomeworkError);
-            const [homework, saveError] = await handle(editedHomework.save());
+            const [homework, saveError] = await handle(Promise.all(editedHomework));
             if (saveError) throw new ServerError(500, `Error saving homework`, saveError);
             res.status(200).send({ homework });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
-    updateHomeworkContent = (homework, content) => {
-        return Object.assign(homework, content);
+    updateHomeworkContent = async (homework, content) => {
+        return [Object.assign(homework, content).save()];
     }
-    updateHomeworkProgress = (homework, { index, value }) => {
+    updateHomeworkProgress = async (homework, { index, value }) => {
         homework.assignments[index].progress = value;
-        return homework;
+        return [homework.save()];
     }
-    updateHomeworkRecorded = (homework, { index, recorded }) => {
+    updateHomeworkRecorded = async (homework, { index, recorded, coinsOwed }) => {
         homework.assignments[index].recorded = recorded;
-        return homework;
+        const [foundStudent, findStudentError] = await handle(Student.findOne({ _id: homework.studentId }));
+        if (findStudentError) throw new ServerError(500, `Error finding student`, findStudentError);
+        if (!foundStudent) throw new ServerError(500, `Student not found`);
+        foundStudent.coins += coinsOwed;
+        return [foundStudent.save(), homework.save()];
     }
     deleteHomework = (req, res) => {
         const { _id } = req.params;
