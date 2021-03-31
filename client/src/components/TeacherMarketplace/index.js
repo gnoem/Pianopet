@@ -4,7 +4,11 @@ import { Marketplace } from "../Marketplace/index.js";
 
 export const TeacherMarketplace = () => {
     const { createModal } = useContext(ModalContext);
-    const addNewWearable = () => createModal('createWearable', 'form');
+    const addNewWearable = () => {
+        createModal('createWearableOrColor', 'customDialog'/* , {
+            ignoreClick: ['.createWearableOrColor button']
+        } */);
+    }
     return (
         <div className="TeacherMarketplace">
             <h1>Marketplace</h1>

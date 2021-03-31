@@ -8,6 +8,9 @@ import { StudentDropdown } from "../../Dropdown/index.js";
 import { ManageWearable } from "./ManageWearable";
 import dayjs from "dayjs";
 import { Coins } from "../../Coins";
+import { ManageColor } from "./ManageColor";
+import Splat from "../../Splat";
+import PianopetBase from "../../PianopetBase";
 
 export const ModalForm = (props) => {
     const { children } = props;
@@ -24,6 +27,8 @@ export const formStore = {
     deleteHomework: (props) => <DeleteHomework {...props} />,
     createWearable: (props) => <ManageWearable {...props} />,
     editWearable: (props) => <ManageWearable {...props} />,
+    createColor: (props) => <ManageColor {...props} />,
+    editColor: (props) => <ManageColor {...props} />,
     deleteWearable: (props) => <DeleteWearable {...props} />,
     buyWearable: (props) => <BuyWearable {...props} />,
     createCategory: (props) => <CreateCategory {...props} />,
@@ -136,9 +141,9 @@ const DeleteHomework = ({ homework, refreshHomework }) => {
 }
 
 const DeleteWearable = ({ wearable, element, refreshData }) => {
+    const isColor = wearable && !wearable.image;
     const handleSubmit = () => Wearable.deleteWearable(wearable._id);
-    const handleSuccess = (success) => {
-        console.dir(success);
+    const handleSuccess = () => {
         if (element) {
             element.classList.add('goodbye');
             setTimeout(() => {
@@ -153,13 +158,16 @@ const DeleteWearable = ({ wearable, element, refreshData }) => {
               title="Are you sure?"
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
-            <div>Are you sure you want to delete the wearable <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
-            <img src={wearable.src} alt={wearable.name} />
+            <div>Are you sure you want to delete the {isColor ? 'color' : 'wearable'} <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
+            {isColor
+                ? <Splat color={wearable.src} /> // OR: <PianopetBase zoom={true} color={wearable.src} />
+                : <img src={wearable.src} alt={wearable.name} />}
         </ModalForm>
     );
 }
 
 const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
+    const isColor = !wearable.image;
     const handleSubmit = () => {
         return Student.updateCloset(student._id, {
             wearableId: wearable._id,
@@ -182,8 +190,10 @@ const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
               title="Confirm purchase"
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
-            <div>Are you sure you want to purchase the wearable <b>{wearable.name}</b> for <Coins inline={true}>{wearable.value}</Coins>? This will leave you with <Coins inline={true}>{remainder}</Coins>.</div>
-            <img src={wearable.src} alt={wearable.name} />
+            <div>Are you sure you want to purchase the {isColor ? 'color' : 'wearable'} <b>{wearable.name}</b> for <Coins inline={true}>{wearable.value}</Coins>? This will leave you with <Coins inline={true}>{remainder}</Coins>.</div>
+            {isColor
+                ? <Splat color={wearable.src} /> // OR: <PianopetBase zoom={true} color={wearable.src} />
+                : <img src={wearable.src} alt={wearable.name} />}
         </ModalForm>
     );
 }

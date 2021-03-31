@@ -1,7 +1,7 @@
 .Input + .Input {
     margin-top: 1.3rem;
 }
-form div.half .Input {
+form div.half .Input, div.formGrid .Input {
     margin: 0;
 }
 form div.half + .Input, .Input + div.half {

@@ -3,11 +3,13 @@ import { useEffect, useContext, useRef } from "react";
 import { DataContext, ModalContext } from "../../contexts";
 import { elementHasParent } from "../../utils";
 import { formStore } from "./formStore";
+import { customDialogStore } from "./Dialog";
 import { Error, customErrorStore } from "./Alert";
 
-export const Modal = ({ children, content, type, options, ignoreClick, selfDestruct }) => {
+export const Modal = ({ children, content, type, options, selfDestruct }) => {
+    const { ignoreClick } = options;
     const data = useContext(DataContext);
-    const { setModal, createModal, closeModal } = useContext(ModalContext);
+    const { setModal, createModal, closeModal, switchToModal } = useContext(ModalContext);
     const { isStudent, student, teacher } = data;
     const user = isStudent ? student : teacher;
     const formContent = () => {
@@ -20,6 +22,7 @@ export const Modal = ({ children, content, type, options, ignoreClick, selfDestr
                 closeModal
             });
             case 'error': return <Error>{content}</Error>;
+            case 'customDialog': return customDialogStore[content]({ options, switchToModal });
             case 'customError': return customErrorStore[content]({ options, closeModal });
             default: return content;
         }

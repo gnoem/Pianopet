@@ -7,6 +7,9 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
     const { createContextMenu, createModal } = useContext(ModalContext);
     const marketplaceWearables = () => {
         const filteredList = wearables.filter(wearable => wearable.category === category._id);
+        if (!filteredList.length) return (
+            <div className="noneFound">None found!</div>
+        );
         const list = filteredList.map(wearable => {
             const ownsWearable = (() => {
                 if (!isStudent) return false;
@@ -30,6 +33,7 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
                     includeCost={true}
                     onClick={handleClick}
                     onContextMenu={isStudent ? null : contextMenuClick}
+                    isColor={category.name === 'Color'}
                     currentCategory={category.name}
                     wearable={wearable}
                 />
@@ -38,18 +42,17 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
         return list;
     }
     const includeDefaultColor = () => {
-        if (category.name === 'Color') return <DefaultColorItem handleClick={() => console.log('click on default color')} />;
-    }
-    const addColorButton = () => {
-        if (isStudent) return;
-        if (category.name !== 'Color') return;
-        return <button key="color-wearable-addNew" className="add" onClick={() => console.log('add new color')}></button>;
+        if (category.name === 'Color') return (
+            <DefaultColorItem
+                className="owned"
+                isMarketplace={true}
+                handleClick={() => updatePreview({})} />
+        );
     }
     return (
         <WearablesList {...{ category }}>
             {includeDefaultColor()}
             {marketplaceWearables()}
-            {addColorButton()}
         </WearablesList>
     );
 }

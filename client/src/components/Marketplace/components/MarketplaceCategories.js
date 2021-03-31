@@ -2,10 +2,17 @@ import { useContext } from "react";
 import { ModalContext } from "../../../contexts";
 import { CategoryList } from "../../Wearables";
 
-export const MarketplaceCategories = ({ isStudent, wearables, categories, updateCategory }) => {
+export const MarketplaceCategories = ({ isStudent, wearables, categories, colorCategory, updateCategory }) => {
     const { createModal, createContextMenu } = useContext(ModalContext);
     const marketplaceCategories = () => {
-        const array = categories.map(category => {
+        const colorCategoryButton = (
+            <button key={`wearableCategories-toolbar-Color`}
+                    onClick={() => updateCategory(colorCategory)}
+                    onContextMenu={isStudent ? null : (e) => e.preventDefault()}>
+                Color
+            </button>
+        );
+        const wearableCategoryButtons = categories.map(category => {
             const editOrDeleteCategory = (e) => {
                 e.preventDefault();
                 const listItems = [
@@ -15,18 +22,17 @@ export const MarketplaceCategories = ({ isStudent, wearables, categories, update
                 createContextMenu(e, listItems, { className: 'editdelete' });
             }
             return (
-                <button
-                key={`wearableCategories-toolbar-${category.name}`}
-                onClick={() => updateCategory(category)}
-                onContextMenu={isStudent ? null : editOrDeleteCategory}>
+                <button key={`wearableCategories-toolbar-${category.name}`}
+                        onClick={() => updateCategory(category)}
+                        onContextMenu={isStudent ? null : editOrDeleteCategory}>
                     {category.name}
                 </button>
             );
         });
-        if (!isStudent) array.push(
+        if (!isStudent) wearableCategoryButtons.push(
             <button key="wearableCategories-toolbar-addNew" className="add" onClick={() => createModal('createCategory', 'form')}></button>
         );
-        return array;
+        return [colorCategoryButton, ...wearableCategoryButtons];
     }
     return (
         <CategoryList>

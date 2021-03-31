@@ -6,35 +6,39 @@ import { CategoryList, WearableItem, DefaultColorItem, WearablesList } from "../
 import { createAvatarObjectForUpdate } from "./utils";
 
 export const Closet = () => {
-    const { avatar, closet, wearables, categories } = useContext(DataContext);
-    const [category, setCategory] = useState(() => {
-        return categories.find(category => closet.some(wearable => wearable.category === category._id));
-    });
+    const { avatar, closet, wearables, categories, colorCategory } = useContext(DataContext);
+    const [category, setCategory] = useState(colorCategory);
     if (!closet.length) return (
         <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
     );
     return (
         <div className="Closet">
-            <ClosetCategories {...{ closet, categories, updateCategory: setCategory }} />
+            <ClosetCategories {...{ closet, categories, colorCategory, updateCategory: setCategory }} />
             <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
         </div>
     );
 }
 
-const ClosetCategories = ({ closet, categories, updateCategory }) => {
+const ClosetCategories = ({ closet, categories, colorCategory, updateCategory }) => {
     const generateCategoriesList = () => {
-        return categories.map(category => {
+        const colorCategoryButton = (
+            <button key={`closet-wearableCategories-Color`}
+                    onClick={() => updateCategory(colorCategory)}>
+                Color
+            </button>
+        );
+        const wearableCategoryButtons = categories.map(category => {
             const someClosetItemHasCategory = closet.some(wearable => wearable.category === category._id);
             if (!someClosetItemHasCategory) return null;
             const categoryName = category.name;
             return (
-                <button
-                  key={`closet-wearableCategories-${categoryName}`}
-                  onClick={() => updateCategory(category)}>
-                      {categoryName}
+                <button key={`closet-wearableCategories-${categoryName}`}
+                        onClick={() => updateCategory(category)}>
+                    {categoryName}
                 </button>
             );
         });
+        return [colorCategoryButton, ...wearableCategoryButtons];
     }
     return (
         <CategoryList>
@@ -48,8 +52,8 @@ const ClosetWearablesList = ({ closet, category, wearables, avatar }) => {
     const { createModal } = useContext(ModalContext);
     const handleUpdateAvatar = async (updatedAvatar) => {
         updateAvatar(updatedAvatar); // go ahead and update UI - we are assuming api call will be successful
-        const formData = Object.keys(updatedAvatar).map(key => updatedAvatar[key]._id);
-        Student.updateAvatar(student._id, { avatar: formData }).then(() => {
+        const avatarStringIds = Object.keys(updatedAvatar).map(key => updatedAvatar[key]._id);
+        Student.updateAvatar(student._id, { avatar: avatarStringIds }).then(() => {
             refreshData();
         }).catch(err => {
             handleError(err, { createModal });
@@ -81,7 +85,7 @@ const ClosetWearablesList = ({ closet, category, wearables, avatar }) => {
         if (currentCategory === 'Color') list.splice(0, 0, (
             <DefaultColorItem
                 key="defaultColor"
-                handleClick={() => handleClick({ category: 'Color', src: '#5C76AE' })}
+                handleClick={() => handleClick({})}
                 {...{ avatar }} />
         ));
         return list;

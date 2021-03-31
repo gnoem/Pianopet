@@ -7,7 +7,7 @@ import { Input, InputDropdown, Checkbox, Submit } from "../../Form";
 import { ModalForm } from ".";
 import PianopetBase from "../../PianopetBase";
 
-export const ManageWearable = ({ user: teacher, wearable, createModal, refreshData }) => {
+export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, refreshData }) => {
     const addingNew = !wearable;
     const { categories } = useContext(DataContext);
     const filteredCategories = categories.filter(item => item.name !== 'Color');
@@ -33,7 +33,7 @@ export const ManageWearable = ({ user: teacher, wearable, createModal, refreshDa
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
                    title={addingNew ? 'Add new wearable' : 'Edit this wearable'}
-                   submit={addingNew ? null : <Submit value="Save changes" />}>
+                   submit={addingNew ? <Submit nvm="Back" cancel={cancel} /> : <Submit value="Save changes" />}>
             <div className="wearableForm">
                 <div>
                     <Input

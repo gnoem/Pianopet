@@ -35,7 +35,7 @@ export const Homework = ({ student }) => {
         <HomeworkContext.Provider value={{ homework, refreshHomework: getHomework }}>
             <div className="HomeworkHeader">
                 <h1>{student.firstName}'s Homework</h1>
-                {isStudent || <button onClick={addNewHomework}>Add homework</button>}
+                {isStudent || <button onClick={addNewHomework}>Add homework for {student.firstName}</button>}
             </div>
             <div className="Homework">
                 {loading ? <Loading mini="true" style={{ height: '3rem', marginTop: '5rem' }} /> : showHomework()}

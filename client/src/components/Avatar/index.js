@@ -4,14 +4,20 @@ import Loading from "../Loading";
 import PianopetBase from "../PianopetBase";
 
 export const Avatar = ({ student }) => {
-    const { isStudent, wearables, categories, createAvatarObject } = useContext(DataContext);
+    const { isStudent, avatar, wearables, categories, createAvatarObject } = useContext(DataContext);
     const [avatarObject, setAvatarObject] = useState(null);
     const [color, setColor] = useState(null);
     const { updateView } = useContext(ViewContext);
-    useEffect(() => {
-        const obj = createAvatarObject(student?.avatar, wearables, categories);
+    const updateAvatarObject = (obj) => {
         setAvatarObject(obj);
         setColor(obj?.Color?.src);
+    }
+    useEffect(() => {
+        if (avatar) updateAvatarObject(avatar);
+    }, [avatar]);
+    useEffect(() => {
+        const obj = createAvatarObject(student?.avatar, wearables, categories);
+        updateAvatarObject(obj);
     }, [student]);
     const handleClick = () => {
         if (isStudent) updateView({ type: 'closet' });

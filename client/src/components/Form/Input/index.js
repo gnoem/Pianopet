@@ -2,7 +2,7 @@ import "./Input.css";
 import { useState, useEffect, useRef } from "react";
 import { Dropdown } from "../../Dropdown/index.js";
 
-export const Input = ({ type, name, label, className, defaultValue, onChange, onInput, note, inputHint, disabled }) => {
+export const Input = ({ type, name, label, className, placeholder, defaultValue, onChange, onInput, note, inputHint, disabled }) => {
     const inputRef = useRef(null);
     return (
         <div className="Input">
@@ -12,6 +12,7 @@ export const Input = ({ type, name, label, className, defaultValue, onChange, on
                     type={type}
                     name={name}
                     className={className}
+                    placeholder={placeholder}
                     defaultValue={defaultValue}
                     onChange={onChange}
                     onInput={onInput}

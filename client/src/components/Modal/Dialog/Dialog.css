@@ -1,0 +1,34 @@
+.createWearableOrColor {
+    display: flex;
+}
+.createWearableOrColor button {
+    flex: 0 1 50%;
+    background: 0;
+    margin: 0;
+    padding: 2rem 2rem 1.5rem 2rem;
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    line-height: 1.2;
+    color: #666;
+    text-transform: uppercase;
+}
+.createWearableOrColor button + button {
+    margin-left: 1rem;
+}
+.createWearableOrColor button i {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    transition: 0.2s;
+    text-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.3);
+}
+.createWearableOrColor button:hover i {
+    transform: rotate(-10deg);
+    filter: hue-rotate(80deg);
+}
+.createWearableOrColor button:first-of-type i {
+    color: var(--med-theme-color);
+}
+.createWearableOrColor button:last-of-type i {
+    color: var(--med-accent-color);
+}
