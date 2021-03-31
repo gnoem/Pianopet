@@ -35,19 +35,18 @@ export default function (app) {
     // TEACHER
     app.route('/teacher')
         .post(validate.teacherSignup, Controller.teacherSignup);
-    app.route('/teacherCode/:teacherCode')
-        .get(Controller.validateTeacherCode);
     app.route('/teacher/:_id')
-        .get(Controller.getTeacher)
-        .put(Controller.editAccount);
+        .put(validate.teacherAccount, Controller.editAccount);
     app.route('/teacher/:_id/password')
         .put(Controller.editPassword);
-    
+    app.route('/teacherCode/:teacherCode')
+        .get(Controller.validateTeacherCode);
+        
     // STUDENT
     app.route('/student')
         .post(validate.studentSignup, Controller.studentSignup);
     app.route('/student/:_id')
-        .put(Controller.editAccount);
+        .put(validate.studentAccount, Controller.editAccount);
     app.route('/student/:_id/password')
         .put(Controller.editPassword);
     app.route('/student/:_id/homework')

@@ -74,7 +74,7 @@ export const ProfileDropdown = ({ user, updateView }) => {
                 <span className="caret"></span>
             </button>
             <div className="pfp" onClick={toggleMenu}>
-                <img alt="pfp" src={user?.profilePic ?? 'assets/defaultpfp.jpg' } />
+                <img alt="pfp" src={user?.profilePic || 'assets/defaultpfp.jpg' } />
             </div>
             {showMenu && (
                 <DropdownMenu setDropdownMenu={setShowMenu}

@@ -3,7 +3,7 @@ import { get, post, put, del } from './fetchWrapper';
 export const User = {
     auth: async () => await post(`/auth`),
     getData: async (_id) => await get(`/data/${_id}`),
-    login: async (formData) => await post(`/login`, formData), // todo specify role based on login form type!!!!
+    login: async (formData) => await post(`/login`, formData), // todo specify role based on login form type?
     logout: async () => await post('/logout'),
     createAccount: async (formData) => await post(`/${formData?.role}`, formData),
     editAccount: async (_id, formData) => await put(`/${formData?.role}/${_id}`, formData),

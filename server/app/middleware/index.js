@@ -13,7 +13,7 @@ export const validate = {
             .not().isEmpty().withMessage('This field is required')
     ],
     category: [
-        check('name')
+        check('name') // cant be "Color"
             .not().isEmpty().withMessage('This field is required').bail()
             .isLength({ max: 25 }).withMessage('Max 25 characters').bail()
             .custom((name, { req }) => {
@@ -78,5 +78,39 @@ export const validate = {
         check('password')
             .not().isEmpty().withMessage('This field is required').bail()
             .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+    ],
+    studentAccount: [
+        check('firstName')
+            .not().isEmpty().withMessage('This field is required'),
+        check('lastName')
+            .not().isEmpty().withMessage('This field is required'),
+        check('email')
+            .not().isEmpty().withMessage('This field is required'),
+        check('username')
+            .not().isEmpty().withMessage('This field is required').bail()
+            .isAlphanumeric().withMessage('Username cannot contain any special characters').bail()
+            .isLength({ min: 2, max: 20 }).withMessage('Username must be between 2 and 20 characters').bail()
+            .custom((username, { req }) => {
+                return Student.findOne({ username }).then(user => {
+                    if (user && (user._id.toString() !== req.params._id)) return Promise.reject('Username is taken');
+                });
+            })
+    ],
+    teacherAccount: [
+        check('firstName')
+            .not().isEmpty().withMessage('This field is required'),
+        check('lastName')
+            .not().isEmpty().withMessage('This field is required'),
+        check('email')
+            .not().isEmpty().withMessage('This field is required'),
+        check('username')
+            .not().isEmpty().withMessage('This field is required').bail()
+            .isAlphanumeric().withMessage('Username cannot contain any special characters').bail()
+            .isLength({ min: 2, max: 20 }).withMessage('Username must be between 2 and 20 characters').bail()
+            .custom((username, { req }) => {
+                return Teacher.findOne({ username }).then(user => {
+                    if (user && (user._id.toString() !== req.params._id)) return Promise.reject('Username is taken');
+                });
+            })
     ]
 }

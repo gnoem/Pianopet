@@ -1,0 +1,62 @@
+.Home hr {
+    width: 70%;
+    margin: 3rem auto;
+    opacity: 0.5;
+}
+.TeacherCode {
+    width: 100%;
+    background: var(--input-bg);
+    color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    position: relative;
+    font-size: 0;
+    line-height: 0;
+    cursor: pointer;
+}
+.TeacherCode textarea {
+    cursor: inherit;
+    width: 100%;
+    font-size: 1rem;
+    color: inherit;
+    line-height: 1.5rem;
+    height: 1.5rem;
+    background: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    resize: none;
+    overflow: hidden;
+    user-select: none;
+}
+.TeacherCode textarea::selection {
+    background: none;
+}
+.TeacherCode .copied {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    height: 2.5rem;
+    margin-top: -1.25rem;
+    padding: 0 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: var(--great-success);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.3rem;
+    opacity: 0;
+    transition: 0.2s;
+    animation: 0.2s fadeIn 1 forwards;
+}
+.TeacherCode .copied.bye {
+    animation: 0.2s fadeOut 1 forwards;
+}
+.TeacherCode .copied::after {
+    font: 900 1em 'Font Awesome 5 Free';
+    content: '\f00c';
+    display: inline-block;
+    margin-left: 0.5rem;
+}

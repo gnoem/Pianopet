@@ -101,9 +101,9 @@ class Controller {
     }
     
     studentSignup = (req, res) => {
-        const { firstName, lastName, email, username, password, teacherCode } = req.body;
         const { errors } = validationResult(req);
         if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
+        const { firstName, lastName, email, username, password, teacherCode } = req.body;
         const run = async () => {
             const [student, studentError] = await handle(Student.create({
                 firstName,
@@ -127,9 +127,9 @@ class Controller {
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     teacherSignup = (req, res) => {
-        const { firstName, lastName, email, username, password } = req.body;
         const { errors } = validationResult(req);
         if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
+        const { firstName, lastName, email, username, password } = req.body;
         const run = async () => {
             const [teacher, teacherError] = await handle(Teacher.create({
                 firstName,
@@ -162,17 +162,19 @@ class Controller {
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     editAccount = (req, res) => {
+        const { errors } = validationResult(req);
+        if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
         const { _id } = req.params;
         const { role, firstName, lastName, username, email, profilePic } = req.body;
         const run = async () => {
-            const User = role === 'student' ? Student : Teacher;
-            let [user, userError] = await handle(User.findOne({ _id }));
-            if (userError) throw new ServerError(500, `Error finding user ${_id}`);
-            if (!user) throw new ServerError(500, `User ${_id} not found`);
-            user = Object.assign(user, { firstName, lastName, username, email, profilePic });
-            const [success, saveError] = await handle(user.save());
-            if (saveError) throw new ServerError(500, `Error saving user ${_id}`);
-            res.status(200).send({ success });
+            const User = (role === 'student') ? Student : Teacher;
+            let [foundUser, findUserError] = await handle(User.findOne({ _id }));
+            if (findUserError) throw new ServerError(500, `Error finding user`, findUserError);
+            if (!foundUser) throw new ServerError(500, `User not found`);
+            foundUser = Object.assign(foundUser, { firstName, lastName, username, email, profilePic });
+            const [user, saveError] = await handle(foundUser.save());
+            if (saveError) throw new ServerError(500, `Error saving user`, saveUser);
+            res.status(200).send({ user });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
@@ -181,13 +183,13 @@ class Controller {
         const { role, newPassword } = req.body;
         const run = async () => {
             const User = role === 'student' ? Student : Teacher;
-            let [user, userError] = await handle(User.findOne({ _id }));
-            if (userError) throw new ServerError(500, `Error finding user ${_id}`);
-            if (!user) throw new ServerError(500, `User ${_id} not found`);
-            user = Object.assign(user, { password: bcrypt.hashSync(newPassword, 8) });
-            const [success, saveError] = await handle(user.save());
-            if (saveError) throw new ServerError(500, `Error saving user ${_id}`);
-            res.status(200).send({ success });
+            let [foundUser, findUserError] = await handle(User.findOne({ _id }));
+            if (findUserError) throw new ServerError(500, `Error finding user`, findUserError);
+            if (!foundUser) throw new ServerError(500, `User not found`);
+            foundUser = Object.assign(foundUser, { password: bcrypt.hashSync(newPassword, 8) });
+            const [user, saveError] = await handle(foundUser.save());
+            if (saveError) throw new ServerError(500, `Error saving user`, saveError);
+            res.status(200).send({ user });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }

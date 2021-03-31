@@ -41,6 +41,9 @@
     padding: 2rem;
     padding-right: 4rem;
 }
+.Teacher.Dashboard .Logo {
+    justify-content: start;
+}
 .Nav {
     grid-area: nav;
     display: flex;

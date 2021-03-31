@@ -21,7 +21,7 @@ export const Homework = ({ student }) => {
     }
     useEffect(getHomework, [student]);
     const showHomework = () => {
-        if (!homework.length) return 'No homework!!!'; // todo better error
+        if (!homework.length) return <div className="noneFound">None found!</div>; // todo better error
         return homework.map(homework => (
             <HomeworkItem
                 key={`homework-${homework._id}`}

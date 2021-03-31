@@ -1,15 +1,18 @@
-import { useContext, useEffect } from "react"
+import "./Teacher.css";
+import { useState, useEffect, useContext, useRef } from "react"
 import { DataContext, ViewContext } from "../../contexts"
 import { Account } from "../Account";
-import { Dropdown } from "../Dropdown/index.js";
+import { StudentDropdown } from "../Dropdown/index.js";
 import { Header, Nav, Sidebar, ProfileDropdown } from "../Page";
 import { TeacherBadges } from "../TeacherBadges";
 import { TeacherMarketplace } from "../TeacherMarketplace";
 import { ViewingStudent } from "../ViewingStudent";
+import { ViewingStudents } from "../ViewingStudents";
 
 export const Teacher = () => {
     const { teacher, students } = useContext(DataContext);
     const { view, updateView, updateCurrentStudent } = useContext(ViewContext);
+    const selectStudent = (student) => updateView({ type: 'student', student });
     useEffect(() => {
         if (view.type !== 'student') return;
         const refreshCurrentStudent = () => {
@@ -29,51 +32,44 @@ export const Teacher = () => {
                 </Nav>
                 <ProfileDropdown {...{ user: teacher, updateView }} />
             </Header>
-            <TeacherSidebar {...{ teacher, students, view, updateView }} />
-            <TeacherMain {...{ view }} />
+            {(view.type === 'home') || <TeacherSidebar {...{ students, view, selectStudent }} />}
+            <TeacherMain {...{ view, teacher, students, selectStudent }} />
         </>
     );
 }
 
-const TeacherSidebar = ({ teacher, students, view, updateView }) => {
-    const handleSelection = (student) => updateView({ type: 'student', student });
-    const studentList = (() => {
-        return students.map(student => ({
-            value: student,
-            display: `${student.firstName} ${student.lastName}`
-        }));
+const TeacherSidebar = ({ students, view, selectStudent }) => {
+    const onChange = (_id) => {
+        const selectedStudent = students.find(student => student._id === _id);
+        selectStudent(selectedStudent);
+    }
+    const defaultValue = (() => {
+        if (view.type !== 'student' || !view.student) return null;
+        return {
+            value: view.student._id,
+            display: `${view.student.firstName} ${view.student.lastName}`
+        }
     })();
+    const restoreDefault = view.type !== 'student';
     return (
         <Sidebar>
-            <h2>Control Panel</h2>
-            {students.length ? (
+            <h2>Shortcuts</h2>
+            {students.length && (
                 <div>
                     <label>Select a student:</label>
-                    <Dropdown
-                        style={{ minWidth: '14rem' }}
-                        onChange={handleSelection}
-                        listItems={studentList}
-                        restoreDefault={view.type !== 'student'}
+                    <StudentDropdown
+                        {...{ students, onChange, defaultValue, restoreDefault }}
                     />
                 </div>
-            ) : (
-                <div>
-                    No students yet!
-                </div>
             )}
-            <hr />
-            <div className="teacherCode">
-                <strong className="smol">Teacher code:</strong>
-                <div>{teacher._id}</div>
-            </div>
         </Sidebar>
     );
 }
 
-const TeacherMain = ({ view }) => {
+const TeacherMain = ({ view, teacher, students, selectStudent }) => {
     const content = () => {
         switch (view.type) {
-            case 'home': return 'home';
+            case 'home': return <Home {...{ teacher, students, selectStudent }} />;
             case 'student': return <ViewingStudent student={view.student} />;
             case 'marketplace': return <TeacherMarketplace />;
             case 'badges': return <TeacherBadges />;
@@ -85,5 +81,47 @@ const TeacherMain = ({ view }) => {
         <div className="Main">
             {content()}
         </div>
+    );
+}
+
+const Home = ({ teacher, students, selectStudent }) => {
+    return (
+        <div className="Home">
+            <h1>Dashboard</h1>
+            <h2>Student overview</h2>
+            <ViewingStudents {...{ students, selectStudent }} />
+            <hr />
+            <h2>Invite new students</h2>
+            <TeacherCodeLink {...{ teacher }} />
+        </div>
+    );
+}
+
+const TeacherCodeLink = ({ teacher }) => {
+    const [copied, setCopied] = useState(false);
+    const teacherCodeBox = useRef(null);
+    const copiedNotif = useRef(null);
+    useEffect(() => {
+        if (!copied) return;
+        setTimeout(() => {
+            if (!copiedNotif.current) return;
+            copiedNotif.current.classList.add('bye');
+            setTimeout(() => setCopied(false), 300);
+        }, 3000);
+    }, [copied, copiedNotif.current]);
+    const copyToClipboard = () => {
+        teacherCodeBox.current.select();
+        document.execCommand('copy');
+        setCopied(true);
+    }
+    const link = `${window.location.origin}/signup/?t=${teacher._id}`;
+    return (
+        <>
+            <label>Click to copy invite link:</label>
+            <div className="TeacherCode" onClick={copyToClipboard}>
+                <textarea ref={teacherCodeBox} value={link} readOnly />
+                {copied && <span className="copied" ref={copiedNotif}>Copied</span>}
+            </div>
+        </>
     );
 }

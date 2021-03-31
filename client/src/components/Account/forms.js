@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { User } from "../../api";
 import { useFormData, useFormError } from "../../hooks";
 import { Form, Input, Submit } from "../Form";
 
@@ -12,10 +13,10 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
         profilePic: user?.profilePic ?? '',
     });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
-    const handleSubmit = () => Promise.resolve('heyy') //User.editAccount(user._id, formData);
-    const onSuccess = (result) => {
+    const handleSubmit = () => User.editAccount(user._id, formData);
+    const onSuccess = ({ user }) => {
+        console.dir(user);
         refreshData();
-        console.log(result);
     }
     return (
         <Form onSubmit={handleSubmit} handleSuccess={onSuccess} handleFormError={updateFormError}
@@ -25,7 +26,7 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
                 <img alt="profile pic" src={formData.profilePic || 'assets/defaultpfp.jpg'} />
                 <Input type="text"
                        name="profilePic"
-                       label="Profile picture:"
+                       label="Profile picture URL:"
                        defaultValue={formData.profilePic}
                        onChange={updateFormData} />
             </div>
@@ -67,16 +68,17 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
 
 export const ChangePassword = ({ user, isStudent, refreshData }) => {
     const [reset, setReset] = useState(false);
-    const [formData, updateFormData, resetFormData] = useFormData({
+    const [formData, updateFormData, _, resetFormData] = useFormData({
         role: isStudent ? 'student' : 'teacher'
     });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
-    const handleSubmit = () => Promise.resolve('changing password');
+    const handleSubmit = () => User.changePassword(user._id, formData);
     const onSuccess = () => {
         resetForm();
         refreshData();
     }
     const passwordsMatch = (() => {
+        if (!formData) return false;
         const { newPassword, confirmNewPassword } = formData;
         if (!newPassword || !confirmNewPassword) return false;
         if (newPassword === confirmNewPassword) return true;
