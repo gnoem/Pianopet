@@ -37,7 +37,8 @@
 .Student.Dashboard .Main {
     padding-right: 25%;
 }
-.Teacher.Dashboard .Main {
+.Main.twoColumns {
+    grid-column: 2 / -1;
     padding: 2rem;
     padding-right: 4rem;
 }

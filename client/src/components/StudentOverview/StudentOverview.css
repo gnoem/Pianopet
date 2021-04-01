@@ -1,18 +1,18 @@
-.ViewingStudents {
+.StudentOverview {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
-.ViewingStudents .Avatar {
+.StudentOverview .Avatar {
     border: 0;
     padding: 0;
 }
-.ViewingStudents .Avatar .avatarBox {
+.StudentOverview .Avatar .avatarBox {
     margin: auto;
 }
-.ViewingStudents button {
-    flex: 0 1 33%;
+.StudentOverview button {
+    flex: 0 1 30%;
     border-radius: 1rem;
     padding: 0;
     margin: 0;
@@ -21,11 +21,13 @@
     position: relative;
     overflow: hidden;
 }
-.ViewingStudents button div.banner {
+.StudentOverview button div.banner {
     position: absolute;
     bottom: 0;
     background: var(--deep-theme-color);
-    padding: 0.5rem 1rem;
+    padding: 0.7rem 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.2;
     color: #fff;
     width: 100%;
 }

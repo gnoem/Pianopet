@@ -4,7 +4,7 @@
     grid-template-areas:
         'header sidebar'
         'content sidebar';
-    column-gap: 3rem;
+    column-gap: 4rem;
 }
 .ViewingStudent .HomeworkHeader {
     grid-area: header;

@@ -523,6 +523,12 @@ details .errorDetails code + code.greyed {
         'sidebar main';
     line-height: 1.5rem;
 }
+.Teacher.Dashboard {
+    grid-template: auto 1fr / 1fr 4fr 1fr;
+    grid-template-areas:
+        'logo header header'
+        'sidebar main right'
+}
 
 /* LOGIN + SIGNUP PAGES */
 .Guest {

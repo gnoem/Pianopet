@@ -7,7 +7,7 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
     const { createContextMenu, createModal } = useContext(ModalContext);
     const marketplaceWearables = () => {
         const filteredList = wearables.filter(wearable => wearable.category === category._id);
-        if (!filteredList.length) return (
+        if (category.name !== 'Color' && !filteredList.length) return (
             <div className="noneFound">None found!</div>
         );
         const list = filteredList.map(wearable => {

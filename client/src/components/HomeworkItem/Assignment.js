@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { Student, Homework } from "../../api";
+import { Homework } from "../../api";
 import { DataContext, HomeworkContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
 

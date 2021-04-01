@@ -7,7 +7,7 @@ import { Header, Nav, Sidebar, ProfileDropdown } from "../Page";
 import { TeacherBadges } from "../TeacherBadges";
 import { TeacherMarketplace } from "../TeacherMarketplace";
 import { ViewingStudent } from "../ViewingStudent";
-import { ViewingStudents } from "../ViewingStudents";
+import { StudentOverview } from "../StudentOverview";
 
 export const Teacher = () => {
     const { teacher, students } = useContext(DataContext);
@@ -77,8 +77,9 @@ const TeacherMain = ({ view, teacher, students, selectStudent }) => {
             default: return 'default';
         }
     }
+    const twoColumns = view.type === 'student' ? ' twoColumns' : '';
     return (
-        <div className="Main">
+        <div className={`Main${twoColumns}`}>
             {content()}
         </div>
     );
@@ -89,7 +90,7 @@ const Home = ({ teacher, students, selectStudent }) => {
         <div className="Home">
             <h1>Dashboard</h1>
             <h2>Student overview</h2>
-            <ViewingStudents {...{ students, selectStudent }} />
+            <StudentOverview {...{ students, selectStudent }} />
             <hr />
             <h2>Invite new students</h2>
             <TeacherCodeLink {...{ teacher }} />

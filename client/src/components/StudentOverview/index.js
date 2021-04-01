@@ -1,14 +1,14 @@
-import "./ViewingStudents.css";
+import "./StudentOverview.css";
 import { Avatar } from "../Avatar/index.js";
 
-export const ViewingStudents = ({ students, selectStudent }) => {
+export const StudentOverview = ({ students, selectStudent }) => {
     const allStudents = () => {
         return students.map(student => (
             <StudentCard key={`viewingStudents-${student._id}`} {...{ student, selectStudent }} />
         ));
     }
     return (
-        <div className="ViewingStudents">
+        <div className="StudentOverview">
             {allStudents()}
         </div>
     );
