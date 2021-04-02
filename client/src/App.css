@@ -133,6 +133,7 @@
     --deep-caution: #ad1b1b;
     --great-success: #0f8604;
     --input-bg: #222F44;
+    --input-disabled-bg: #1f2836;
 }
 html, body {
     font-family: var(--default-font);
@@ -334,6 +335,7 @@ input[type=submit], button {
 }
 input:disabled {
     cursor: not-allowed;
+    background: var(--input-disabled-bg);
 }
 input[type=text]:disabled {
     color: #aaa;

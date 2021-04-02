@@ -53,7 +53,21 @@ const InputHint = ({ type, message, inputRef }) => {
     }, [messageRef, inputRef, show]);
     const className = (() => {
         let className = 'InputHint';
-        if (type === 'success') className += ' success'; else className += ' error';
+        switch (type) {
+            case 'success': {
+                className += ' success';
+                break;
+            }
+            case 'error': {
+                className += ' error';
+                break;
+            }
+            case 'not-allowed': {
+                className += ' not-allowed';
+                break;
+            }
+            default: {}
+        }
         if (show) className += ' show';
         return className;
     })();
@@ -66,9 +80,17 @@ const InputHint = ({ type, message, inputRef }) => {
 }
 
 const InputHintIcon = ({ type, updateShow }) => {
+    const icon = (() => {
+        switch (type) {
+            case 'success': return <i className="fas fa-check"></i>;
+            case 'error': return <i className="fas fa-exclamation"></i>;
+            case 'not-allowed': return <i className="fas fa-lock"></i>;
+            default: return null;
+        }
+    })();
     return (
         <span className="inputHintIcon" onMouseEnter={() => updateShow(true)} onMouseLeave={() => updateShow(false)}>
-            {(type === 'success') ? <i className="fas fa-check"></i> : <i className="fas fa-exclamation"></i>}
+            {icon}
         </span>
     );
 }

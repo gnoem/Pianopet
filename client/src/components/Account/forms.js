@@ -3,6 +3,8 @@ import { User } from "../../api";
 import { useFormData, useFormError } from "../../hooks";
 import { Form, Input, Submit } from "../Form";
 
+const notAllowed = { type: 'not-allowed', message: "You don't have permission to edit this. Contact your teacher if you would like to make changes!" };
+
 export const AccountDetails = ({ user, isStudent, refreshData }) => {
     const [formData, updateFormData] = useFormData({
         role: isStudent ? 'student' : 'teacher',
@@ -53,7 +55,8 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
                        defaultValue={formData.username}
                        onChange={updateFormData}
                        onInput={resetFormError}
-                       inputHint={warnFormError('username')} />
+                       disabled={isStudent}
+                       inputHint={isStudent ? notAllowed : warnFormError('username')} />
                 <Input type="text"
                        name="email"
                        label="Email address:"
@@ -104,13 +107,15 @@ export const ChangePassword = ({ user, isStudent, refreshData }) => {
                        label="New password:"
                        onChange={updateFormData}
                        onInput={resetFormError}
-                       inputHint={warnFormError('newPassword')} />
+                       disabled={isStudent}
+                       inputHint={isStudent ? notAllowed : warnFormError('newPassword')} />
                 <Input type="password"
                        name="confirmNewPassword"
                        label="Confirm new password:"
                        onChange={updateFormData}
                        onInput={resetFormError}
-                       inputHint={warnFormError('confirmNewPassword')} />
+                       disabled={isStudent}
+                       inputHint={isStudent ? notAllowed : warnFormError('confirmNewPassword')} />
             </div>
         </Form>
     );

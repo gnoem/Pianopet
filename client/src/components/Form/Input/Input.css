@@ -34,6 +34,9 @@ form div.half + .Input, .Input + div.half {
     color: #fff;
     font-size: 0.7rem;
 }
+.InputHint.not-allowed span.inputHintIcon i {
+    margin-top: -2px; /* to account for 2px border on container, this is only a concern with lock symbol - the others are fine */
+}
 .InputHint span.inputHintMessage {
     position: absolute;
     top: 100%;
@@ -50,11 +53,20 @@ form div.half + .Input, .Input + div.half {
     opacity: 0;
     transition: 0.2s;
 }
+.InputHint span {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.Modal .InputHint span {
+    border: 0;
+}
 .InputHint.error span {
     background: var(--caution);
 }
 .InputHint.success span {
     background: green;
+}
+.InputHint.not-allowed span {
+    background: #17212F;
 }
 .Input .InputNote {
     font-size: 0.8rem;
