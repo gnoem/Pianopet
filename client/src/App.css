@@ -217,19 +217,6 @@ button.stealth {
     margin: 0;
     border-radius: 0;
 }
-.coins {
-    display: inline-block;
-}
-.coins::before {
-    content: '';
-    display: inline-block;
-    vertical-align: top;
-    width: 1.2em;
-    height: 1.2em;
-    background: url('assets/Coin_ico.png');
-    background-size: cover;
-    margin-right: 0.2rem;
-}
 .formHint {
     display: block;
     font-size: 0.8rem;

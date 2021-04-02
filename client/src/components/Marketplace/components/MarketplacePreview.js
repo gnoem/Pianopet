@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { ModalContext } from "../../../contexts";
-import { Coins } from "../../Coins";
+import { Coins } from "../../Stats";
 import PianopetBase from "../../PianopetBase";
 
 export const MarketplacePreview = ({ preview, student, isStudent }) => {

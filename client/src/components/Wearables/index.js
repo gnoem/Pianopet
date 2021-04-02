@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { DataContext } from "../../contexts";
-import { Coins } from "../Coins";
+import { Coins } from "../Stats";
 import Splat from "../Splat";
 
 export const CategoryList = ({ children }) => {
