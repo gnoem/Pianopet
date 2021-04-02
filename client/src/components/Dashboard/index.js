@@ -1,3 +1,4 @@
+import "./Dashboard.css";
 import { useState, useEffect, useContext } from "react";
 import { DataContext } from "../../contexts";
 import Loading from "../Loading";

@@ -34,13 +34,19 @@
     color: #fff;
     overflow-y: auto;
 }
+.Main.isGrid {
+    padding: 0;
+}
 .Student.Dashboard .Main {
     padding-right: 25%;
 }
-.Main.twoColumns {
-    grid-column: 2 / -1;
-    padding: 2rem;
-    padding-right: 4rem;
+.Teacher.Dashboard .Main {
+    display: grid;
+    grid-template-columns: 1fr 5fr 1fr;
+}
+.Teacher.Dashboard .Main:not(.isGrid) > div {
+    grid-column: 2 / 3;
+    padding-bottom: 4rem;
 }
 .Teacher.Dashboard .Logo {
     justify-content: start;

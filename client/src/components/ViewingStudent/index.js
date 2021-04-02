@@ -4,19 +4,52 @@ import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
 import { formatNumber } from "../../utils";
+import { Sidebar } from "../Page";
+import { StudentDropdown } from "../Dropdown/index.js";
 import { Homework } from "../Homework";
 import { Avatar } from "../Avatar/index.js";
 
-export const ViewingStudent = ({ student }) => {
+export const ViewingStudent = ({ student, students, view, selectStudent }) => {
     return (
         <div className="ViewingStudent">
-            <Homework {...{ student }} />
-            <Sidebar {...{ student }} />
+            <LeftSidebar {...{ students, view, selectStudent }} />
+            <div className="HomeworkContainer">
+                <Homework {...{ student }} />
+            </div>
+            <RightSidebar {...{ student }} />
         </div>
     );
 }
 
-const Sidebar = ({ student }) => {
+const LeftSidebar = ({ students, view, selectStudent }) => {
+    const onChange = (_id) => {
+        const selectedStudent = students.find(student => student._id === _id);
+        selectStudent(selectedStudent);
+    }
+    const defaultValue = (() => {
+        if (view.type !== 'student' || !view.student) return null;
+        return {
+            value: view.student._id,
+            display: `${view.student.firstName} ${view.student.lastName}`
+        }
+    })();
+    const restoreDefault = view.type !== 'student';
+    return (
+        <div className="ControlPanel">
+            <h2>Shortcuts</h2>
+            {students.length && (
+                <div>
+                    <label>Select a student:</label>
+                    <StudentDropdown
+                        {...{ students, onChange, defaultValue, restoreDefault }}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+const RightSidebar = ({ student }) => {
     return (
         <div className="ViewingStudentSidebar">
             <div className="avatarContainer">

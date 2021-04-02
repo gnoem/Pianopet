@@ -1,9 +1,8 @@
 import "./Teacher.css";
-import { useState, useEffect, useContext, useRef } from "react"
-import { DataContext, ViewContext } from "../../contexts"
+import { useState, useEffect, useContext, useRef } from "react";
+import { DataContext, ViewContext } from "../../contexts";
 import { Account } from "../Account";
-import { StudentDropdown } from "../Dropdown/index.js";
-import { Header, Nav, Sidebar, ProfileDropdown } from "../Page";
+import { Header, Nav, ProfileDropdown } from "../Page";
 import { TeacherBadges } from "../TeacherBadges";
 import { TeacherMarketplace } from "../TeacherMarketplace";
 import { ViewingStudent } from "../ViewingStudent";
@@ -22,64 +21,37 @@ export const Teacher = () => {
         }
         refreshCurrentStudent();
     }, [students]);
-    return (
-        <>
-            <Header {...{ view, updateView }}>
-                <Nav>
-                    <button className="stealth" onClick={() => updateView({ type: 'home' })}>Home</button>
-                    <button className="stealth" onClick={() => updateView({ type: 'marketplace' })}>Marketplace</button>
-                    <button className="stealth" onClick={() => updateView({ type: 'badges' })}>Badges</button>
-                </Nav>
-                <ProfileDropdown {...{ user: teacher, updateView }} />
-            </Header>
-            {(view.type === 'home') || <TeacherSidebar {...{ students, view, selectStudent }} />}
-            <TeacherMain {...{ view, teacher, students, selectStudent }} />
-        </>
-    );
-}
-
-const TeacherSidebar = ({ students, view, selectStudent }) => {
-    const onChange = (_id) => {
-        const selectedStudent = students.find(student => student._id === _id);
-        selectStudent(selectedStudent);
-    }
-    const defaultValue = (() => {
-        if (view.type !== 'student' || !view.student) return null;
-        return {
-            value: view.student._id,
-            display: `${view.student.firstName} ${view.student.lastName}`
-        }
-    })();
-    const restoreDefault = view.type !== 'student';
-    return (
-        <Sidebar>
-            <h2>Shortcuts</h2>
-            {students.length && (
-                <div>
-                    <label>Select a student:</label>
-                    <StudentDropdown
-                        {...{ students, onChange, defaultValue, restoreDefault }}
-                    />
-                </div>
-            )}
-        </Sidebar>
-    );
+    return <>
+        <Header {...{ view, updateView }}>
+            <Nav>
+                <button className="stealth" onClick={() => updateView({ type: 'home' })}>Home</button>
+                <button className="stealth" onClick={() => updateView({ type: 'marketplace' })}>Marketplace</button>
+                <button className="stealth" onClick={() => updateView({ type: 'badges' })}>Badges</button>
+            </Nav>
+            <ProfileDropdown {...{ user: teacher, updateView }} />
+        </Header>
+        <TeacherMain {...{ view, teacher, students, selectStudent }} />
+    </>;
 }
 
 const TeacherMain = ({ view, teacher, students, selectStudent }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return <Home {...{ teacher, students, selectStudent }} />;
-            case 'student': return <ViewingStudent student={view.student} />;
+            case 'student': return (
+                <ViewingStudent
+                    student={view.student}
+                    {...{ students, view, selectStudent }} />
+            );
             case 'marketplace': return <TeacherMarketplace />;
             case 'badges': return <TeacherBadges />;
             case 'my-account': return <Account />;
             default: return 'default';
         }
     }
-    const twoColumns = view.type === 'student' ? ' twoColumns' : '';
+    const isGrid = view.type === 'student' ? ' isGrid' : '';
     return (
-        <div className={`Main${twoColumns}`}>
+        <div className={`Main${isGrid}`}>
             {content()}
         </div>
     );

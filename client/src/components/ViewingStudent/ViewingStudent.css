@@ -1,17 +1,22 @@
 .ViewingStudent {
-    display: grid;
-    grid-template: auto 1fr / 1fr auto;
-    grid-template-areas:
-        'header sidebar'
-        'content sidebar';
-    column-gap: 4rem;
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 4rem;
+    position: relative;
+    padding: 2rem 3rem;
 }
-.ViewingStudent .HomeworkHeader {
-    grid-area: header;
+.ViewingStudent .ControlPanel {
+    position: sticky;
+    top: 0;
 }
 .ViewingStudent .Homework {
-    grid-area: content;
+    padding-bottom: 3rem;
 }
 .ViewingStudent .ViewingStudentSidebar {
-    grid-area: sidebar;
+    position: sticky;
+    top: 0;
 }
