@@ -30,6 +30,10 @@ const CreateWearableOrColor = ({ switchToModal }) => {
                     <i className="fas fa-paint-brush"></i>
                     Color
                 </button>
+                <button onClick={handleClick('createWallpaper')}>
+                    <i className="fas fa-paint-roller"></i>
+                    Wallpaper
+                </button>
             </div>
         </Dialog>
     );

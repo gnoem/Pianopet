@@ -1,13 +1,13 @@
 import { useContext, useRef } from "react";
 import { ModalContext } from "../../../contexts";
-import { DefaultColorItem, WearableItem, WearablesList } from "../../Wearables";
+import { DefaultColorItem, DefaultWallpaperItem, WearableItem, WearablesList } from "../../Wearables";
 
 export const MarketplaceWearables = ({ isStudent, student, category, wearables, updatePreview }) => {
     const wearableRefs = useRef({});
     const { createContextMenu, createModal } = useContext(ModalContext);
     const marketplaceWearables = () => {
         const filteredList = wearables.filter(wearable => wearable.category === category._id);
-        if (category.name !== 'Color' && !filteredList.length) return (
+        if (!['Color', 'Wallpaper'].includes(category.name) && !filteredList.length) return (
             <div className="noneFound">None found!</div>
         );
         const list = filteredList.map(wearable => {
@@ -19,8 +19,22 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
             const handleClick = () => updatePreview(wearable);
             const contextMenuClick = (e) => {
                 e.preventDefault();
+                let formName;
+                switch (category.name) {
+                    case 'Color': {
+                        formName = 'editColor';
+                        break;
+                    }
+                    case 'Wallpaper': {
+                        formName = 'editWallpaper';
+                        break;
+                    }
+                    default: {
+                        formName = 'editWearable';
+                    }
+                }
                 const listItems = [
-                    { display: 'Edit', onClick: () => createModal('editWearable', 'form', { wearable }) },
+                    { display: 'Edit', onClick: () => createModal(formName, 'form', { wearable }) },
                     { display: 'Delete', onClick: () => createModal('deleteWearable', 'form', { wearable, element: wearableRefs.current[wearable._id] }) },
                 ];
                 createContextMenu(e, listItems, { className: 'editdelete' });
@@ -33,7 +47,7 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
                     includeCost={true}
                     onClick={handleClick}
                     onContextMenu={isStudent ? null : contextMenuClick}
-                    isColor={category.name === 'Color'}
+                    wearableCategory={wearable.category}
                     currentCategory={category.name}
                     wearable={wearable}
                 />
@@ -41,17 +55,30 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
         });
         return list;
     }
-    const includeDefaultColor = () => {
-        if (category.name === 'Color') return (
-            <DefaultColorItem
-                className="owned"
-                isMarketplace={true}
-                handleClick={() => updatePreview({})} />
-        );
+    const includeDefaultItem = () => {
+        switch (category.name) {
+            case 'Color': return (
+                <DefaultColorItem
+                    className="owned"
+                    isMarketplace={true}
+                    handleClick={() => updatePreview({
+                        category: '0'
+                    })} />
+            );
+            case 'Wallpaper': return (
+                <DefaultWallpaperItem
+                    className="owned"
+                    isMarketplace={true}
+                    handleClick={() => updatePreview({
+                        category: '1'
+                    })} />
+            );
+            default: return null;
+        }
     }
     return (
         <WearablesList {...{ category }}>
-            {includeDefaultColor()}
+            {includeDefaultItem()}
             {marketplaceWearables()}
         </WearablesList>
     );

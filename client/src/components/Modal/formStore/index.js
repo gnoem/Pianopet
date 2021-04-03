@@ -1,16 +1,17 @@
 import "./formStore.css";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Student, Category, Badge, Wearable, Homework } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
-import { formatNumber } from "../../../utils";
 import { Form, Input, Submit } from "../../Form";
 import { StudentDropdown } from "../../Dropdown/index.js";
 import { ManageWearable } from "./ManageWearable";
-import dayjs from "dayjs";
-import { Coins } from "../../Coins";
 import { ManageColor } from "./ManageColor";
+import { ManageWallpaper } from "./ManageWallpaper";
+import dayjs from "dayjs";
+import { Coins } from "../../Stats";
 import Splat from "../../Splat";
-import PianopetBase from "../../PianopetBase";
+import { PianopetWallpaper } from "../../PianopetWallpaper";
+import { wearableFormPreview } from "./utils";
 
 export const ModalForm = (props) => {
     const { children } = props;
@@ -29,6 +30,8 @@ export const formStore = {
     editWearable: (props) => <ManageWearable {...props} />,
     createColor: (props) => <ManageColor {...props} />,
     editColor: (props) => <ManageColor {...props} />,
+    createWallpaper: (props) => <ManageWallpaper {...props} />,
+    editWallpaper: (props) => <ManageWallpaper {...props} />,
     deleteWearable: (props) => <DeleteWearable {...props} />,
     buyWearable: (props) => <BuyWearable {...props} />,
     createCategory: (props) => <CreateCategory {...props} />,
@@ -140,8 +143,8 @@ const DeleteHomework = ({ homework, refreshHomework }) => {
     );
 }
 
-const DeleteWearable = ({ wearable, element, refreshData }) => {
-    const isColor = wearable && !wearable.image;
+const DeleteWearable = ({ wearable, element, getCategoryObject, refreshData }) => {
+    const [wearableType, wearablePreview] = wearableFormPreview({ wearable, getCategoryObject, Splat, PianopetWallpaper });
     const handleSubmit = () => Wearable.deleteWearable(wearable._id);
     const handleSuccess = () => {
         if (element) {
@@ -158,16 +161,14 @@ const DeleteWearable = ({ wearable, element, refreshData }) => {
               title="Are you sure?"
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
-            <div>Are you sure you want to delete the {isColor ? 'color' : 'wearable'} <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
-            {isColor
-                ? <Splat color={wearable.src} /> // OR: <PianopetBase zoom={true} color={wearable.src} />
-                : <img src={wearable.src} alt={wearable.name} />}
+            <div>Are you sure you want to delete the {wearableType} <b>{wearable.name}</b>? This will remove it from the inventories of any students who have purchased it. This action cannot be undone.</div>
+            {wearablePreview}
         </ModalForm>
     );
 }
 
-const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
-    const isColor = !wearable.image;
+const BuyWearable = ({ user: student, wearable, getCategoryObject, refreshData, closeModal }) => {
+    const [wearableType, wearablePreview] = wearableFormPreview({ wearable, getCategoryObject, Splat, PianopetWallpaper });
     const handleSubmit = () => {
         return Student.updateCloset(student._id, {
             wearableId: wearable._id,
@@ -190,10 +191,8 @@ const BuyWearable = ({ user: student, wearable, refreshData, closeModal }) => {
               title="Confirm purchase"
               className="hasImage"
               submit={<Submit value="Yes, I'm sure" />}>
-            <div>Are you sure you want to purchase the {isColor ? 'color' : 'wearable'} <b>{wearable.name}</b> for <Coins inline={true}>{wearable.value}</Coins>? This will leave you with <Coins inline={true}>{remainder}</Coins>.</div>
-            {isColor
-                ? <Splat color={wearable.src} /> // OR: <PianopetBase zoom={true} color={wearable.src} />
-                : <img src={wearable.src} alt={wearable.name} />}
+            <div>Are you sure you want to purchase the {wearableType} <b>{wearable.name}</b> for <Coins inline={true}>{wearable.value}</Coins>? This will leave you with <Coins inline={true}>{remainder}</Coins>.</div>
+            {wearablePreview}
         </ModalForm>
     );
 }

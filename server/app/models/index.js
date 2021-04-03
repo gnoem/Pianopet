@@ -83,9 +83,13 @@ export const Wearable = mongoose.model(
         value: Number,
         src: String,
         image: {
+            // for clothing/accessories only:
             w: Number,
             x: Number,
-            y: Number
+            y: Number,
+            // for wallpapers only:
+            type: { type: String },
+            size: Number
         },
         ownedBy: [String],  // string of student IDs in case teacher wants to delete wearable
                             // we know which students own this item and don't have to loop through all students to check

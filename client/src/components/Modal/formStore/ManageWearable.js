@@ -10,7 +10,7 @@ import PianopetBase from "../../PianopetBase";
 export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, refreshData }) => {
     const addingNew = !wearable;
     const { categories } = useContext(DataContext);
-    const filteredCategories = categories.filter(item => item.name !== 'Color');
+    const filteredCategories = categories.filter(item => item.name !== 'Color' && item.name !== 'Wallpaper');
     const [formData, updateFormData, setFormDataDirectly] = useFormData({
         teacherCode: wearable?.teacherCode ?? teacher._id,
         name: wearable?.name ?? '',

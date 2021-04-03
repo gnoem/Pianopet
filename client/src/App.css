@@ -245,7 +245,7 @@ form div.half {
 }
 form.hasImage {
     display: grid;
-    grid-template: auto 1fr auto / 1fr minmax(auto, 5rem); 
+    grid-template: auto 1fr auto / 1fr auto;
     grid-template-areas:
         'title title'
         'content image'
@@ -261,9 +261,9 @@ form.hasImage h2 {
 form.hasImage > div:first-of-type {
     grid-area: content;
 }
-form.hasImage > img {
+form.hasImage > img, form.hasImage > svg {
     grid-area: image;
-    width: 100%;
+    max-width: 5rem;
     height: auto;
 }
 form.hasImage > div:last-of-type {
@@ -607,7 +607,6 @@ form.pad input[type=text], form.pad input[type=password] {
 }
 .studentAvatar, .Avatar {
     background: #fff;
-    padding: 0.5rem;
     border: 3px solid var(--dark-theme-color);
     border-radius: 999px;
     overflow: hidden;
@@ -618,12 +617,15 @@ form.pad input[type=text], form.pad input[type=password] {
     height: 12rem;
     position: relative;
 }
-.Student.Dashboard .avatarBox {
-    cursor: pointer;
-}
-.Avatar .previewBase {
+.avatarBox .Wallpaper, .Avatar .previewBase {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+}
+.Student.Dashboard .avatarBox {
+    cursor: pointer;
 }
 .Avatar .avatarItem {
     position: absolute;
@@ -854,7 +856,10 @@ img.statsIcon {
 .previewBox {
     position: relative;
 }
-.previewBox .previewBase {
+.previewBox .Wallpaper, .previewBox .previewBase {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
@@ -896,7 +901,7 @@ img.statsIcon {
     line-height: 0;
     font-size: 0;
 }
-.marketplacePreview > ul button .Coins {
+.marketplacePreview > ul button .Stat {
     font-size: 0.7rem;
 }
 .Modal .marketplacePreview > ul {
@@ -1014,9 +1019,16 @@ img.statsIcon {
 .wearablesList > div > button.active {
     border-color: #000;
 }
-.wearablesList > div > button img {
+.wearablesList > div > button > img {
     width: 4rem;
     height: auto;
+}
+.wearablesList > div > button > .Wallpaper {
+    width: 4rem;
+    height: 4rem;
+    box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+    margin: 0.5rem auto 1rem;
 }
 .wearablesList > div > button > span:nth-of-type(1) {
     display: block;
@@ -1089,7 +1101,7 @@ img.statsIcon {
     .wearablesList > div.blobs {
         grid-template-columns: repeat(auto-fill, minmax(4rem, auto));
     }
-    .wearablesList > div > button img {
+    .wearablesList > div > button > img {
         width: 3rem;
     }
 }

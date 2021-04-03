@@ -29,6 +29,9 @@
 .createWearableOrColor button:first-of-type i {
     color: var(--med-theme-color);
 }
-.createWearableOrColor button:last-of-type i {
+.createWearableOrColor button:nth-of-type(2) i {
     color: var(--med-accent-color);
+}
+.createWearableOrColor button:nth-of-type(3) i {
+    color: #46b0ce;
 }

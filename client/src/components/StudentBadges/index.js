@@ -12,7 +12,6 @@ export const StudentBadges = () => {
         return filteredList;
     })();
     const ifNoneMessage = "You haven't earned any badges yet!";
-    const onClick = () => console.log('handle redeem badge');
     const badgeHasBeenRedeemed = (badge) => {
         const index = student.badges.findIndex(studentBadge => studentBadge.id === badge._id);
         if (index === -1) return '';
@@ -23,7 +22,7 @@ export const StudentBadges = () => {
     return (
         <div className="StudentBadges">
             <h1>Badges</h1>
-            <Badges {...{ badgeList, ifNoneMessage, checkClassName, onClick }} />
+            <Badges {...{ badgeList, ifNoneMessage, checkClassName }} />
         </div>
     );
 }

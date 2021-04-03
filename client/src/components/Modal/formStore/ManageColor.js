@@ -14,7 +14,7 @@ export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) =>
         name: wearable?.name ?? '',
         src: wearable?.src ?? randomHex,
         value: wearable?.value ?? '',
-        category: 0
+        category: '0'
     });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const colorInput = useRef(null);
@@ -22,8 +22,7 @@ export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) =>
         if (addingNew) return Wearable.createWearable(formData);
         return Wearable.editWearable(wearable._id, formData);
     }
-    const handleSuccess = (body) => {
-        console.dir(body);
+    const handleSuccess = () => {
         refreshData();
     }
     return (
@@ -31,7 +30,7 @@ export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) =>
                    title={addingNew ? 'Add new color' : 'Edit this color'}
                    submit={addingNew ? <Submit nvm="Back" cancel={cancel} /> : <Submit value="Save changes" />}>
             {addingNew ? 'Add a new' : 'Edit this'} color by clicking on the Pianopet icon below.
-            <div className="manageColor formGrid">
+            <div className="manageColor formComponent">
                 <div className="colorPicker">
                     <PianopetBase color={formData?.src} zoom={true} />
                     <input name="src" type="color" defaultValue={formData?.src} onChange={updateFormData} ref={colorInput} />

@@ -2,29 +2,35 @@ import { useState, useContext } from "react";
 import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
-import { CategoryList, WearableItem, DefaultColorItem, WearablesList } from "../Wearables";
+import { CategoryList, WearableItem, DefaultColorItem, DefaultWallpaperItem, WearablesList } from "../Wearables";
 import { createAvatarObjectForUpdate } from "./utils";
 
 export const Closet = () => {
-    const { avatar, closet, wearables, categories, colorCategory } = useContext(DataContext);
+    const { avatar, closet, wearables, categories, colorCategory, wallpaperCategory } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     if (!closet.length) return (
         <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
     );
     return (
         <div className="Closet">
-            <ClosetCategories {...{ closet, categories, colorCategory, updateCategory: setCategory }} />
+            <ClosetCategories {...{ closet, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
             <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
         </div>
     );
 }
 
-const ClosetCategories = ({ closet, categories, colorCategory, updateCategory }) => {
+const ClosetCategories = ({ closet, categories, colorCategory, wallpaperCategory, updateCategory }) => {
     const generateCategoriesList = () => {
         const colorCategoryButton = (
             <button key={`closet-wearableCategories-Color`}
                     onClick={() => updateCategory(colorCategory)}>
                 Color
+            </button>
+        );
+        const wallpaperCategoryButton = (
+            <button key={`closet-wearableCategories-Wallpaper`}
+                    onClick={() => updateCategory(wallpaperCategory)}>
+                Wallpaper
             </button>
         );
         const wearableCategoryButtons = categories.map(category => {
@@ -38,7 +44,7 @@ const ClosetCategories = ({ closet, categories, colorCategory, updateCategory })
                 </button>
             );
         });
-        return [colorCategoryButton, ...wearableCategoryButtons];
+        return [colorCategoryButton, wallpaperCategoryButton, ...wearableCategoryButtons];
     }
     return (
         <CategoryList>
@@ -64,10 +70,9 @@ const ClosetWearablesList = ({ closet, category, wearables, avatar }) => {
         const currentCategory = category.name;
         const handleClick = (wearableAttributes) => {
             const { category, _id, name, src, image } = wearableAttributes;
-            const categoryName = getCategoryObject.fromId(category)?.name ?? category;
-            // if this is a color, not a clothing item:
-            if (!image) return handleUpdateAvatar({ ...avatar, Color: { _id, name, src }});
-            // otherwise:
+            const categoryName = getCategoryObject.fromId(category)?.name;
+            if (categoryName === 'Color') return handleUpdateAvatar({ ...avatar, Color: { _id, name, src }});
+            if (categoryName === 'Wallpaper') return handleUpdateAvatar({ ...avatar, Wallpaper: { _id, name, image, src } });
             const obj = createAvatarObjectForUpdate({ ...wearableAttributes, avatar, wearables, categoryName, getCategoryObject });
             handleUpdateAvatar(obj);
         }
@@ -85,7 +90,17 @@ const ClosetWearablesList = ({ closet, category, wearables, avatar }) => {
         if (currentCategory === 'Color') list.splice(0, 0, (
             <DefaultColorItem
                 key="defaultColor"
-                handleClick={() => handleClick({})}
+                handleClick={() => handleClick({
+                    category: '0'
+                })}
+                {...{ avatar }} />
+        ));
+        if (currentCategory === 'Wallpaper') list.splice(0, 0, (
+            <DefaultWallpaperItem
+                key="defaultWallpaper"
+                handleClick={() => handleClick({
+                    category: '1'
+                })}
                 {...{ avatar }} />
         ));
         return list;

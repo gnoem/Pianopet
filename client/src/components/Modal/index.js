@@ -44,7 +44,7 @@ const ModalWrapper = ({ children, setModal, closeModal, ignoreClick, selfDestruc
     }, [selfDestruct]);
     useEffect(() => {
         if (modalContainer.current) setTimeout(() => {
-            modalContainer.current.classList.add('active');
+            modalContainer.current?.classList?.add?.('active');
         }, 10); // for custom error messages this is necessary for fadein effect!! todo FIGURE OUT WHY AND FIX BETTER!!!!! UGH!!!!!
         const destroyModal = (e) => {
             if (ignoreClick) { // will be an array of selectors like ['button', '#menu li']

@@ -4,7 +4,6 @@ import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
 import { formatNumber } from "../../utils";
-import { Sidebar } from "../Page";
 import { StudentDropdown } from "../Dropdown/index.js";
 import { Homework } from "../Homework";
 import { Avatar } from "../Avatar/index.js";

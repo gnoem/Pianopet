@@ -43,7 +43,7 @@ class Controller {
         const run = async () => {
             const [foundData, dataError] = await handle(Promise.all([
                 Teacher.findOne({ _id: teacherCode }),
-                Wearable.find({ teacherCode }),
+                Wearable.find({ teacherCode }).sort({ value: 'asc' }),
                 Category.find({ teacherCode }),
                 Badge.find({ teacherCode })
             ]));
@@ -60,7 +60,7 @@ class Controller {
         const run = async () => {
             const [foundData, dataError] = await handle(Promise.all([
                 Student.find({ teacherCode }),
-                Wearable.find({ teacherCode }),
+                Wearable.find({ teacherCode }).sort({ value: 'asc' }),
                 Category.find({ teacherCode }),
                 Badge.find({ teacherCode })
             ]));

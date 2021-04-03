@@ -45,11 +45,13 @@ export const DataContextProvider = ({ children }) => {
             }, 500);
         });
     }
-    const getCategoryObject = {
-        fromId: (id) => data?.categories.find(item => item._id === id) ?? colorCategory,
-        fromName: (name) => data?.categories.find(item => item.name === name) ?? colorCategory
-    }
     const colorCategory = { name: 'Color', _id: '0' };
+    const wallpaperCategory = { name: 'Wallpaper', _id: '1' };
+    const allCategories = data ? [...data?.categories, colorCategory, wallpaperCategory] : [];
+    const getCategoryObject = {
+        fromId: (id) => allCategories.find(item => item._id === id),
+        fromName: (name) => allCategories.find(item => item.name === name)
+    }
     const dataContext = {
         ...data,
         refreshData,
@@ -59,6 +61,7 @@ export const DataContextProvider = ({ children }) => {
         closet,
         updateCloset: setCloset,
         colorCategory,
+        wallpaperCategory,
         getCategoryObject,
         logout
     };

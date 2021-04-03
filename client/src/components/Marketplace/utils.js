@@ -1,6 +1,6 @@
 export const handleUpdatePreview = ([object, setObject], wearables, getCategoryObject) => {
     return ({ category, occupies, _id, name, src, value, image }) => {
-        const categoryName = getCategoryObject.fromId(category)?.name ?? 'Color'; // in case of default
+        const categoryName = getCategoryObject.fromId(category)?.name;
         const regionsOccupied = (array = occupies) => {
             if (!array) return [];
             return array.map(occupiedRegionId => getCategoryObject.fromId(occupiedRegionId)?.name);
@@ -21,7 +21,7 @@ export const handleUpdatePreview = ([object, setObject], wearables, getCategoryO
             return;
         }
         // when clicking on a wearable that is currently being previewed, i.e. to take it off:
-        if (categoryName !== 'Color' && object?.[categoryName]?.name === name) return removeWearableFromPreview();
+        if (!['Color', 'Wallpaper'].includes(categoryName) && object?.[categoryName]?.name === name) return removeWearableFromPreview();
         // else (when clicking on a wearable to put it on)
         setObject(prevState => {
             // generate empty preview object to write and return as preview object state:
@@ -52,7 +52,7 @@ export const handleUpdatePreview = ([object, setObject], wearables, getCategoryO
             // then set those regions to { isOccupied: thisWearableId }
             for (let region of regionsOccupiedByThisWearable) obj[region] = { isOccupied: _id };
             // set the actual wearable
-            obj[categoryName] = { _id, name, src, value, image, occupies };
+            obj[categoryName] = { _id, category, name, src, value, image, occupies };
             return obj;
         });
     }

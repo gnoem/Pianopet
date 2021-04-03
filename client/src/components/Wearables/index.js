@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { DataContext } from "../../contexts";
 import { Coins } from "../Stats";
 import Splat from "../Splat";
+import { PianopetWallpaper } from "../PianopetWallpaper";
 
 export const CategoryList = ({ children }) => {
     return (
@@ -21,15 +22,24 @@ export const WearablesList = ({ category, children }) => {
     );
 }
 
-export const WearableItem = React.forwardRef(({ className, includeCost, wearable, isColor, currentCategory, onClick, onContextMenu }, ref) => {
+export const WearableItem = React.forwardRef(({ className, includeCost, wearable, currentCategory, onClick, onContextMenu }, ref) => {
     const { getCategoryObject } = useContext(DataContext);
-    const wearableCategory = isColor
-        ? 'Color'
-        : getCategoryObject.fromId(wearable.category)?.name;
+    const wearableCategory = getCategoryObject.fromId(wearable.category)?.name;
     if (wearableCategory !== currentCategory) return null;
-    const buttonImage = (currentCategory === 'Color')
-        ? <Splat color={wearable.src} />
-        : <img alt={wearable.name} src={wearable.src} />;
+    let buttonImage;
+    switch (currentCategory) {
+        case 'Color': {
+            buttonImage = <Splat color={wearable.src} />;
+            break;
+        }
+        case 'Wallpaper': {
+            buttonImage = <PianopetWallpaper {...wearable} />;
+            break;
+        }
+        default: {
+            buttonImage = <img alt={wearable.name} src={wearable.src} />;
+        }
+    }
     return (
         <button ref={ref}
                 className={className}
@@ -44,23 +54,46 @@ export const WearableItem = React.forwardRef(({ className, includeCost, wearable
     );
 });
 
-export const DefaultColorItem = ({ avatar, isMarketplace, handleClick }) => {
+const DefaultWearableItem = ({ children, categoryName, avatar, isMarketplace, handleClick }) => {
     const className = (() => {
-        const hasDefaultColor = (() => {
+        const isWearingItem = (() => {
             if (!avatar) return false;
-            return !avatar['Color'] || avatar['Color'].src === '#5C76AE';
+            return !avatar[categoryName];
         })();
         let stringToReturn = isMarketplace ? 'owned' : '';
-        if (hasDefaultColor) stringToReturn += ' active';
+        if (isWearingItem) stringToReturn += ' active';
         return stringToReturn;
     })();
     return (
         <button key={`closetItem-defaultColor`}
                 className={className}
                 onClick={handleClick}>
-            <Splat color="#5C76AE" />
+            {children}
             <span>Default</span>
             {isMarketplace && <Coins inline={true}>0</Coins>}
         </button>
+    );
+}
+
+export const DefaultColorItem = ({ avatar, isMarketplace, handleClick }) => {
+    return (
+        <DefaultWearableItem categoryName="Color"
+                             key={`closetItem-default`}
+                             {...{ avatar, isMarketplace, handleClick }}>
+            <Splat color="#6C76AE" />
+        </DefaultWearableItem>
+    );
+}
+
+export const DefaultWallpaperItem = ({ avatar, isMarketplace, handleClick }) => {
+    const testWallpaper = {
+        src: '#fff'
+    }
+    return (
+        <DefaultWearableItem categoryName="Wallpaper"
+                             key={`closetItem-default`}
+                             {...{ avatar, isMarketplace, handleClick }}>
+            <PianopetWallpaper {...testWallpaper} />
+        </DefaultWearableItem>
     );
 }

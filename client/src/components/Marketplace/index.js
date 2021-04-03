@@ -5,7 +5,7 @@ import { handleUpdatePreview } from "./utils";
 
 export const Marketplace = () => {
     const isMobile = false;
-    const { isStudent, student, avatar, updateAvatar, categories, colorCategory, getCategoryObject, wearables } = useContext(DataContext);
+    const { isStudent, student, avatar, updateAvatar, categories, colorCategory, wallpaperCategory, getCategoryObject, wearables } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     const [preview, setPreview] = useState(avatar ?? {});
     const previewObject = isMobile ? [avatar, updateAvatar] : [preview, setPreview];
@@ -35,7 +35,7 @@ export const Marketplace = () => {
     return (
         <div className="Marketplace">
             <MarketplacePreview {...{ preview, student, isStudent }} />
-            <MarketplaceCategories {...{ isStudent, wearables, categories, colorCategory, updateCategory: setCategory }} />
+            <MarketplaceCategories {...{ isStudent, wearables, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
             <MarketplaceWearables {...{ isStudent, student, category, wearables, updatePreview }}/>
         </div>
     );

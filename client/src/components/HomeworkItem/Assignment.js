@@ -13,7 +13,6 @@ export const Assignment = ({ isStudent, _id, index, label, progress, recorded })
             .then(refreshHomework)
             .catch(err => {
                 setVisualProgress(progress);
-                console.log('wrong')
                 handleError(err, { createModal });
             });
     }

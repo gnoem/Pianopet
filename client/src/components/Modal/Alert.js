@@ -31,7 +31,7 @@ const SomethingWentWrong = ({ options, closeModal }) => {
                     {stack && <code>{JSON.stringify(stack)}</code>}
                 </div>
             </details>
-            <Submit value="Send error report" nvm="Close and reload" onCancel={handleCancel} />
+            <Submit value="Send error report" nvm="Close and reload" cancel={handleCancel} />
         </Error>
     );
 }
