@@ -61,7 +61,6 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
                    submit={addingNew ? <Submit nvm="Back" cancel={cancel} /> : <Submit value="Save changes" />}>
             <div className="wearableForm">
                 <div>
-                    <button type="button" onClick={() => console.dir(formData)}>click</button>
                     <Input
                         type="text"
                         name="name"

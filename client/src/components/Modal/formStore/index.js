@@ -239,8 +239,7 @@ const EditCategory = ({ category, refreshData }) => {
 
 const DeleteCategory = ({ category, wearables, refreshData }) => {
     const handleSubmit = () => Category.deleteCategory(category._id);
-    const handleSuccess = (result) => {
-        console.log(result);
+    const handleSuccess = () => {
         refreshData();
     }
     const categoryIsEmpty = (() => {

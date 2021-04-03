@@ -5,13 +5,18 @@
     overflow: auto;
     display: flex;
     flex-direction: row;
+    justify-content: center;
     gap: 4rem;
     position: relative;
-    padding: 2rem 3rem;
+    padding: 2rem;
+    padding-right: 4rem;
 }
 .ViewingStudent .ControlPanel {
     position: sticky;
     top: 0;
+}
+.ViewingStudent .HomeworkContainer {
+    flex: 1;
 }
 .ViewingStudent .Homework {
     padding-bottom: 3rem;
