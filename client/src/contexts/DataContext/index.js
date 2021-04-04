@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { User } from "../../api";
-import { createAvatarObject } from "./utils";
+import { returnCreateAvatarObject } from "./utils";
 
 export const DataContext = React.createContext(null);
 
@@ -9,11 +9,14 @@ export const DataContextProvider = ({ children }) => {
     const [avatar, setAvatar] = useState(null);
     const [closet, setCloset] = useState(null);
     const userId = useRef(null);
+    const createAvatarObject = data
+        ? returnCreateAvatarObject(data.wearables, data.categories)
+        : null;
     useEffect(() => { // todo probably can combine this useEffect with below one
         if (!data) return;
         if (!data?.isStudent) return;
-        const { student, wearables, categories } = data;
-        setAvatar(createAvatarObject(student?.avatar, wearables, categories));
+        const { student } = data;
+        setAvatar(createAvatarObject(student?.avatar));
     }, [data?.student?.avatar]);
     useEffect(() => {
         if (!data) return;

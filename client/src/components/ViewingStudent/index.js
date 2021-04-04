@@ -7,6 +7,7 @@ import { formatNumber } from "../../utils";
 import { StudentDropdown } from "../Dropdown/index.js";
 import { Homework } from "../Homework";
 import { Avatar } from "../Avatar/index.js";
+import { Badges, Coins } from "../Stats";
 
 export const ViewingStudent = ({ student, students, view, selectStudent }) => {
     return (
@@ -54,13 +55,18 @@ const RightSidebar = ({ student }) => {
             <div className="avatarContainer">
                 <Avatar {...{ student }} />
             </div>
-            <StudentCoins {...{ student, isStudent: false }} />
-            <div className="StudentStats">
-                <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
-                <span className="statsLabel">{student.badges.length}</span>
-            </div>
+            <StudentStats {...{ student }} />
         </div>
     );
+}
+
+const StudentStats = ({ student }) => {
+    return (
+        <div className="ViewingStudentStats">
+            <StudentCoins {...{ student, isStudent: false }} />
+            <Badges>{student.badges.length}</Badges>
+        </div>
+    )
 }
 
 const StudentCoins = ({ student }) => {
@@ -91,9 +97,8 @@ const StudentCoins = ({ student }) => {
         setCoinsCount(student.coins);
     }
     return (
-        <div className="StudentStats">
-            <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-            <span className="statsLabel">{formatNumber(coinsCount)}</span>
+        <div className="editCoins">
+            <Coins>{coinsCount}</Coins>
             <div className="editCoinsButton">
                 {makingChanges
                     ? editCoinsButtons

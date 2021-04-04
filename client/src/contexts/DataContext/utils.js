@@ -1,4 +1,4 @@
-export const createAvatarObject = (avatarArray = [], wearables, categories) => {
+export const returnCreateAvatarObject = (wearables, categories) => (avatarArray = []) => {
     // the following function converts student.avatar, which is an array of string IDs, to an object with category names as keys
     // first get rid of any null values (e.g. if avatar has default color then 'null' will be among the array values)
     const filteredArray = avatarArray.filter(val => val);

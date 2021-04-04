@@ -1,33 +1,14 @@
 import "./Page.css";
 import { useState, useEffect, useRef, useContext } from "react";
-import { DataContext, ModalContext } from "../../contexts";
+import { DataContext, MobileContext } from "../../contexts";
 import { DropdownMenu } from "../Menu";
 
-export const Header = ({ children, /* isMobile, */ view, updateView }) => {
-    const isMobile = false;
-    const [expanded, setExpanded] = useState(false);
-    const navContainer = useRef(null);
-    useEffect(() => {
-        setExpanded(false);
-    }, [view]); // todo this needs to be button click
-    useEffect(() => {
-        const navBox = navContainer.current;
-        if (!navBox) return;
-        if (expanded) navBox.style.maxHeight = navBox.scrollHeight + 'px';
-        else navBox.style.maxHeight = 0;
-    }, [expanded]);
+export const Header = ({ children, view, updateView }) => {
+    const { isMobile } = useContext(MobileContext);
     if (isMobile) return (
-        <div className="Header">
-            <div className="Logo">
-                <img src="assets/logo.svg" alt="pianopet logo" onClick={() => updateView({ type: 'home' })} />
-            </div>
-            <button className="stealth" style={{ lineHeight: '1' }} onClick={() => setExpanded(state => !state)}>
-                <i className="fas fa-bars" style={{ fontSize: '1.5rem', marginRight: '0.7rem' }}></i>
-            </button>
-            <div className="navContainer" ref={navContainer}>
-                {expanded && children}
-            </div>
-        </div>
+        <MobileHeader {...{ view, updateView }}>
+            {children}
+        </MobileHeader>
     );
     return (
         <>
@@ -38,6 +19,53 @@ export const Header = ({ children, /* isMobile, */ view, updateView }) => {
                 {children}
             </div>
         </>
+    );
+}
+
+const MobileHeader = ({ children, view, updateView }) => {
+    const [expanded, setExpanded] = useState(false);
+    const headerRef = useRef(null);
+    const navContainer = useRef(null);
+    const navShadow = useRef(null);
+    useEffect(() => {
+        setExpanded(false);
+    }, [view]);
+    useEffect(() => {
+        const { current: navBox } = navContainer;
+        const { current: shadow } = navShadow;
+        if (!navBox) return;
+        if (navBox && shadow) {
+            if (expanded) {
+                const boxHeight = navBox.scrollHeight + 'px';
+                const shadowHeight = navBox.scrollHeight + shadow.scrollHeight + 'px';
+                navBox.style.maxHeight = boxHeight;
+                shadow.style.maxHeight = shadowHeight;
+            } else {
+                navBox.style.maxHeight = 0;
+                shadow.style.maxHeight = '100%';
+            }
+        }
+        if (!expanded || !headerRef.current) return;
+        const closeNav = (e) => {
+            if (headerRef.current.contains(e.target)) return;
+            setExpanded(false);
+        }
+        window.addEventListener('click', closeNav);
+        return () => window.removeEventListener('click', closeNav);
+    }, [expanded]);
+    return (
+        <div className="Header" ref={headerRef}>
+            <div className="Logo">
+                <img src="assets/logo.svg" alt="pianopet logo" onClick={() => updateView({ type: 'home' })} />
+            </div>
+            <button className="stealth" style={{ lineHeight: '1' }} onClick={() => setExpanded(state => !state)}>
+                <i className="fas fa-bars" style={{ fontSize: '1.5rem', marginRight: '0.7rem' }}></i>
+            </button>
+            <div className="navShadow" ref={navShadow}></div>
+            <div className="navContainer" ref={navContainer}>
+                {expanded && children}
+            </div>
+        </div>
     );
 }
 

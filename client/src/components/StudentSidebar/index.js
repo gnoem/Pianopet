@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { DataContext, ViewContext } from "../../contexts";
-import { formatNumber } from "../../utils";
 import { Avatar } from "../Avatar/index.js";
 import { Sidebar } from "../Page";
+import { Badges, Coins } from "../Stats";
 
 export const StudentSidebar = ({ student }) => {
     return (
@@ -29,11 +29,9 @@ const StudentStats = () => {
     const { student } = useContext(DataContext);
     const { updateView } = useContext(ViewContext);
     return (
-        <div className="studentStats">
-            <img className="statsIcon" alt="coin icon" src="assets/Coin_ico.png" />
-            <span className="statsLabel" onClick={() => updateView({ type: 'marketplace' })}>{formatNumber(student.coins)}</span>
-            <img className="statsIcon" alt="badge icon" src="assets/Badge_ico.svg" />
-            <span className="statsLabel" onClick={() => updateView({ type: 'badges' })}>{student.badges.length.toString()}</span>
+        <div className="StudentStats">
+            <Coins onClick={() => updateView({ type: 'marketplace' })}>{student.coins}</Coins>
+            <Badges onClick={() => updateView({ type: 'badges' })}>{student.badges.length}</Badges>
         </div>
     );
 }

@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { DataContext, ViewContext } from "../../contexts";
+import { useEffect, useContext } from "react";
+import { DataContext, MobileContext, ViewContext } from "../../contexts";
 import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
 import { StudentBadges } from "../StudentBadges";
@@ -9,8 +9,12 @@ import { StudentMarketplace } from "../StudentMarketplace";
 import { StudentSidebar } from "../StudentSidebar";
 
 export const Student = () => {
-    const { student } = useContext(DataContext);
+    const { isMobile } = useContext(MobileContext);
+    const { student, updateAvatar, createAvatarObject } = useContext(DataContext);
     const { view, updateView } = useContext(ViewContext);
+    useEffect(() => {
+        if (isMobile) updateAvatar(createAvatarObject(student.avatar));
+    }, [view]);
     return (
         <>
             <Header {...{ view, updateView }}>

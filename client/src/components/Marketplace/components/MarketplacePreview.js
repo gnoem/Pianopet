@@ -37,14 +37,6 @@ const PreviewImage = ({ preview }) => {
             );
         }
     }
-    const testWallpaper = {
-        //src: 'linear-gradient(135deg, #f1f6e9, #926692)',
-        src: 'http://static.colourlovers.com/images/patterns/5816/5816002.png',
-        image: {
-            type: 'image',
-            size: 50
-        }
-    }
     return (
         <div className="previewBox">
             <PianopetWallpaper {...Wallpaper} />
@@ -54,14 +46,15 @@ const PreviewImage = ({ preview }) => {
     );
 }
 
-const PreviewDescription = ({ preview, student, isStudent }) => {
-    const { createModal } = useContext(ModalContext);
+export const PreviewDescription = ({ preview, student, isStudent, fromModal }) => {
+    const { createModal, switchToModal } = useContext(ModalContext);
     const previewItems = [];
     for (let category in preview) {
         if (preview[category]._id) { // default color _id is undefined, and also if preview[category].isOccupied it won't have _id
             const isOwned = isStudent && student.closet.includes(preview[category]._id);
             const buyWearable = () => {
-                createModal('buyWearable', 'form', { wearable: preview[category] });
+                const openModal = fromModal ? switchToModal : createModal;
+                openModal('buyWearable', 'form', { wearable: preview[category] });
                 // todo update avatar with new wearable!!!
             }
             const listButton = () => {

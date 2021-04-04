@@ -134,6 +134,7 @@
     --great-success: #0f8604;
     --input-bg: #222F44;
     --input-disabled-bg: #1f2836;
+    --mobile-avatar-size: 25vh;
 }
 html, body {
     font-family: var(--default-font);
@@ -574,7 +575,8 @@ form.pad input[type=text], form.pad input[type=password] {
     .Guest > div:nth-of-type(2) {
         padding: 2rem;
     }
-    .Guest > div:nth-of-type(2) > div {
+    .Guest > div:nth-of-type(2) > div.Login,
+    .Guest > div:nth-of-type(2) > div.Signup {
         width: 100%;
         text-align: center;
     }
@@ -652,6 +654,8 @@ form.pad input[type=text], form.pad input[type=password] {
         position: absolute;
         bottom: 0;
         left: 0;
+        width: var(--mobile-avatar-size);
+        height: var(--mobile-avatar-size);
         transform: translate3d(-15%, 15%, 0);
         margin: 0;
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
@@ -660,11 +664,13 @@ form.pad input[type=text], form.pad input[type=password] {
         display: none;
     }
     .avatarContainer .Avatar {
+        width: 100%;
+        height: 100%;
         border-bottom-left-radius: 0;
     }
     .avatarBox {
-        width: 40vw;
-        height: 40vw;
+        width: 100%;
+        height: 100%;
     }
 }
 
@@ -673,72 +679,57 @@ form.pad input[type=text], form.pad input[type=password] {
     text-align: center;
 }
 .StudentStats {
-    display: grid;
-    column-gap: 0.5rem;
-    grid-template-rows: auto auto;
-    grid-template-columns: auto 1fr auto;
-}
-.StudentStats + .StudentStats {
-    margin-top: 0.5rem;
-}
-.StudentStats .statsIcon {
-    display: flex;
-    align-self: center;
-    justify-self: end;
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-}
-.StudentStats .statsLabel {
-    display: flex;
-    align-self: center;
-    justify-self: start;
-    grid-row: 1 / 2;
-    grid-column: 2 / 3;
-}
-.studentStats {
-    display: inline-grid;
+    display: inline-flex;
+    flex-direction: column;
     gap: 0.5rem;
-    grid-template: auto / auto 1fr;
-    align-items: center;
-    justify-items: start;
 }
-img.statsIcon {
-    width: 2rem;
+.StudentStats .Stat {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.StudentStats .Stat img {
+    width: 1.5em;
     height: auto;
-}
-.statsLabel {
-    font-weight: bold;
-}
-.Student.Dashboard .statsLabel {
-    cursor: pointer;
-}
-.editCoinsButton {
-    display: flex;
-    align-self: center;
-    grid-row: 1 / 2;
-    grid-column: 3 / -1;
-}
-.StudentStats button + button {
-    margin-left: 0.5rem;
-}
-.confirmChangesButton {
-    margin-top: 0.5rem;
-    display: flex;
-    justify-self: center;
-    grid-row: 2 / -1;
-    grid-column: 1 / -1;
+    margin-right: 0.5rem;
 }
 @media (max-width: 900px) {
     .StudentSidebar {
-        padding-left: calc(40vw + (0.2 * 40vw) - 0.5rem); /* based on width/translation of .avatarBox */
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-left: calc(var(--mobile-avatar-size) - (0.05 * var(--mobile-avatar-size)));
+        color: #000;
     }
-    img.statsIcon {
-        width: 1.3rem;
-        height: auto;
+    .StudentStats {
+        flex-direction: row;
+        gap: calc(0.15 * var(--mobile-avatar-size));
     }
-    .statsLabel {
+}
+@media (max-width: 600px) {
+    .StudentStats {
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    .StudentStats .Stat {
+        font-size: 1rem;
+    }
+}
+@media (max-width: 400px) {
+    .StudentStats {
+        gap: 0.2rem;
+    }
+    .StudentStats .Stat {
         font-size: 0.9rem;
-        color: var(--dark-theme-color);
+    }
+}
+@media (max-width: 400px) and (max-aspect-ratio: 1/2) {
+    .StudentStats {
+        gap: 0.5rem;
+    }
+    .StudentStats .Stat {
+        font-size: 1.2rem;
     }
 }
 

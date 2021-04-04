@@ -5,7 +5,8 @@ import PianopetBase from "../PianopetBase";
 import { PianopetWallpaper } from "../PianopetWallpaper";
 
 export const Avatar = ({ student }) => {
-    const { isStudent, avatar, wearables, categories, createAvatarObject } = useContext(DataContext);
+    const { view } = useContext(ViewContext);
+    const { isStudent, avatar, createAvatarObject } = useContext(DataContext);
     const [color, setColor] = useState(null);
     const [wallpaper, setWallpaper] = useState(null);
     const [avatarObject, setAvatarObject] = useState(null);
@@ -19,9 +20,9 @@ export const Avatar = ({ student }) => {
         if (avatar) updateAvatarObject(avatar);
     }, [avatar]);
     useEffect(() => {
-        const obj = createAvatarObject(student?.avatar, wearables, categories);
+        const obj = createAvatarObject(student?.avatar);
         updateAvatarObject(obj);
-    }, [student]);
+    }, [student, view]);
     const handleClick = () => {
         if (isStudent) updateView({ type: 'closet' });
     }

@@ -92,6 +92,17 @@
         position: relative;
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
     }
+    .Header .navShadow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        max-height: 100%;
+        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
+        transition: 0.2s;
+        pointer-events: none;
+    }
     .Header .navContainer {
         position: absolute;
         top: 100%;
@@ -103,6 +114,7 @@
         background: var(--med-accent-color);
         transition: 0.2s;
         will-change: max-height;
+        text-align: center;
     }
     .navContainer > * {
         animation: 0.3s mobileNavFadeIn 1;
@@ -201,9 +213,24 @@
 @media (max-width: 900px) {
     .User {
         padding: 2rem;
+        display: inline-flex;
+        justify-content: center;
     }
     .User .Menu {
         top: calc(100% - 1.5rem); /* to account for bottom padding on .User */
-        right: 5.5rem; /* 3.5rem plus 2rem padding on .User */
+        right: 50%; /* 3.5rem plus 2rem padding on .User */
+        animation-name: popOutMobileMenu;
+        animation-fill-mode: forwards;
+    }
+}
+
+@keyframes popOutMobileMenu {
+    from {
+        opacity: 0;
+        transform: scale(0.6) translate3d(50%, 0, 0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translate3d(50%, 0, 0);
     }
 }

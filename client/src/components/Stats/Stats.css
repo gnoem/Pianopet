@@ -15,3 +15,6 @@
     align-self: center;
     margin-right: 0.2rem;
 }
+.Stat.clickable {
+    cursor: pointer;
+}

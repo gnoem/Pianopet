@@ -25,3 +25,35 @@
     position: sticky;
     top: 0;
 }
+.ViewingStudent .Stat img {
+    width: 1.8em;
+    height: auto;
+    margin-right: 0.5rem;
+}
+.editCoins {
+    display: grid;
+    column-gap: 0.5rem;
+    grid-template-rows: auto auto;
+    grid-template-columns: auto 1fr auto;
+}
+.ViewingStudentStats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.editCoins button + button {
+    margin-left: 0.5rem;
+}
+.editCoinsButton {
+    display: flex;
+    align-self: center;
+    grid-row: 1 / 2;
+    grid-column: 3 / -1;
+}
+.confirmChangesButton {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-self: center;
+    grid-row: 2 / -1;
+    grid-column: 1 / -1;
+}
