@@ -1,38 +1,31 @@
 import { useState, useContext } from "react";
 import { Student } from "../../api";
-import { DataContext, ModalContext } from "../../contexts";
+import { DataContext, MobileContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
+import { MobileAvatarPreview } from "../Avatar/index.js";
 import { CategoryList, WearableItem, DefaultColorItem, DefaultWallpaperItem, WearablesList } from "../Wearables";
 import { createAvatarObjectForUpdate } from "./utils";
 
 export const Closet = () => {
-    const { avatar, closet, wearables, categories, colorCategory, wallpaperCategory } = useContext(DataContext);
+    const { isMobile } = useContext(MobileContext);
+    const { student, avatar, closet, wearables, categories, colorCategory, wallpaperCategory } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     if (!closet.length) return (
         <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
     );
     return (
-        <div className="Closet">
-            <ClosetCategories {...{ closet, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
-            <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
-        </div>
+        <>
+            {isMobile && <MobileAvatarPreview {...{ student }} />}
+            <div className="Closet">
+                <ClosetCategories {...{ closet, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
+                <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
+            </div>
+        </>
     );
 }
 
-const ClosetCategories = ({ closet, categories, colorCategory, wallpaperCategory, updateCategory }) => {
+const ClosetCategories = ({ closet, categories, updateCategory }) => {
     const generateCategoriesList = () => {
-        const colorCategoryButton = (
-            <button key={`closet-wearableCategories-Color`}
-                    onClick={() => updateCategory(colorCategory)}>
-                Color
-            </button>
-        );
-        const wallpaperCategoryButton = (
-            <button key={`closet-wearableCategories-Wallpaper`}
-                    onClick={() => updateCategory(wallpaperCategory)}>
-                Wallpaper
-            </button>
-        );
         const wearableCategoryButtons = categories.map(category => {
             const someClosetItemHasCategory = closet.some(wearable => wearable.category === category._id);
             if (!someClosetItemHasCategory) return null;
@@ -44,10 +37,10 @@ const ClosetCategories = ({ closet, categories, colorCategory, wallpaperCategory
                 </button>
             );
         });
-        return [colorCategoryButton, wallpaperCategoryButton, ...wearableCategoryButtons];
+        return wearableCategoryButtons;
     }
     return (
-        <CategoryList>
+        <CategoryList {...{ updateCategory }}>
             {generateCategoriesList()}
         </CategoryList>
     );

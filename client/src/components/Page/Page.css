@@ -91,6 +91,7 @@
         justify-content: space-between;
         position: relative;
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid var(--med-accent-color); /* to account for rounding error in calculating navContainer top: 100% */
     }
     .Header .navShadow {
         position: absolute;
@@ -101,6 +102,7 @@
         max-height: 100%;
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
         transition: 0.2s;
+        z-index: 9;
         pointer-events: none;
     }
     .Header .navContainer {

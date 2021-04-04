@@ -1,16 +1,19 @@
-import { useState, useEffect, useContext } from "react";
+import "./Avatar.css";
+import { useState, useEffect, useContext, useRef } from "react";
 import { DataContext, ViewContext } from "../../contexts";
 import Loading from "../Loading";
 import PianopetBase from "../PianopetBase";
 import { PianopetWallpaper } from "../PianopetWallpaper";
 
-export const Avatar = ({ student }) => {
+export const Avatar = ({ student, mobilePreview, noClick }) => {
     const { view } = useContext(ViewContext);
     const { isStudent, avatar, createAvatarObject } = useContext(DataContext);
     const [color, setColor] = useState(null);
     const [wallpaper, setWallpaper] = useState(null);
     const [avatarObject, setAvatarObject] = useState(null);
     const { updateView } = useContext(ViewContext);
+    const avatarContainerRef = useRef(null);
+    const avatarBoxRef = useRef(null);
     const updateAvatarObject = (obj) => {
         setAvatarObject(obj);
         setWallpaper(obj?.Wallpaper);
@@ -23,7 +26,29 @@ export const Avatar = ({ student }) => {
         const obj = createAvatarObject(student?.avatar);
         updateAvatarObject(obj);
     }, [student, view]);
+    useEffect(() => {
+        if (!mobilePreview) return;
+        const { current: avatarContainer } = avatarContainerRef;
+        const { current: avatarBox } = avatarBoxRef;
+        if (!avatarContainer) return;
+        const availableVerticalSpace = avatarContainer.scrollHeight;
+        if (avatarBox) {
+            const mainDiv = avatarContainer.parentNode;
+            const computedValue = (availableVerticalSpace > mainDiv.clientWidth)
+                ? mainDiv.clientWidth
+                : availableVerticalSpace;
+            const containerSize = computedValue;
+            const boxSize = containerSize - 10; // 2 * 5px border on container
+            avatarContainer.style.width = containerSize + 'px';
+            avatarContainer.style.height = containerSize + 'px';
+            avatarContainer.style.borderWidth = '5px';
+            avatarBox.style.width = boxSize + 'px';
+            avatarBox.style.height = boxSize + 'px';
+            mainDiv.style.alignItems = 'center';
+        }
+    }, [avatarContainerRef.current]);
     const handleClick = () => {
+        if (noClick) return;
         if (isStudent) updateView({ type: 'closet' });
     }
     const generateAvatar = () => {
@@ -48,12 +73,22 @@ export const Avatar = ({ student }) => {
         });
     }
     return (
-        <div className="Avatar">
-            <div className="avatarBox" onClick={handleClick}>
+        <div className={`Avatar${mobilePreview ? ' mobilePreview' : ''}`} ref={avatarContainerRef}>
+            <div className="avatarBox" onClick={handleClick} ref={avatarBoxRef}>
                 <PianopetWallpaper {...wallpaper} />
                 <PianopetBase color={color} />
                 {generateAvatar()}
             </div>
         </div>
+    );
+}
+
+export const MobileAvatarPreview = ({ student }) => {
+    return (
+        <Avatar {...{
+            student,
+            mobilePreview: true,
+            noClick: true
+        }} />
     );
 }

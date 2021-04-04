@@ -1,16 +1,20 @@
 import { useContext } from "react";
-import { DataContext, ViewContext } from "../../contexts";
+import { DataContext, MobileContext, ViewContext } from "../../contexts";
 import { Avatar } from "../Avatar/index.js";
 import { Sidebar } from "../Page";
 import { Badges, Coins } from "../Stats";
 
-export const StudentSidebar = ({ student }) => {
+export const StudentSidebar = ({ view, student }) => {
+    const { isMobile } = useContext(MobileContext);
+    const hideAvatar = ['closet', 'marketplace'].includes(view.type);
     return (
         <Sidebar>
-            <div className="StudentSidebar">
-                <StudentAvatar>
-                    <Avatar {...{ student }} />
-                </StudentAvatar>
+            <div className={`StudentSidebar${hideAvatar ? ' noAv' : ''}`}>
+                {(isMobile && hideAvatar) || (
+                    <StudentAvatar>
+                        <Avatar {...{ student }} />
+                    </StudentAvatar>
+                )}
                 <StudentStats />
             </div>
         </Sidebar>

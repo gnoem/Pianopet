@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { DataContext, MobileContext, ModalContext } from "../../contexts";
 import { MarketplacePreview, MarketplaceCategories, MarketplaceWearables } from "./components";
+import { MobileAvatarPreview } from "../Avatar/index.js";
 import { PreviewDescription } from "./components/MarketplacePreview";
 import { handleUpdatePreview } from "./utils";
 
@@ -36,6 +37,7 @@ export const Marketplace = () => {
     }, [wearables]);
     return (
         <>
+            {(isMobile && isStudent) && <MobileAvatarPreview {...{ student }} />}
             <div className="Marketplace">
                 {isMobile || <MarketplacePreview {...{ preview, student, isStudent }} />}
                 <MarketplaceCategories {...{ isStudent, wearables, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />

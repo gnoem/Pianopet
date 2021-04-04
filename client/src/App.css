@@ -586,93 +586,6 @@ form.pad input[type=text], form.pad input[type=password] {
     }    
 }
 
-/* AVATAR */
-.avatarContainer {
-    font-size: 0;
-    line-height: 0;
-    background: var(--med-accent-color);
-    padding: 0.5rem;
-    border-radius: 999px;
-    margin: 0 auto 2rem;
-    position: relative;
-}
-.avatarContainer::before {
-    content: '';
-    display: block;
-    width: 0.5rem;
-    height: 2rem;
-    background: inherit;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -0.25rem;
-}
-.studentAvatar, .Avatar {
-    background: #fff;
-    border: 3px solid var(--dark-theme-color);
-    border-radius: 999px;
-    overflow: hidden;
-    text-align: center;
-}
-.avatarBox {
-    width: 12rem;
-    height: 12rem;
-    position: relative;
-}
-.avatarBox .Wallpaper, .Avatar .previewBase {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-.Student.Dashboard .avatarBox {
-    cursor: pointer;
-}
-.Avatar .avatarItem {
-    position: absolute;
-}
-.Teacher.Dashboard .studentAvatar {
-    width: 12rem;
-    height: 12rem;
-}
-.previewBase path {
-    transition: 0.2s;
-}
-.previewBase .st1 {
-    fill: #fff;
-}
-.previewBase .st2 {
-    fill: #111;
-}
-.previewBase.zoom path {
-    transform: scale(2.3);
-    transform-origin: center;
-}
-@media (max-width: 900px) {
-    .avatarContainer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: var(--mobile-avatar-size);
-        height: var(--mobile-avatar-size);
-        transform: translate3d(-15%, 15%, 0);
-        margin: 0;
-        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
-    }
-    .avatarContainer::before {
-        display: none;
-    }
-    .avatarContainer .Avatar {
-        width: 100%;
-        height: 100%;
-        border-bottom-left-radius: 0;
-    }
-    .avatarBox {
-        width: 100%;
-        height: 100%;
-    }
-}
 
 /* STUDENT SIDEBAR */
 .StudentSidebar {
@@ -700,14 +613,25 @@ form.pad input[type=text], form.pad input[type=password] {
         align-items: center;
         padding-left: calc(var(--mobile-avatar-size) - (0.05 * var(--mobile-avatar-size)));
         color: #000;
+        transition: 0.2s;
+    }
+    .StudentSidebar.noAv {
+        padding: 0 1rem;
     }
     .StudentStats {
         flex-direction: row;
         gap: calc(0.15 * var(--mobile-avatar-size));
     }
+    .StudentSidebar.noAv .StudentStats {
+        width: calc(100% - 1rem);
+        justify-content: space-evenly;
+    }
+    .StudentSidebar.noAv .StudentStats .Stat {
+        font-size: 1.3rem;
+    }
 }
 @media (max-width: 600px) {
-    .StudentStats {
+    .StudentSidebar:not(.noAv) .StudentStats {
         flex-direction: column;
         align-items: start;
         gap: 0.5rem;
@@ -904,39 +828,42 @@ form.pad input[type=text], form.pad input[type=password] {
 }
 .wearableCategories {
     grid-area: nav;
-    padding: 0.5rem;
+    padding: 0.4rem;
     background: var(--light-theme-color);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 .wearableCategories button {
     flex: 1 0 auto;
     margin: 0;
     border: 0;
-    padding: 0.5rem 1rem;
+    padding: 0 1rem;
     border-radius: 999px;
     background: #fff;
     color: var(--deep-theme-color);
-    line-height: 1.2rem;
+    line-height: 1.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
 }
 .wearableCategories button.add {
     flex-grow: 0;
-    padding: 0.5rem;
-    width: 1.2rem;
-    height: 1.2rem;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
     box-sizing: content-box;
     display: inline-grid;
     place-items: center;
 }
 .wearableCategories button.add::before {
-    line-height: 1.2rem;
+    line-height: 1.6rem;
 }
 .wearablesList {
     grid-area: items;
     padding: 1rem;
     overflow-y: auto;
     position: relative;
+    background: #f7f7f7;
 }
 .wearablesList .noneFound {
     position: absolute;
@@ -947,41 +874,41 @@ form.pad input[type=text], form.pad input[type=password] {
     place-items: center;
 }
 .wearablesList > div {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 7rem);
+    display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
-}
-.wearablesList > div.blobs {
-    grid-template-columns: repeat(auto-fill, 5rem);
-}
-.wearablesList > div.blobs > button > svg {
-    width: 100%;
-    height: auto;
 }
 .wearablesList > div.blobs > button.add::before {
     content: '\f055';
     font-size: 2rem;
     color: #ccc;
 }
-.wearablesList > div > button {
+.wearablesList button {
+    flex: 1 1 20%;
     margin: 0;
     background: 0;
     padding: 0.5rem;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
+    background: #fff;
     border-radius: 0.5rem;
     color: #333;
     font-size: 0.75rem;
     transition: 0.2s;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
 }
-.wearablesList > div > button.owned {
+.wearablesList button.owned {
     opacity: 0.4;
 }
-.wearablesList > div > button.owned:hover {
+.wearablesList button.owned:hover {
     opacity: 1;
 }
-.wearablesList > div > button.owned::before {
+.wearablesList button.owned::before {
     content: '\f00c';
     font: 900 0.8em 'Font Awesome 5 Free';
     position: absolute;
@@ -989,7 +916,7 @@ form.pad input[type=text], form.pad input[type=password] {
     right: 0.5rem;
     transform: 0.2s;
 }
-.wearablesList > div > button.owned::after {
+.wearablesList button.owned::after {
     content: '\f00c';
     font: 900 0.6em 'Font Awesome 5 Free';
     color: #fff;
@@ -1003,43 +930,42 @@ form.pad input[type=text], form.pad input[type=password] {
     right: 0.2rem;
     display: none;
 }
-.wearablesList > div > button.owned span.wearableValue,
-.wearablesList > div > button.owned img.coin {
+.wearablesList button.owned span.wearableValue,
+.wearablesList button.owned img.coin {
     filter: grayscale();
 }
-.wearablesList > div > button.active {
-    border-color: #000;
+.wearablesList button.active {
+    border-color: var(--med-theme-color);
 }
-.wearablesList > div > button > img {
+.wearablesList button > img,
+.wearablesList button > svg {
     width: 4rem;
     height: auto;
 }
-.wearablesList > div > button > .Wallpaper {
+.wearablesList button > .Wallpaper {
     width: 4rem;
     height: 4rem;
     box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.2);
     border-radius: 0.5rem;
-    margin: 0.5rem auto 1rem;
+    margin: 0.5rem auto 0.2rem;
 }
-.wearablesList > div > button > span:nth-of-type(1) {
+.wearablesList button > span:nth-of-type(1) {
     display: block;
     font-weight: 600;
     color: #666;
     line-height: 1;
-    margin: 0.2rem 0;
+    margin-top: 0.5rem;
 }
-.wearablesList > div > button > span:nth-of-type(2) > * {
-    display: inline-block;
-    vertical-align: middle;
-}
-.wearablesList > div > button > span:nth-of-type(2) > img {
+.wearablesList button > span:nth-of-type(2) > img {
     width: auto;
     height: 1.5em;
     margin-right: 0.3rem;
 }
 .viewCart {
+    position: absolute;
     text-align: right;
-    margin-top: 1rem;
+    top: 0;
+    right: 0;
 }
 .viewCart button {
     padding: 0;
@@ -1050,6 +976,7 @@ form.pad input[type=text], form.pad input[type=password] {
     display: inline-grid;
     place-items: center;
     position: relative;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
 }
 .viewCart button span {
     position: absolute;
@@ -1065,10 +992,30 @@ form.pad input[type=text], form.pad input[type=password] {
     text-align: center;
     border: 1px solid #fff;
 }
+.Closet .wearablesList button > span:nth-of-type(1) {
+    margin: 0.3rem auto;
+}
 @media (max-width: 900px) {
+    .Main .StudentCloset,
+    .Main .StudentMarketplace {
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr 11rem;
+        position: relative;
+    }
+    .Main .StudentCloset h1,
+    .Main .StudentMarketplace h1 {
+        margin: 0;
+        line-height: 1;
+    }
+    .Main .Closet,
+    .Main .Marketplace {
+        height: calc(100% - 1rem);
+        margin-top: 1rem;
+    }
     .Marketplace, .Closet {
         margin: 0;
-        height: calc(50vh - 1rem); /* todo better */
+        height: auto;
     }
     .Marketplace {
         grid-template-areas:
@@ -1078,22 +1025,52 @@ form.pad input[type=text], form.pad input[type=password] {
     .Closet + .buttons {
         text-align: right;
     }
+    .wearableCategories {
+        flex-wrap: nowrap;
+        overflow: auto;
+    }
     .wearableCategories button {
-        font-size: 0.8rem;
-        padding: 0.3rem 0.6rem;
+        padding: 0 0.6rem;
     }
     .wearablesList {
-        padding: 0.7rem;
+        padding: 0;
     }
     .wearablesList > div {
-        grid-template-columns: repeat(auto-fill, minmax(5rem, auto));
-        gap: 0.7rem;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow: auto;
+        gap: 0.5rem;
+        height: 100%;
     }
-    .wearablesList > div.blobs {
-        grid-template-columns: repeat(auto-fill, minmax(4rem, auto));
+    .wearablesList > div > button {
+        flex: 1 0 6rem;
+        padding: 0.3rem;
     }
-    .wearablesList > div > button > img {
+    .wearablesList > div > button > span {
+        font-size: 0.65rem;
+    }
+    .wearablesList > div > button > span:nth-of-type(1) {
+        margin-top: 0;
+    }
+    .wearablesList > div > button .Stat {
+        line-height: 1.5;
+    }
+    .wearablesList > div > button > img,
+    .wearablesList > div > button > svg {
         width: 3rem;
+    }
+    .wearablesList > div > button > svg,
+    .wearablesList > div > button > .Wallpaper {
+        margin-bottom: 0.5rem;
+    }
+    .wearablesList button > .Wallpaper {
+        width: 3rem;
+        height: 3rem;
+    }
+    .Closet .wearablesList button > span:nth-of-type(1) {
+        margin: 0;
     }
 }
 

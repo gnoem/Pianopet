@@ -1,20 +1,39 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { DataContext } from "../../contexts";
 import { Coins } from "../Stats";
 import Splat from "../Splat";
 import { PianopetWallpaper } from "../PianopetWallpaper";
 
-export const CategoryList = ({ children }) => {
+export const CategoryList = ({ children, updateCategory }) => {
+    const { colorCategory, wallpaperCategory } = useContext(DataContext);
+    const colorCategoryButton = (
+        <button onClick={() => updateCategory(colorCategory)}>
+            Color
+        </button>
+    );
+    const wallpaperCategoryButton = (
+        <button onClick={() => updateCategory(wallpaperCategory)}>
+            Wallpaper
+        </button>
+    );
     return (
         <div className="wearableCategories">
+            {colorCategoryButton}
+            {wallpaperCategoryButton}
             {children}
         </div>
     );
 }
 
 export const WearablesList = ({ category, children }) => {
+    const wearablesListRef = useRef(null);
+    useEffect(() => {
+        const { current: wearablesList } = wearablesListRef;
+        if (!wearablesList) return;
+        wearablesList.scrollTop = 0;
+    }, [category]);
     return (
-        <div className="wearablesList">
+        <div className="wearablesList" ref={wearablesListRef}>
             <div className={category?.name === 'Color' ? 'blobs' : null}>
                 {children}
             </div>

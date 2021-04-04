@@ -1,0 +1,98 @@
+.avatarContainer {
+    font-size: 0;
+    line-height: 0;
+    background: var(--med-accent-color);
+    padding: 0.5rem;
+    border-radius: 999px;
+    margin: 0 auto 2rem;
+    position: relative;
+}
+.avatarContainer::before {
+    content: '';
+    display: block;
+    width: 0.5rem;
+    height: 2rem;
+    background: inherit;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -0.25rem;
+}
+.studentAvatar, .Avatar {
+    background: #fff;
+    border: 3px solid var(--dark-theme-color);
+    border-radius: 999px;
+    overflow: hidden;
+    text-align: center;
+}
+.avatarBox {
+    width: 12rem;
+    height: 12rem;
+    position: relative;
+}
+.avatarBox .Wallpaper, .Avatar .previewBase {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.Student.Dashboard .avatarBox {
+    cursor: pointer;
+}
+.Avatar .avatarItem {
+    position: absolute;
+}
+.Teacher.Dashboard .studentAvatar {
+    width: 12rem;
+    height: 12rem;
+}
+.previewBase path {
+    transition: 0.2s;
+}
+.previewBase .st1 {
+    fill: #fff;
+}
+.previewBase .st2 {
+    fill: #111;
+}
+.previewBase.zoom path {
+    transform: scale(2.3);
+    transform-origin: center;
+}
+@media (max-width: 900px) {
+    .avatarContainer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: var(--mobile-avatar-size);
+        height: var(--mobile-avatar-size);
+        transform: translate3d(-15%, 15%, 0);
+        margin: 0;
+        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+    }
+    .avatarContainer::before {
+        display: none;
+    }
+    .avatarContainer .Avatar {
+        width: 100%;
+        height: 100%;
+        border-bottom-left-radius: 0;
+    }
+    .avatarBox {
+        width: 100%;
+        height: 100%;
+    }
+    .Avatar.mobilePreview {
+        width: 0;
+        border: 5px solid var(--med-accent-color);
+        border-width: 5px 0;
+        margin: 0 auto;
+    }
+    .Avatar.mobilePreview .avatarBox {
+        width: 0;
+        height: 0;
+        border: 2px solid var(--dark-theme-color);
+        border-radius: 999px;
+    }
+}
