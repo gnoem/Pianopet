@@ -20,8 +20,9 @@ export const Avatar = ({ student, mobilePreview, noClick }) => {
         setColor(obj?.Color?.src);
     }
     useEffect(() => {
-        if (avatar) updateAvatarObject(avatar);
-    }, [avatar]);
+        if (mobilePreview) return updateAvatarObject(mobilePreview);
+        if (avatar) return updateAvatarObject(avatar);
+    }, [mobilePreview, avatar]);
     useEffect(() => {
         const obj = createAvatarObject(student?.avatar);
         updateAvatarObject(obj);
@@ -83,11 +84,11 @@ export const Avatar = ({ student, mobilePreview, noClick }) => {
     );
 }
 
-export const MobileAvatarPreview = ({ student }) => {
+export const MobileAvatarPreview = ({ student, mobilePreview }) => {
     return (
         <Avatar {...{
             student,
-            mobilePreview: true,
+            mobilePreview,
             noClick: true
         }} />
     );

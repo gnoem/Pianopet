@@ -13,7 +13,6 @@ export const DataContextProvider = ({ children }) => {
         ? returnCreateAvatarObject(data.wearables, data.categories)
         : null;
     useEffect(() => { // todo probably can combine this useEffect with below one
-        if (!data) return;
         if (!data?.isStudent) return;
         const { student } = data;
         setAvatar(createAvatarObject(student?.avatar));

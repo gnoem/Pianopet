@@ -8,10 +8,10 @@ import { handleUpdatePreview } from "./utils";
 export const Marketplace = () => {
     const { isMobile } = useContext(MobileContext);
     const { createModal } = useContext(ModalContext);
-    const { isStudent, student, avatar, updateAvatar, categories, colorCategory, wallpaperCategory, getCategoryObject, wearables } = useContext(DataContext);
+    const { isStudent, student, avatar, categories, colorCategory, wallpaperCategory, getCategoryObject, wearables } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     const [preview, setPreview] = useState(avatar ?? {});
-    const objectToUpdate = isMobile ? [avatar, updateAvatar] : [preview, setPreview];
+    const objectToUpdate = [preview, setPreview];
     const updatePreview = handleUpdatePreview(objectToUpdate, wearables, getCategoryObject);
     useEffect(() => {
         // this useEffect is for when the teacher is editing a wearable (e.g. updating image source/coords, color hex) while previewing that
@@ -37,7 +37,7 @@ export const Marketplace = () => {
     }, [wearables]);
     return (
         <>
-            {(isMobile && isStudent) && <MobileAvatarPreview {...{ student }} />}
+            {(isMobile && isStudent) && <MobileAvatarPreview {...{ student, mobilePreview: preview }} />}
             <div className="Marketplace">
                 {isMobile || <MarketplacePreview {...{ preview, student, isStudent }} />}
                 <MarketplaceCategories {...{ isStudent, wearables, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
@@ -62,7 +62,7 @@ const ViewCartButton = ({ isMobile, isStudent, student, objectToUpdate, createMo
             }
         }
         setNewItemsInCart(newItems.length);
-    }, [previewObject]);
+    }, [previewObject, student?.closet]);
     const handleClick = () => {
         createModal(<MobileCartDescription {...{ previewObject, student, isStudent }} />);
     }

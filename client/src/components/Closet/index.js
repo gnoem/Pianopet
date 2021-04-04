@@ -15,7 +15,7 @@ export const Closet = () => {
     );
     return (
         <>
-            {isMobile && <MobileAvatarPreview {...{ student }} />}
+            {isMobile && <MobileAvatarPreview {...{ student, mobilePreview: avatar }} />}
             <div className="Closet">
                 <ClosetCategories {...{ closet, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
                 <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
