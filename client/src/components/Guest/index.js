@@ -93,11 +93,8 @@ function Signup({ type, oppositeType, action, invite, updateView, onSuccess }) {
     const [updateFormError, resetFormError, warnFormError, setFormErrorDirectly] = useFormError({});
     const [teacherCodeIsValid, setTeacherCodeIsValid] = useState(null);
     useEffect(() => {
-        console.log('hello')
         if (!invite) return;
-        console.log(invite);
         Teacher.validateTeacherCode(invite).then(({ isValid }) => {
-            console.dir(isValid);
             setTeacherCodeIsValid(isValid);
             if (isValid) setFormDataDirectly(prevState => ({
                 ...prevState,
@@ -108,9 +105,6 @@ function Signup({ type, oppositeType, action, invite, updateView, onSuccess }) {
             handleError(err, { createModal });
         });
     }, [invite]);
-    useEffect(() => {
-        console.log('teacherCodeIsValid', teacherCodeIsValid)
-    }, [teacherCodeIsValid]);
     useEffect(() => {
         if ((type === 'student') && (action === 'signup')) {
             setFormDataDirectly({
