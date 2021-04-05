@@ -8,7 +8,7 @@ const secretKey = process.env.SECRET_KEY;
 
 class Controller {
     custom = () => {
-        console.log('hi')
+        console.log('yo')
     }
     auth = (req, res) => {
         const accessToken = req.cookies?.auth;

@@ -52,7 +52,6 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
     const wallpaperType = formData?.image?.type;
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => {
-        console.dir(formData);
         if (addingNew) return Wearable.createWearable(formData);
         return Wearable.editWearable(wearable._id, formData);
     }

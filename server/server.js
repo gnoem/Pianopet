@@ -19,8 +19,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 db();
 init(app);
 
-const handleRemainingRequests = (_, res) => res.sendFile(path.resolve(__dirname, '../client/build'));
-app.get('*', handleRemainingRequests);
+// handle remaining requests
+/* app.get('*', (_, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+}); */
 
 const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => {
