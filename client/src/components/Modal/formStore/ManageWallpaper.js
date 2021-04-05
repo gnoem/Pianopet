@@ -5,6 +5,7 @@ import { Input, InputDropdown, Submit } from "../../Form";
 import { ModalForm } from ".";
 import PianopetBase from "../../PianopetBase";
 import { PianopetWallpaper } from "../../PianopetWallpaper";
+import { WearableOptions } from "./WearableOptions";
 
 export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }) => {
     const addingNew = !wearable;
@@ -30,10 +31,10 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
         return `linear-gradient(${deg}, ${start}, ${end})`;
     })();
     const defaultImage = (() => {
-        if (wearable?.image?.type === 'image') return wearable.src;
-        return '';
+        return (wearable?.image?.type === 'image')
+            ? [wearable.src, wearable.image.size]
+            : ['', 50];
     })();
-    const defaultImageSize = 50;
     const [formData, updateFormData, setFormDataDirectly] = useFormData({
         teacherCode: wearable?.teacherCode ?? teacher._id,
         name: wearable?.name ?? '',
@@ -41,14 +42,17 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
         src: wearable?.src ?? defaultColor,
         value: wearable?.value ?? '',
         occupies: wearable?.occupies ?? [],
+        active: wearable?.active ?? addingNew,
+        flag: wearable?.flag ?? addingNew,
         image: wearable?.image ?? {
             type: 'color',
             size: 100
         }
     });
-    const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const wallpaperType = formData?.image?.type;
+    const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => {
+        console.dir(formData);
         if (addingNew) return Wearable.createWearable(formData);
         return Wearable.editWearable(wearable._id, formData);
     }
@@ -74,7 +78,6 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
                         defaultColor,
                         defaultGradient,
                         defaultImage,
-                        defaultImageSize,
                         addingNew,
                         wearable,
                         setFormDataDirectly
@@ -100,7 +103,10 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
                         onInput={resetFormError}
                         inputHint={warnFormError('value')} />
                 </div>
-                <ManageWallpaperImage {...{ formData, setFormDataDirectly }} />
+                <div>
+                    <ManageWallpaperImage {...{ defaultImage, formData, setFormDataDirectly }} />
+                    <WearableOptions {...{ formData, setFormDataDirectly }} />
+                </div>
             </div>
         </ModalForm>
     );
@@ -108,7 +114,7 @@ export const ManageWallpaper = ({ user: teacher, wearable, cancel, refreshData }
 
 const WallpaperTypeInput = ({
         wallpaperType,
-        defaultColor, defaultGradient, defaultImage, defaultImageSize,
+        defaultColor, defaultGradient, defaultImage,
         addingNew,
         wearable,
         setFormDataDirectly
@@ -122,7 +128,7 @@ const WallpaperTypeInput = ({
             if (type === 'color') {
                 return [defaultColor, 100];
             }
-            return [defaultImage, defaultImageSize];
+            return defaultImage;
         }
         const [src, size] = generateValue(wallpaperType);
         setFormDataDirectly(prevState => ({
@@ -168,7 +174,7 @@ const WallpaperTypeInput = ({
     return (
         <InputDropdown
             name="category"
-            label="Wearable category:"
+            label="Wallpaper type:"
             defaultValue={defaultValue}
             listItems={listItems}
             onChange={updateWallpaperType}
@@ -188,7 +194,7 @@ const WallpaperSrcInput = ({
             switch (wallpaperType) {
                 case 'color': return { value: defaultColor };
                 case 'gradient': return { value: defaultGradient };
-                case 'image': return { value: defaultImage };
+                case 'image': return { value: defaultImage[0] };
                 default: return true;
             }
         }
@@ -230,7 +236,7 @@ const WallpaperSrcInput = ({
     );
 }
 
-const GradientInput = ({ setFormDataDirectly, defaultGradient, reset, updateReset }) => {
+const GradientInput = ({ setFormDataDirectly, defaultGradient }) => {
     const [deg, start, end] = defaultGradient;
     const [gradient, setGradient] = useState({
         deg,
@@ -274,7 +280,7 @@ const GradientInput = ({ setFormDataDirectly, defaultGradient, reset, updateRese
     )
 }
 
-const ManageWallpaperImage = ({ formData, setFormDataDirectly }) => {
+const ManageWallpaperImage = ({ defaultImage, formData, setFormDataDirectly }) => {
     const { src, image } = formData;
     const updateWallpaperSize = (e) => {
         const size = parseInt(e.target.value) + 1;
@@ -287,9 +293,9 @@ const ManageWallpaperImage = ({ formData, setFormDataDirectly }) => {
         }));
     }
     const showRange = src && image?.type === 'image';
-    const defaultValue = image?.size ? image.size - 1 : 50;
+    const defaultValue = defaultImage[1];
     return (
-        <div>
+        <div className="wearableImage">
             <label>Preview:</label>
             <div className="previewBox">
                 <div>

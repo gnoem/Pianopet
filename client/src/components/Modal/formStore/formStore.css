@@ -58,8 +58,11 @@
 /* MANAGE WEARABLES DRAG&DROP PREVIEWBOX */
 .wearableForm {
     display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: 1rem;
+    grid-template-columns: 1fr calc(14rem + 2px); /* +2px to account for 1px border */
+    column-gap: 1.5rem;
+}
+.wearableForm .wearableImage {
+    margin-bottom: 1rem;
 }
 .wearableForm .previewBox {
     border: 1px solid #ddd;

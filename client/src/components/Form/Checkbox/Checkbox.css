@@ -5,10 +5,16 @@
     flex-wrap: wrap;
     margin-bottom: 1rem;
 }
+.checkboxContainer .Checkbox + .Checkbox {
+    margin: 0;
+}
 .Checkbox {
     display: flex;
     gap: 0.4rem;
     align-items: center;
+}
+.Checkbox + .Checkbox {
+    margin-top: 0.5rem;
 }
 .Checkbox label {
     font-weight: normal;
@@ -23,6 +29,7 @@
     height: 1rem;
     border-radius: 999px;
     cursor: pointer;
+    flex: 0 0 auto;
 }
 .checkboxElement span.svg {
     transform: translate3d(0,0,0) scale(1);
@@ -93,4 +100,15 @@
 }
 .checkboxElement:hover span.svg {
     border-color: var(--deep-theme-color);
+}
+.Checkbox.detailed {
+    display: flex;
+    align-items: start;
+    justify-content: start;
+}
+.Checkbox.detailed .label span {
+    display: block;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    color: #666;
 }

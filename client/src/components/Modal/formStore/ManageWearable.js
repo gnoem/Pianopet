@@ -6,6 +6,7 @@ import { handleError } from "../../../services";
 import { Input, InputDropdown, Checkbox, Submit } from "../../Form";
 import { ModalForm } from ".";
 import PianopetBase from "../../PianopetBase";
+import { WearableOptions } from "./WearableOptions";
 
 export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, refreshData }) => {
     const addingNew = !wearable;
@@ -18,6 +19,8 @@ export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, r
         src: wearable?.src ?? '',
         value: wearable?.value ?? '',
         occupies: wearable?.occupies ?? [],
+        active: wearable?.active ?? true,
+        flag: wearable?.flag ?? addingNew,
         image: {
             w: wearable?.image?.w ?? 50,
             x: wearable?.image?.x ?? 10,
@@ -29,7 +32,9 @@ export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, r
         if (addingNew) return Wearable.createWearable(formData);
         return Wearable.editWearable(wearable._id, formData);
     }
-    const handleSuccess = () => refreshData();
+    const handleSuccess = () => {
+        refreshData();
+    }
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
                    title={addingNew ? 'Add new wearable' : 'Edit this wearable'}
@@ -78,7 +83,10 @@ export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, r
                         onInput={resetFormError}
                         inputHint={warnFormError('value')} />
                 </div>
-                <ManageWearableImage {...{ formData, setFormDataDirectly }} />
+                <div>
+                    <ManageWearableImage {...{ formData, setFormDataDirectly }} />
+                    <WearableOptions {...{ formData, setFormDataDirectly }} />
+                </div>
             </div>
         </ModalForm>
     );
@@ -275,7 +283,7 @@ const ManageWearableImage = ({ formData, setFormDataDirectly }) => {
         updateImage({ w: percentage });
     }
     return (
-        <div>
+        <div className="wearableImage">
             <label>Preview:</label>
             <div className="previewBox">
                 <div ref={preview}>

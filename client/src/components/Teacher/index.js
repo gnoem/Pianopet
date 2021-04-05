@@ -5,6 +5,7 @@ import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
 import { TeacherBadges } from "../TeacherBadges";
 import { TeacherMarketplace } from "../TeacherMarketplace";
+import { TeacherSettings } from "../TeacherSettings";
 import { ViewingStudent } from "../ViewingStudent";
 import { StudentOverview } from "../StudentOverview";
 
@@ -46,6 +47,7 @@ const TeacherMain = ({ view, teacher, students, selectStudent }) => {
             case 'marketplace': return <TeacherMarketplace />;
             case 'badges': return <TeacherBadges />;
             case 'my-account': return <Account />;
+            case 'settings': return <TeacherSettings />;
             default: return 'default';
         }
     }

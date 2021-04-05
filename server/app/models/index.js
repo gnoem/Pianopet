@@ -82,6 +82,14 @@ export const Wearable = mongoose.model(
         category: String,
         value: Number,
         src: String,
+        active: {
+            type: Boolean,
+            default: true
+        },
+        flag: {
+            type: Boolean,
+            default: false
+        },
         image: {
             // for clothing/accessories only:
             w: Number,

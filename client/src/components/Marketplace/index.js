@@ -8,7 +8,7 @@ import { handleUpdatePreview } from "./utils";
 export const Marketplace = () => {
     const { isMobile } = useContext(MobileContext);
     const { createModal } = useContext(ModalContext);
-    const { isStudent, student, avatar, categories, colorCategory, wallpaperCategory, getCategoryObject, wearables } = useContext(DataContext);
+    const { isStudent, student, avatar, categories, colorCategory, getCategoryObject, wearables } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     const [preview, setPreview] = useState(avatar ?? {});
     const objectToUpdate = [preview, setPreview];
@@ -40,8 +40,21 @@ export const Marketplace = () => {
             {(isMobile && isStudent) && <MobileAvatarPreview {...{ student, mobilePreview: preview }} />}
             <div className="Marketplace">
                 {isMobile || <MarketplacePreview {...{ preview, student, isStudent }} />}
-                <MarketplaceCategories {...{ isStudent, wearables, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
-                <MarketplaceWearables {...{ isStudent, student, category, wearables, updatePreview }}/>
+                <MarketplaceCategories {...{
+                    isStudent,
+                    student,
+                    wearables,
+                    categories,
+                    category,
+                    updateCategory: setCategory
+                }} />
+                <MarketplaceWearables {...{
+                    isStudent,
+                    student,
+                    category,
+                    wearables,
+                    updatePreview
+                }}/>
             </div>
             <ViewCartButton {...{ isMobile, isStudent, student, objectToUpdate, createModal }} />
         </>

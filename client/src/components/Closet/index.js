@@ -8,7 +8,7 @@ import { createAvatarObjectForUpdate } from "./utils";
 
 export const Closet = () => {
     const { isMobile } = useContext(MobileContext);
-    const { student, avatar, closet, wearables, categories, colorCategory, wallpaperCategory } = useContext(DataContext);
+    const { student, avatar, closet, wearables, categories, colorCategory } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
     if (!closet.length) return (
         <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
@@ -17,14 +17,15 @@ export const Closet = () => {
         <>
             {isMobile && <MobileAvatarPreview {...{ student, mobilePreview: avatar }} />}
             <div className="Closet">
-                <ClosetCategories {...{ closet, categories, colorCategory, wallpaperCategory, updateCategory: setCategory }} />
+                <ClosetCategories {...{ closet, categories, category, updateCategory: setCategory }} />
                 <ClosetWearablesList {...{ closet, category, categories, wearables, avatar }} />
             </div>
         </>
     );
 }
 
-const ClosetCategories = ({ closet, categories, updateCategory }) => {
+const ClosetCategories = ({ closet, category, categories, updateCategory }) => {
+    const currentCategory = category.name;
     const generateCategoriesList = () => {
         const wearableCategoryButtons = categories.map(category => {
             const someClosetItemHasCategory = closet.some(wearable => wearable.category === category._id);
@@ -32,6 +33,7 @@ const ClosetCategories = ({ closet, categories, updateCategory }) => {
             const categoryName = category.name;
             return (
                 <button key={`closet-wearableCategories-${categoryName}`}
+                        className={(currentCategory === categoryName) ? 'active' : ''}
                         onClick={() => updateCategory(category)}>
                     {categoryName}
                 </button>
@@ -40,7 +42,7 @@ const ClosetCategories = ({ closet, categories, updateCategory }) => {
         return wearableCategoryButtons;
     }
     return (
-        <CategoryList {...{ updateCategory }}>
+        <CategoryList {...{ category, updateCategory }}>
             {generateCategoriesList()}
         </CategoryList>
     );

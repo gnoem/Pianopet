@@ -6,16 +6,30 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
     const wearableRefs = useRef({});
     const { createContextMenu, createModal } = useContext(ModalContext);
     const marketplaceWearables = () => {
-        const filteredList = wearables.filter(wearable => wearable.category === category._id);
+        const filteredList = isStudent
+            ? wearables.filter(wearable => wearable.active && (wearable.category === category._id))
+            : wearables.filter(wearable => wearable.category === category._id);
         if (!['Color', 'Wallpaper'].includes(category.name) && !filteredList.length) return (
             <div className="noneFound">None found!</div>
         );
         const list = filteredList.map(wearable => {
-            const ownsWearable = (() => {
-                if (!isStudent) return false;
-                if (student.closet.includes(wearable._id)) return true;
-                return false;
-            })();
+            const constructedClassName = () => {
+                const ownsWearable = (() => {
+                    if (!isStudent) return false;
+                    if (student.closet.includes(wearable._id)) return true;
+                    return false;
+                })();
+                const hasFlag = (() => {
+                    if (isStudent && ownsWearable) return false;
+                    if (wearable.flag) return true;
+                    return false;
+                })();
+                const inactive = !wearable.active;
+                let string = ownsWearable ? 'owned' : '';
+                if (hasFlag) string += ' flag--new';
+                if (inactive) string += ' inactive';
+                return string;
+            }
             const handleClick = () => updatePreview(wearable);
             const contextMenuClick = (e) => {
                 e.preventDefault();
@@ -43,7 +57,7 @@ export const MarketplaceWearables = ({ isStudent, student, category, wearables, 
                 <WearableItem
                     ref={(el) => wearableRefs.current[wearable._id] = el}
                     key={`${category.name}-wearable-${wearable.name}`}
-                    className={ownsWearable ? 'owned' : ''}
+                    className={constructedClassName()}
                     includeCost={true}
                     onClick={handleClick}
                     onContextMenu={isStudent ? null : contextMenuClick}

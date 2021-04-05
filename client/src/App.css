@@ -235,6 +235,19 @@ input + .formHint, div.Input + .formHint {
     font-weight: bold;
     font-size: 1.5rem;
 }
+.flag--new::after {
+    content: 'NEW';
+    position: absolute;
+    top: 0.5rem;
+    right: -0.5rem;
+    background: var(--caution);
+    font-size: 0.6rem;
+    line-height: 1.6;
+    color: #fff;
+    border-radius: 0.3rem;
+    padding: 0 0.3rem;
+    box-shadow: 0.1rem 0.1rem 0.3rem rgba(0, 0, 0, 0.3);
+}
 
 /* FORMS - LABELS, INPUTS, BUTTONS */
 form div.half {
@@ -833,6 +846,7 @@ form.pad input[type=text], form.pad input[type=password] {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+    overflow: visible;
 }
 .wearableCategories button {
     flex: 1 0 auto;
@@ -845,6 +859,20 @@ form.pad input[type=text], form.pad input[type=password] {
     line-height: 1.5rem;
     font-size: 0.8rem;
     text-transform: uppercase;
+    opacity: 0.6;
+}
+.wearableCategories button.active, .wearableCategories button.add {
+    opacity: 1;
+}
+.wearableCategories button.flag--new::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    padding: 0;
+    border-radius: 999px;
+    position: static;
+    margin: 0 -0.5rem 1px 0.5rem;
+    display: inline-block;
 }
 .wearableCategories button.add {
     flex-grow: 0;
@@ -902,10 +930,12 @@ form.pad input[type=text], form.pad input[type=password] {
     justify-content: center;
     gap: 0.3rem;
 }
-.wearablesList button.owned {
+.wearablesList button.owned,
+.wearablesList button.inactive {
     opacity: 0.4;
 }
-.wearablesList button.owned:hover {
+.wearablesList button.owned:hover,
+.wearablesList button.inactive:hover {
     opacity: 1;
 }
 .wearablesList button.owned::before {
@@ -915,20 +945,6 @@ form.pad input[type=text], form.pad input[type=password] {
     top: 0.5rem;
     right: 0.5rem;
     transform: 0.2s;
-}
-.wearablesList button.owned::after {
-    content: '\f00c';
-    font: 900 0.6em 'Font Awesome 5 Free';
-    color: #fff;
-    background: var(--light-theme-color);
-    width: 0.8125rem;
-    height: 0.8125rem;
-    border-radius: 999px;
-    line-height: 0.8125rem;
-    position: absolute;
-    top: 0.2rem;
-    right: 0.2rem;
-    display: none;
 }
 .wearablesList button.owned span.wearableValue,
 .wearablesList button.owned img.coin {
@@ -1100,6 +1116,12 @@ form.pad input[type=text], form.pad input[type=password] {
 }
 .colorPicker > span {
     cursor: pointer;
+}
+.manageColorForm .checkboxContainer {
+    margin-top: 1rem;
+}
+.manageColorForm .tip {
+    margin-top: 0.5rem;
 }
 
 /* BADGES */

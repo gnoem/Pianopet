@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { ModalContext } from "../../../contexts";
-import { CategoryList } from "../../Wearables";
+import { CategoryList, categoryUtils } from "../../Wearables";
 
-export const MarketplaceCategories = ({ isStudent, wearables, categories, updateCategory }) => {
+export const MarketplaceCategories = ({ isStudent, student, wearables, categories, category, updateCategory }) => {
     const { createModal, createContextMenu } = useContext(ModalContext);
+    const viewingCategory = category;
     const marketplaceCategories = () => {
         const wearableCategoryButtons = categories.map(category => {
             const editOrDeleteCategory = (e) => {
@@ -14,8 +15,13 @@ export const MarketplaceCategories = ({ isStudent, wearables, categories, update
                 ]
                 createContextMenu(e, listItems, { className: 'editdelete' });
             }
+            const buttonClassName = () => {
+                const includedStudent = isStudent ? student : null;
+                return categoryUtils.constructedClassName(category, viewingCategory, wearables, includedStudent);
+            }
             return (
                 <button key={`wearableCategories-toolbar-${category.name}`}
+                        className={buttonClassName()}
                         onClick={() => updateCategory(category)}
                         onContextMenu={isStudent ? null : editOrDeleteCategory}>
                     {category.name}
@@ -28,7 +34,7 @@ export const MarketplaceCategories = ({ isStudent, wearables, categories, update
         return wearableCategoryButtons;
     }
     return (
-        <CategoryList {...{ updateCategory }}>
+        <CategoryList {...{ type: 'marketplace', category, updateCategory }}>
             {marketplaceCategories()}
         </CategoryList>
     );

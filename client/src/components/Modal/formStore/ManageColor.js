@@ -5,16 +5,19 @@ import { ntc } from "../../../utils";
 import { ModalForm } from "."
 import PianopetBase from "../../PianopetBase";
 import { Input, Submit } from "../../Form";
+import { WearableOptions } from "./WearableOptions";
 
 export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) => {
     const addingNew = !wearable;
     const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16);
-    const [formData, updateFormData] = useFormData({
+    const [formData, updateFormData, setFormDataDirectly] = useFormData({
         teacherCode: wearable?.teacherCode ?? teacher._id,
         name: wearable?.name ?? '',
         src: wearable?.src ?? randomHex,
         value: wearable?.value ?? '',
-        category: '0'
+        category: '0',
+        active: wearable?.active ?? addingNew,
+        flag: wearable?.flag ?? addingNew
     });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const colorInput = useRef(null);
@@ -27,6 +30,7 @@ export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) =>
     }
     return (
         <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
+                   className="manageColorForm"
                    title={addingNew ? 'Add new color' : 'Edit this color'}
                    submit={addingNew ? <Submit nvm="Back" cancel={cancel} /> : <Submit value="Save changes" />}>
             {addingNew ? 'Add a new' : 'Edit this'} color by clicking on the Pianopet icon below.
@@ -52,7 +56,10 @@ export const ManageColor = ({ user: teacher, wearable, cancel, refreshData }) =>
                        onInput={resetFormError}
                        inputHint={warnFormError('value')} />
             </div>
-            {addingNew || <div className="tip" style={{ marginTop: '1rem' }}>Tip: Clear the text box to see color name suggestions!</div>}
+            {addingNew || <div className="tip">Tip: Clear the text box to see color name suggestions!</div>}
+            <div className="checkboxContainer">
+                <WearableOptions {...{ formData, setFormDataDirectly }} />
+            </div>
         </ModalForm>
     );
 }
