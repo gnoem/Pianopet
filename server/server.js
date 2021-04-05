@@ -20,9 +20,9 @@ db();
 init(app);
 
 // handle remaining requests
-/* app.get('*', (_, res) => {
+app.get('*', (_, res) => {
     res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-}); */
+});
 
 const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => {
