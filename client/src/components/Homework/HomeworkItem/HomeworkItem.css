@@ -1,0 +1,190 @@
+.HomeworkItem {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+        'header'
+        'body';
+    background: #fff;
+    color: #000;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.HomeworkItem + .HomeworkItem {
+    margin-top: 2rem;
+}
+.HomeworkItem .homeworkHeader {
+    background: var(--light-accent-color);
+    padding: 1rem 1.5rem;
+    padding-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.HomeworkItem .homeworkBody {
+    padding: 1rem;
+}
+.HomeworkItem h3 {
+    margin-bottom: 0;
+}
+.HomeworkItem span.date {
+    font-size: 0.8rem;
+}
+.HomeworkItem .homeworkHeader button {
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+    background: 0;
+    border-radius: 999px;
+    width: 3rem;
+    height: 3rem;
+    line-height: 2rem;
+    text-align: center;
+    color: #aaa;
+}
+.HomeworkItem .homeworkHeader button:hover {
+    color: #666;
+    background: #ddd;
+}
+.HomeworkItem .homeworkHeader button::before {
+    font: 900 1em 'Font Awesome 5 Free';
+    content: '\f142';
+}
+.HomeworkItem .homeworkBody ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+.HomeworkItem .homeworkBody li {
+    width: 100%;
+}
+.HomeworkItem .homeworkBody ul li {
+    display: flex;
+    align-items: center;
+    gap: 3rem; /* 1rem gap between ol li + 1rem left padding on ol */
+}
+.HomeworkItem .homeworkBody ul li > div {
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+.HomeworkItem .homeworkBody ul li > div:first-of-type {
+    width: 50%;
+    padding-left: 0.3rem;
+}
+.HomeworkItem .homeworkBody ul li > div:nth-of-type(2) {
+    width: 50%;
+}
+.HomeworkItem ol {
+    margin: 0;
+    margin-bottom: 0.5rem;
+    padding-left: 2rem;
+}
+.HomeworkItem ol li {
+    margin-top: 0.5rem;
+    line-height: 1.3;
+}
+.HomeworkItem ol li > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.HomeworkItem ol li > div > div {
+    width: 50%;
+}
+.HomeworkItem ol li > div > div:first-of-type {
+    width: 50%;
+    padding: 0 0.2rem;
+}
+.HomeworkItem ol li > div > div:nth-of-type(2) {
+    width: 50%;
+}
+.HomeworkItem .ProgressIndicator {
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+.HomeworkItem .progress {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    place-items: center;
+    column-gap: 0.5rem;
+    margin-right: 1rem;
+}
+.HomeworkItem .progress button {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1rem;
+    color: var(--deep-theme-color);
+}
+.HomeworkItem .progress button.disabled {
+    cursor: not-allowed;
+    color: #aaa;
+}
+.ProgressBar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+    height: 0.5rem;
+    background: #eee;
+    border-radius: 999px;
+}
+.ProgressBar .bar {
+    background: var(--deep-theme-color);
+    height: 100%;
+    border-radius: 999px;
+}
+.HomeworkItem .coinsEarned {
+    display: inline-flex;
+    width: 3rem;
+    vertical-align: middle;
+    place-items: center;
+    margin-right: 1rem;
+    color: #aaa;
+    cursor: pointer;
+}
+.HomeworkItem .coinsEarned .coinIcon {
+    height: 1rem;
+    margin-right: 0.2rem;
+    margin-left: 0.5rem;
+    filter: grayscale(100%);
+}
+.HomeworkItem .coinsEarned.coinsAdded {
+    color: inherit;
+    cursor: default;
+}
+.HomeworkItem .coinsEarned.coinsAdded .coinIcon {
+    filter: none;
+}
+
+@media (max-width: 900px) {
+    .HomeworkItem + .HomeworkItem {
+        margin-top: 1.5rem;
+    }
+    .HomeworkItem .homeworkHeader {
+        padding: 0.5rem 1rem;
+    }
+    .HomeworkItem .homeworkBody {
+        padding: 0.5rem;
+    }
+    .HomeworkItem h3 {
+        font-size: 1rem;
+    }
+    .HomeworkItem .homeworkBody ul li {
+        gap: 2rem; /* 1rem gap between ol li + 1rem left padding on ol */
+    }
+    .HomeworkItem ol {
+        padding-left: 1.5rem;
+        font-size: 0.9rem;
+    }
+    .HomeworkItem ul li > div:nth-of-type(n),
+    .HomeworkItem ol li > div > div:nth-of-type(n) { /* at least im not using !important */
+        width: 50%;
+    }
+    .HomeworkItem .progress {
+        margin-right: 0.5rem;
+    }
+    .HomeworkItem .progress button {
+        font-size: 0.9rem;
+    }
+}

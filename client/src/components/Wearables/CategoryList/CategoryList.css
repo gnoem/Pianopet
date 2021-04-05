@@ -1,0 +1,63 @@
+.wearableCategories {
+    grid-area: nav;
+    padding: 0.4rem;
+    background: var(--light-theme-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    overflow: visible;
+}
+.wearableCategories button {
+    flex: 1 0 auto;
+    margin: 0;
+    border: 0;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--deep-theme-color);
+    line-height: 1.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+.wearableCategories button.active, .wearableCategories button.add {
+    opacity: 1;
+}
+.wearableCategories button.flag--new::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    padding: 0;
+    border-radius: 999px;
+    position: static;
+    margin: 0 -0.5rem 1px 0.5rem;
+    display: inline-block;
+}
+.wearableCategories button.add {
+    flex-grow: 0;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    box-sizing: content-box;
+    display: inline-grid;
+    place-items: center;
+}
+.wearableCategories button.add::before {
+    line-height: 1.6rem;
+}
+@media (max-width: 900px) {
+    .wearableCategories {
+        flex-wrap: nowrap;
+        overflow: auto;
+    }
+    .wearableCategories button {
+        padding: 0 0.7rem;
+        line-height: 2;
+        font-size: 0.7rem;
+    }
+    .wearableCategories button.flag--new::after {
+        width: 0.375rem;
+        height: 0.375rem;
+        margin: 0 -0.2rem 1px 0.2rem;
+    }
+}

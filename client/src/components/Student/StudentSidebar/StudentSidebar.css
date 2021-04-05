@@ -1,0 +1,68 @@
+.StudentSidebar {
+    text-align: center;
+}
+.StudentStats {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.StudentStats .Stat {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.StudentStats .Stat img {
+    width: 1.5em;
+    height: auto;
+    margin-right: 0.5rem;
+}
+@media (max-width: 900px) {
+    .StudentSidebar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-left: calc(var(--mobile-avatar-size) - (0.05 * var(--mobile-avatar-size)));
+        color: #000;
+        transition: 0.2s;
+    }
+    .StudentSidebar.noAv {
+        padding: 0 1rem;
+    }
+    .StudentStats {
+        flex-direction: row;
+        gap: calc(0.15 * var(--mobile-avatar-size));
+    }
+    .StudentSidebar.noAv .StudentStats {
+        width: calc(100% - 1rem);
+        justify-content: space-evenly;
+    }
+    .StudentSidebar.noAv .StudentStats .Stat {
+        font-size: 1.3rem;
+    }
+}
+@media (max-width: 600px) {
+    .StudentSidebar:not(.noAv) .StudentStats {
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    .StudentStats .Stat {
+        font-size: 1rem;
+    }
+}
+@media (max-width: 400px) {
+    .StudentStats {
+        gap: 0.2rem;
+    }
+    .StudentStats .Stat {
+        font-size: 0.9rem;
+    }
+}
+@media (max-width: 400px) and (max-aspect-ratio: 1/2) {
+    .StudentStats {
+        gap: 0.5rem;
+    }
+    .StudentStats .Stat {
+        font-size: 1.2rem;
+    }
+}

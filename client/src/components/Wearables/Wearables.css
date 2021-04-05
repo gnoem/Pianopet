@@ -1,0 +1,148 @@
+/* MARKETPLACE & CLOSET */
+.Marketplace, .Closet {
+    margin: 2rem 0;
+    background: #fff;
+    height: 25rem;
+    display: grid;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.Marketplace {
+    grid-template: auto 1fr / 15rem 1fr;
+    grid-template-areas:
+        'preview nav'
+        'preview items';
+}
+.Closet {
+    grid-template: auto 1fr / 100%;
+    grid-template-areas:
+        'nav'
+        'items';
+}
+.Marketplace .marketplacePreview {
+    grid-area: preview;
+    border-right: 1px solid #666;
+    display: grid;
+    grid-template-rows: 15rem 1fr;
+    overflow: hidden;
+}
+.previewBox {
+    position: relative;
+}
+.previewBox .Wallpaper, .previewBox .previewBase {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.previewBox .previewWearable {
+    position: absolute;
+}
+.marketplacePreview > ul {
+    border-top: 1px solid #ccc;
+    list-style: none;
+    font-size: 0.8rem;
+    line-height: 1;
+    margin: 0;
+    padding: 1rem;
+    background: #f7f7f7;
+    color: #666;
+    overflow: auto;
+}
+.marketplacePreview > ul h3 {
+    margin-bottom: 0.5rem;
+}
+.marketplacePreview > ul li {
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+.marketplacePreview > ul li + li {
+    margin-top: 0.5rem;
+}
+.marketplacePreview > ul span.owned::before {
+    content: '\f00c';
+    font: 900 1em 'Font Awesome 5 Free';
+    line-height: 1.4rem;
+}
+.marketplacePreview > ul button {
+    padding: 0.3rem;
+    border-radius: 0.3rem;
+    line-height: 0;
+    font-size: 0;
+}
+.marketplacePreview > ul button .Stat {
+    font-size: 0.7rem;
+}
+.Modal .marketplacePreview > ul {
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+}
+.Modal .marketplacePreview > ul h3 {
+    display: none;
+}
+.viewCart {
+    position: absolute;
+    text-align: right;
+    top: 0;
+    right: 0;
+}
+.viewCart button {
+    padding: 0;
+    margin: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+}
+.viewCart button span {
+    position: absolute;
+    bottom: -0.2rem;
+    right: -0.2rem;
+    background: var(--deep-caution);
+    width: 1rem;
+    height: 1rem;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    line-height: calc(1rem - 2px); /* to account for 1px border */
+    text-align: center;
+    border: 1px solid #fff;
+}
+@media (max-width: 900px) {
+    .Main .StudentCloset,
+    .Main .StudentMarketplace {
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr 11rem;
+        position: relative;
+    }
+    .Main .StudentCloset h1,
+    .Main .StudentMarketplace h1 {
+        line-height: 1;
+        margin-bottom: 0.7rem;
+    }
+    .Main .Closet,
+    .Main .Marketplace {
+        height: calc(100% - 1rem);
+        margin-top: 1rem;
+    }
+    .Marketplace, .Closet {
+        margin: 0;
+        height: auto;
+    }
+    .Marketplace {
+        grid-template-areas:
+            'nav nav'
+            'items items';
+    }
+    .Closet + .buttons {
+        text-align: right;
+    }
+}

@@ -1,0 +1,49 @@
+.BadgeList {
+    margin: 2rem 0;
+    display: flex;
+}
+.badgeItem {
+    flex: 0 0 3.5rem;
+    margin: 0 1rem;
+    transition: 0.2s;
+    text-align: center;
+}
+.badgeItem img.badgeImage {
+    display: block;
+    width: 3.5rem;
+    margin: auto;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+.StudentBadges .badgeItem img.badgeImage {
+    cursor: default;
+}
+.badgeItem span {
+    font-size: 0.8rem;
+    line-height: 130%;
+}
+.badgeItem img.coin {
+    width: auto;
+    height: 1em;
+    padding-right: 0.3rem;
+}
+.badgeItem span.badgeValue, .badgeItem img.coin {
+    vertical-align: middle;
+    display: inline-block;
+}
+.StudentBadges .badgeItem span.badgeValue, .StudentBadges .badgeItem img.coin {
+    cursor: pointer;
+}
+.badgeItem span.badgeName {
+    display: block;
+    font-weight: bold;
+}
+.badgeItem.redeemed img.coin {
+    filter: grayscale();
+}
+.badgeItem.redeemed span.badgeValue {
+    text-decoration: line-through;
+}
+.badgeItem.redeemed span.badgeValue, .badgeItem.redeemed img.coin {
+    cursor: default;
+}

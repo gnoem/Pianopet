@@ -1,0 +1,33 @@
+/* MANAGE COLOR */
+.manageColor {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    margin-top: 1.5rem;
+    column-gap: 1rem;
+}
+.colorPicker {
+    position: relative;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+.colorPicker > input,
+.colorPicker > span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+.colorPicker > span {
+    cursor: pointer;
+}
+.manageColorForm .checkboxContainer {
+    margin-top: 1rem;
+}
+.manageColorForm .tip {
+    margin-top: 0.5rem;
+}

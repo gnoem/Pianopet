@@ -1,0 +1,31 @@
+.Dashboard .Main.MyAccount {
+    padding-bottom: 4rem;
+}
+.MyAccount form {
+    margin-top: 2rem;
+}
+.MyAccount div.profilePic {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.MyAccount div.profilePic img {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 999px;
+    border: 3px solid #fff;
+    object-fit: cover;
+}
+@media (max-width: 900px) {
+    .MyAccount {
+        margin-bottom: calc(12.5vh - 2rem);
+    }
+    .MyAccount form {
+        margin-top: 1.5rem;
+    }
+    .MyAccount form + form {
+        margin-top: 2rem;
+    }
+}
