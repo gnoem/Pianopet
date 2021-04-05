@@ -5,7 +5,7 @@ import { useFormData, useFormError } from "../../../hooks";
 import { handleError } from "../../../services";
 import { Input, InputDropdown, Checkbox, Submit } from "../../Form";
 import { ModalForm } from ".";
-import PianopetBase from "../../PianopetBase";
+import { PianopetBase } from "../../Avatar/PianopetBase";
 import { WearableOptions } from "./WearableOptions";
 
 export const ManageWearable = ({ user: teacher, wearable, cancel, createModal, refreshData }) => {

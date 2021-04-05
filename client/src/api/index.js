@@ -11,7 +11,8 @@ export const User = {
 }
 
 export const Teacher = {
-    createAccount: async (formData) => await post(`/teacher`, formData)
+    createAccount: async (formData) => await post(`/teacher`, formData),
+    validateTeacherCode: async (teacherCode) => await get(`/teacher/${teacherCode}`)
 }
 
 export const Student = {

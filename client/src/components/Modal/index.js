@@ -1,8 +1,8 @@
-//import "./Modal.css";
+import "./Modal.css";
 import { useEffect, useContext, useRef } from "react";
 import { DataContext, ModalContext } from "../../contexts";
 import { elementHasParent } from "../../utils";
-import { formStore } from "./formStore";
+import { modalFormStore } from "../ModalForm";
 import { customDialogStore } from "./Dialog";
 import { Error, customErrorStore } from "./Alert";
 
@@ -14,7 +14,7 @@ export const Modal = ({ children, content, type, options, selfDestruct }) => {
     const user = isStudent ? student : teacher;
     const formContent = () => {
         switch (type) {
-            case 'form': return formStore[content]({ 
+            case 'form': return modalFormStore[content]({ 
                 user,
                 ...data,
                 ...options,

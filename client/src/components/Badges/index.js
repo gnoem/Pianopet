@@ -1,3 +1,4 @@
+import "./Badges.css";
 import React, { useContext, useRef } from "react";
 import { Student } from "../../api";
 import { DataContext, ModalContext } from "../../contexts";

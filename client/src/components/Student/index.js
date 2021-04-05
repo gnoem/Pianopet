@@ -2,11 +2,11 @@ import { useEffect, useContext } from "react";
 import { DataContext, MobileContext, ViewContext } from "../../contexts";
 import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
-import { StudentBadges } from "../StudentBadges";
-import { StudentCloset } from "../StudentCloset";
 import { Homework } from "../Homework";
-import { StudentMarketplace } from "../StudentMarketplace";
-import { StudentSidebar } from "../StudentSidebar";
+import { StudentSidebar } from "./StudentSidebar";
+import { StudentCloset } from "./StudentCloset";
+import { StudentMarketplace } from "./StudentMarketplace";
+import { StudentBadges } from "./StudentBadges";
 
 export const Student = () => {
     const { isMobile } = useContext(MobileContext);
@@ -24,19 +24,19 @@ export const Student = () => {
                     <button className="stealth" onClick={() => updateView({ type: 'marketplace' })}>Marketplace</button>
                     <button className="stealth" onClick={() => updateView({ type: 'badges' })}>Badges</button>
                 </Nav>
-                <ProfileDropdown {...{ user: student, updateView }} />
+                <ProfileDropdown {...{ isStudent: true, user: student, updateView }} />
             </Header>
             <StudentSidebar {...{ view, student }} />
-            <StudentMain {...{ view, student }} />
+            <StudentMain {...{ view, updateView, student }} />
         </>
     );
 }
 
-const StudentMain = ({ view, student }) => {
+const StudentMain = ({ view, updateView, student }) => {
     const content = () => {
         switch (view.type) {
             case 'home': return <Homework {...{ student }} />;
-            case 'closet': return <StudentCloset />;
+            case 'closet': return <StudentCloset {...{ updateView }} />;
             case 'marketplace': return <StudentMarketplace />;
             case 'badges': return <StudentBadges />;
             case 'my-account': return <Account />;

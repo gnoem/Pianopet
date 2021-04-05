@@ -3,9 +3,9 @@ import { User } from "../../api";
 import { ModalContext, ViewContextProvider } from "../../contexts";
 import { handleError } from "../../services";
 import { ContextMenu } from "../Menu";
-import { Dashboard } from "../Dashboard/index.js";
-import { Guest } from "../Guest/index.js";
-import { Modal } from "../Modal/index.js";
+import { Dashboard } from "../Dashboard";
+import { Guest } from "../Guest";
+import { Modal } from "../Modal";
 
 export const Gateway = () => {
     const [accessToken, setAccessToken] = useState(null);

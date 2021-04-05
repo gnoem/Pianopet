@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { User } from '../../api';
-import { useFormData, useFormError } from '../../hooks';
-import { Form, Input, Submit } from '../Form';
+import "./Guest.css";
+import { useState, useEffect, useContext } from "react";
+import { useLocation } from "react-router-dom";
+import { Teacher, User } from "../../api";
+import { useFormData, useFormError } from "../../hooks";
+import { Form, Input, Submit } from "../Form";
+import { handleError } from "../../services";
+import { ModalContext } from "../../contexts";
 
-function useQuery() {
-    return new URLSearchParams(useLocation().search);
-}
+const useQuery = () => new URLSearchParams(useLocation().search);
+
 const uppercaseFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 export const Guest = ({ signup, handleSuccess }) => {
@@ -17,12 +19,12 @@ export const Guest = ({ signup, handleSuccess }) => {
     let invite = useQuery().get('t');
     const updateView = (type, action) => setView({ type, action });
     const onSuccess = ({ user, isStudent }) => {
+        if (invite) return window.location.assign('/');
         handleSuccess({
             token: true,
             _id: user._id,
             isStudent
         });
-        if (invite) window.history.pushState('', '', '/');
     }
     const oppositeType = (view.type === 'student') ? 'teacher' : 'student';
     return (
@@ -86,23 +88,29 @@ function Login({ type, oppositeType, updateView, onSuccess }) {
 }
 
 function Signup({ type, oppositeType, action, invite, updateView, onSuccess }) {
+    const { createModal } = useContext(ModalContext);
     const [formData, updateFormData, setFormDataDirectly] = useFormData({ role: type });
     const [updateFormError, resetFormError, warnFormError, setFormErrorDirectly] = useFormError({});
     const [teacherCodeIsValid, setTeacherCodeIsValid] = useState(null);
     useEffect(() => {
+        console.log('hello')
         if (!invite) return;
-        const checkTeacherCode = async () => {
-            const response = await fetch(`/teacherCode/${invite}`);
-            const body = await response.json();
-            if (!body.success) return setTeacherCodeIsValid(false);
-            return setTeacherCodeIsValid(true);
-        }
-        checkTeacherCode();
-        setFormDataDirectly(prevState => ({
-            ...prevState,
-            teacherCode: invite
-        }));
+        console.log(invite);
+        Teacher.validateTeacherCode(invite).then(({ isValid }) => {
+            console.dir(isValid);
+            setTeacherCodeIsValid(isValid);
+            if (isValid) setFormDataDirectly(prevState => ({
+                ...prevState,
+                teacherCode: invite
+            }));
+        }).catch(err => {
+            setTeacherCodeIsValid(false);
+            handleError(err, { createModal });
+        });
     }, [invite]);
+    useEffect(() => {
+        console.log('teacherCodeIsValid', teacherCodeIsValid)
+    }, [teacherCodeIsValid]);
     useEffect(() => {
         if ((type === 'student') && (action === 'signup')) {
             setFormDataDirectly({
@@ -119,9 +127,16 @@ function Signup({ type, oppositeType, action, invite, updateView, onSuccess }) {
     }
     const teacherCodeHint = () => {
         if (invite) {
-            return (teacherCodeIsValid)
-                ? { type: 'error', message: 'Invalid teacher code' }
-                : { type: 'success', message: 'Looks good!' }
+            if (teacherCodeIsValid == null) return {};
+            const success = {
+                type: 'success',
+                message: 'Looks good!'
+            }
+            const invalid = {
+                type: 'error',
+                message: 'Invalid teacher code'
+            }
+            return teacherCodeIsValid ? success : invalid;
         }
         return null;
     }
@@ -182,8 +197,12 @@ function Signup({ type, oppositeType, action, invite, updateView, onSuccess }) {
                         inputHint={warnFormError('teacherCode') ?? teacherCodeHint()} />
                 )}
             </Form>
-            {invite || <AlreadyHasAccount {...{ type, updateView }} />}
-            {invite || <PortalLink {...{ oppositeType, updateView }} />}
+            {(invite == null) && (
+                <>
+                    <AlreadyHasAccount {...{ type, updateView }} />
+                    <PortalLink {...{ oppositeType, updateView }} />
+                </>
+            )}
         </div>
     );
 }

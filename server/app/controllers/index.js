@@ -16,11 +16,15 @@ class Controller {
         const decoded = jwt.verify(accessToken, secretKey);
         const run = async () => {
             const [student, studentError] = await handle(Student.findOne({ _id: decoded.id }));
-            if (studentError) throw new ServerError(500, `Error finding user ${_id}`, studentError);
+            if (studentError) throw new ServerError(500, `Error finding user`, studentError);
             if (student) return res.status(200).send({ token: true, isStudent: true, _id: student._id });
             const [teacher, teacherError] = await handle(Teacher.findOne({ _id: decoded.id }));
-            if (teacherError) throw new ServerError(500, `Error finding user ${_id}`, teacherError);
-            if (!teacher) throw new ServerError(500, `User ${_id} not found`); // and delete cookie? todo figure out
+            if (teacherError) throw new ServerError(500, `Error finding user`, teacherError);
+            if (!teacher) {
+                res.clearCookie('auth');
+                res.status(401).send({ token: false });
+                return;
+            }
             res.status(200).send({ token: true, isStudent: false, _id: teacher._id });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
@@ -152,12 +156,11 @@ class Controller {
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
     validateTeacherCode = (req, res) => {
-        const { teacherCode } = req.params;
+        const { _id } = req.params;
         const run = async () => {
-            const [teacher, teacherError] = await handle(Teacher.findOne({ _id: teacherCode }));
-            if (teacherError) throw new ServerError(500, `Error finding teacher ${teacherCode}`);
-            if (!teacher) throw new ServerError(500, `Teacher ${teacherCode} not found`);
-            res.send({ success: true, teacher });
+            const [teacher, findTeacherError] = await handle(Teacher.findOne({ _id }));
+            if (findTeacherError) throw new ServerError(500, `Error finding teacher`);
+            res.status(200).send({ isValid: !!teacher });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }

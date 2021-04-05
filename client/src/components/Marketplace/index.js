@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { DataContext, MobileContext, ModalContext } from "../../contexts";
 import { MarketplacePreview, MarketplaceCategories, MarketplaceWearables } from "./components";
-import { MobileAvatarPreview } from "../Avatar/index.js";
+import { MobileAvatarPreview } from "../Avatar";
 import { PreviewDescription } from "./components/MarketplacePreview";
 import { handleUpdatePreview } from "./utils";
 

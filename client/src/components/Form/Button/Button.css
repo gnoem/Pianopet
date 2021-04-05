@@ -34,3 +34,11 @@ button .Loading svg * {
 button span[data-ghost='true'] {
     visibility: hidden;
 }
+@media (max-width: 900px) {
+    button .SuccessAnimation {
+        margin-top: 3px;
+    }
+    button .SuccessAnimation svg {
+        height: 1.2rem;
+    }
+}

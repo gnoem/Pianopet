@@ -37,7 +37,9 @@ export const validate = {
         check('lastName')
             .not().isEmpty().withMessage('This field is required'),
         check('email')
-            .not().isEmpty().withMessage('This field is required'),
+            .isEmail().withMessage('Please enter a valid email address').bail()
+            .not().isEmpty().withMessage('This field is required')
+            .normalizeEmail(),
         check('username')
             .not().isEmpty().withMessage('This field is required').bail()
             .isAlphanumeric().withMessage('Username cannot contain any special characters').bail()
@@ -85,7 +87,9 @@ export const validate = {
         check('lastName')
             .not().isEmpty().withMessage('This field is required'),
         check('email')
-            .not().isEmpty().withMessage('This field is required'),
+            .isEmail().withMessage('Please enter a valid email address').bail()
+            .not().isEmpty().withMessage('This field is required')
+            .normalizeEmail(),
         check('username')
             .not().isEmpty().withMessage('This field is required').bail()
             .isAlphanumeric().withMessage('Username cannot contain any special characters').bail()

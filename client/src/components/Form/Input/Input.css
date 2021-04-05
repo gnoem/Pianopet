@@ -15,7 +15,7 @@ form div.half + .Input, .Input + div.half {
     top: 0;
     right: 0.7rem;
     height: 100%;
-    z-index: 500;
+    z-index: 100;
 }
 .InputHint span.inputHintIcon {
     position: absolute;

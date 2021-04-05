@@ -1,6 +1,6 @@
 import "./Input.css";
 import { useState, useEffect, useRef } from "react";
-import { Dropdown } from "../../Dropdown/index.js";
+import { Dropdown } from "../../Dropdown";
 
 export const Input = ({ type, name, label, className, placeholder, defaultValue, onChange, onInput, note, inputHint, disabled, reset, updateReset }) => {
     const inputRef = useRef(null);

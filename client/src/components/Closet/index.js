@@ -2,17 +2,13 @@ import { useState, useContext } from "react";
 import { Student } from "../../api";
 import { DataContext, MobileContext, ModalContext } from "../../contexts";
 import { handleError } from "../../services";
-import { MobileAvatarPreview } from "../Avatar/index.js";
+import { MobileAvatarPreview } from "../Avatar";
 import { CategoryList, WearableItem, DefaultColorItem, DefaultWallpaperItem, WearablesList } from "../Wearables";
 import { createAvatarObjectForUpdate } from "./utils";
 
-export const Closet = () => {
+export const Closet = ({ student, avatar, closet, wearables, categories, colorCategory }) => {
     const { isMobile } = useContext(MobileContext);
-    const { student, avatar, closet, wearables, categories, colorCategory } = useContext(DataContext);
     const [category, setCategory] = useState(colorCategory);
-    if (!closet.length) return (
-        <div>Your Closet is empty! Visit the Marketplace to start shopping for items and accessories to dress up your Pianopet.</div>
-    );
     return (
         <>
             {isMobile && <MobileAvatarPreview {...{ student, mobilePreview: avatar }} />}

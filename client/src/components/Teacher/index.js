@@ -3,11 +3,11 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { DataContext, ViewContext } from "../../contexts";
 import { Account } from "../Account";
 import { Header, Nav, ProfileDropdown } from "../Page";
-import { TeacherBadges } from "../TeacherBadges";
-import { TeacherMarketplace } from "../TeacherMarketplace";
-import { TeacherSettings } from "../TeacherSettings";
-import { ViewingStudent } from "../ViewingStudent";
-import { StudentOverview } from "../StudentOverview";
+import { StudentOverview } from "./StudentOverview";
+import { TeacherBadges } from "./TeacherBadges";
+import { TeacherMarketplace } from "./TeacherMarketplace";
+import { TeacherSettings } from "./TeacherSettings";
+import { ViewingStudent } from "./ViewingStudent";
 
 export const Teacher = () => {
     const { teacher, students } = useContext(DataContext);

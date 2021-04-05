@@ -85,7 +85,7 @@ export const Nav = ({ children }) => {
     )
 }
 
-export const ProfileDropdown = ({ user, updateView }) => {
+export const ProfileDropdown = ({ isStudent, user, updateView }) => {
     const [showMenu, setShowMenu] = useState(false);
     const [arrowExpanded, setArrowExpanded] = useState(false);
     /* ^^^ this is stupid and I wish arrow up/down could just be equal to the value of showMenu but there's a 0.2s delay between the menu shrinking animation and when "showMenu" is set to false, so this is what we're doing instead */ 
@@ -109,7 +109,7 @@ export const ProfileDropdown = ({ user, updateView }) => {
                               onSelfDestruct={() => setArrowExpanded(false)}
                               options={{ className: 'hasIcons' }}>
                     <button className="myAccount" onClick={() => updateView({ type: 'my-account' })}>My Account</button>
-                    <button className="settings" onClick={() => updateView({ type: 'settings' })}>Settings</button>
+                    {!isStudent && <button className="settings" onClick={() => updateView({ type: 'settings' })}>Settings</button>}
                     <button className="logout" onClick={logout}>Logout</button>
                 </DropdownMenu>
             )}

@@ -103,7 +103,7 @@
 }
 .Checkbox.detailed {
     display: flex;
-    align-items: start;
+    align-items: flex-start;
     justify-content: start;
 }
 .Checkbox.detailed .label span {

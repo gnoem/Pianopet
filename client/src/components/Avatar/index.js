@@ -1,9 +1,9 @@
 import "./Avatar.css";
 import { useState, useEffect, useContext, useRef } from "react";
 import { DataContext, ViewContext } from "../../contexts";
-import Loading from "../Loading";
-import PianopetBase from "../PianopetBase";
-import { PianopetWallpaper } from "../PianopetWallpaper";
+import { Loading } from "../Loading";
+import { PianopetBase } from "./PianopetBase";
+import { PianopetWallpaper } from "./PianopetWallpaper";
 
 export const Avatar = ({ student, mobilePreview, noClick }) => {
     const { view } = useContext(ViewContext);

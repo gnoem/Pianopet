@@ -1,15 +1,15 @@
 import "./formStore.css";
-import { useContext, useState } from "react";
+import dayjs from "dayjs";
+import { useState } from "react";
 import { Student, Category, Badge, Wearable, Homework } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Form, Input, Submit } from "../../Form";
-import { StudentDropdown } from "../../Dropdown/index.js";
+import { StudentDropdown } from "../../Dropdown";
 import { ManageWearable } from "./ManageWearable";
 import { ManageColor } from "./ManageColor";
 import { ManageWallpaper } from "./ManageWallpaper";
-import dayjs from "dayjs";
 import { Coins } from "../../Stats";
-import Splat from "../../Splat";
+import { Splat } from "../../Splat";
 import { PianopetWallpaper } from "../../PianopetWallpaper";
 import { wearableFormPreview } from "./utils";
 

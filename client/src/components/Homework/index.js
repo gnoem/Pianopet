@@ -3,8 +3,8 @@ import { useState, useEffect, useContext } from "react";
 import { Student } from "../../api";
 import { handleError } from "../../services";
 import { DataContext, HomeworkContext, ModalContext } from "../../contexts";
-import { HomeworkItem } from "../HomeworkItem";
-import Loading from "../Loading";
+import { HomeworkItem } from "./HomeworkItem";
+import { Loading } from "../Loading";
 
 export const Homework = ({ student }) => {
     const [homework, setHomework] = useState([]);

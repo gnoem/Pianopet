@@ -1,3 +1,4 @@
+import "./Account.css";
 import { useContext } from "react";
 import { DataContext } from "../../contexts";
 import { AccountDetails, ChangePassword } from "./forms"

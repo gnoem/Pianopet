@@ -1,5 +1,5 @@
 import './Button.css';
-import Loading from '../../Loading';
+import { Loading } from '../../Loading';
 
 export const Button = ({ type, className, loading, success, disabled, children, onClick }) => {
     const statusIcon = (() => {

@@ -3,7 +3,7 @@ import { Wearable } from "../../../api";
 import { useFormData, useFormError } from "../../../hooks";
 import { Input, InputDropdown, Submit } from "../../Form";
 import { ModalForm } from ".";
-import PianopetBase from "../../PianopetBase";
+import { PianopetBase } from "../../Avatar/PianopetBase";
 import { PianopetWallpaper } from "../../PianopetWallpaper";
 import { WearableOptions } from "./WearableOptions";
 

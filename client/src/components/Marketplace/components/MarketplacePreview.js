@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { ModalContext } from "../../../contexts";
 import { Coins } from "../../Stats";
-import PianopetBase from "../../PianopetBase";
-import { PianopetWallpaper } from "../../PianopetWallpaper";
+import { PianopetBase } from "../../Avatar/PianopetBase";
+import { PianopetWallpaper } from "../../Avatar/PianopetWallpaper";
 
 export const MarketplacePreview = ({ preview, student, isStudent }) => {
     return (

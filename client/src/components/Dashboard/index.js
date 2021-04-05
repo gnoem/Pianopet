@@ -1,9 +1,9 @@
 import "./Dashboard.css";
 import { useState, useEffect, useContext } from "react";
 import { DataContext } from "../../contexts";
-import Loading from "../Loading";
-import { Student } from "../Student/index.js";
-import { Teacher } from "../Teacher/index.js";
+import { Loading } from "../Loading";
+import { Student } from "../Student";
+import { Teacher } from "../Teacher";
 
 export const Dashboard = ({ userId, isStudent }) => {
     const [isLoaded, setIsLoaded] = useState(false);
