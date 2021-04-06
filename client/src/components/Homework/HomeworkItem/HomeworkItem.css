@@ -156,13 +156,18 @@
 .HomeworkItem .coinsEarned.coinsAdded .coinIcon {
     filter: none;
 }
-
 @media (max-width: 900px) {
     .HomeworkItem + .HomeworkItem {
         margin-top: 1.5rem;
     }
     .HomeworkItem .homeworkHeader {
         padding: 0.5rem 1rem;
+    }
+    .HomeworkItem .homeworkHeader button {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.2rem;
+        line-height: 2rem;
     }
     .HomeworkItem .homeworkBody {
         padding: 0.5rem;

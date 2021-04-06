@@ -1,19 +1,47 @@
 import "./ViewingStudent.css";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Student } from "../../../api";
-import { DataContext, ModalContext } from "../../../contexts";
+import { DataContext, MobileContext, ModalContext } from "../../../contexts";
 import { handleError } from "../../../services";
+import { Center } from "../../Center";
 import { StudentDropdown } from "../../Dropdown";
 import { Homework } from "../../Homework";
 import { Avatar } from "../../Avatar";
 import { Badges, Coins } from "../../Stats";
 
 export const ViewingStudent = ({ student, students, view, selectStudent }) => {
+    const { isMobile } = useContext(MobileContext);
+    const [expanded, setExpanded] = useState(!isMobile);
+    const containerRef = useRef(null);
+    const scrollPointRef = useRef(null);
+    const toggleExpanded = () => setExpanded(prev => !prev);
+    useEffect(() => {
+        if (!isMobile) return;
+        const { current: container } = containerRef;
+        const { current: scrollPoint } = scrollPointRef;
+        if (!scrollPoint || !container) return;
+        if (expanded) {
+            const distanceToScroll = scrollPoint.offsetTop;
+            setTimeout(() => {
+                container.scrollTo({
+                    top: distanceToScroll + 9,
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }, 200);
+        }
+    }, [expanded]);
     return (
-        <div className="ViewingStudent">
+        <div className="ViewingStudent" ref={containerRef}>
             <LeftSidebar {...{ students, view, selectStudent }} />
             <div className="HomeworkContainer">
-                <Homework {...{ student }} />
+                {isMobile && (
+                    <Center>
+                        <button onClick={toggleExpanded}>{expanded ? 'Hide homework' : 'View homework'}</button>
+                        {expanded && <hr ref={scrollPointRef} />}
+                    </Center>
+                )}
+                {expanded && <Homework {...{ student }} />}
             </div>
             <RightSidebar {...{ student }} />
         </div>
@@ -35,7 +63,7 @@ const LeftSidebar = ({ students, view, selectStudent }) => {
     const restoreDefault = view.type !== 'student';
     return (
         <div className="ControlPanel">
-            <h2>Shortcuts</h2>
+            <h2>Viewing student:</h2>
             {students.length && (
                 <div>
                     <label>Select a student:</label>

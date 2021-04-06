@@ -28,7 +28,7 @@ export const DataContextProvider = ({ children }) => {
         setCloset(studentCloset);
     }, [data?.student?.closet]);
     const refreshData = async (callback, _id = userId.current) => {
-        if (!_id) return console.log('none or null user id');
+        if (!_id) return null;
         userId.current = _id;
         return User.getData(_id).then(data => {
             setData(data);

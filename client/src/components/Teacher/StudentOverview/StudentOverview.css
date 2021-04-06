@@ -92,3 +92,21 @@
 .StudentOverview .Stat img {
     height: 1.3rem;
 }
+@media (max-width: 900px) {
+    .StudentOverview {
+        gap: 1rem;
+    }
+    .StudentOverview button {
+        flex: 0 1 100%;
+    }
+    .StudentOverview button div.banner {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    .StudentOverview button:hover div.banner {
+        padding-top: 1rem;
+    }
+    .StudentOverview .StudentInfo {
+        padding: 0 0.5rem;
+    }
+}

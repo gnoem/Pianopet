@@ -71,12 +71,19 @@
     margin-left: 3rem;
 }
 @media (max-width: 900px) {
-    .Dashboard {
+    .Teacher.Dashboard, .Student.Dashboard {
         grid-template: 12.5% 75% 12.5% / auto 1fr;
         grid-template-areas:
             'logo header'
             'main main'
             'sidebar sidebar';
+    }
+    .Teacher.Dashboard .Main {
+        display: block;
+        grid-row: 2 / -1;
+    }
+    .Teacher.Dashboard .Main:not(.isGrid) > div {
+        padding-bottom: 0;
     }
     .Logo {
         padding: 0;

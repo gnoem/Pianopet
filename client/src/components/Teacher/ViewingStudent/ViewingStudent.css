@@ -11,19 +11,22 @@
     padding: 2rem;
     padding-right: 4rem;
 }
-.ViewingStudent .ControlPanel {
+.ViewingStudent .ControlPanel, .ViewingStudent .ViewingStudentSidebar {
     position: sticky;
     top: 0;
 }
+.ViewingStudent .ControlPanel {
+    grid-area: controlPanel;
+}
+.ViewingStudent .ViewingStudentSidebar {
+    grid-area: studentSidebar;
+}
 .ViewingStudent .HomeworkContainer {
+    grid-area: main;
     flex: 1;
 }
 .ViewingStudent .Homework {
     padding-bottom: 3rem;
-}
-.ViewingStudent .ViewingStudentSidebar {
-    position: sticky;
-    top: 0;
 }
 .ViewingStudent .Stat img {
     width: 1.8em;
@@ -56,4 +59,48 @@
     justify-self: center;
     grid-row: 2 / -1;
     grid-column: 1 / -1;
+}
+@media (max-width: 900px) {
+    .ViewingStudent {
+        padding: 1.5rem;
+        display: grid;
+        grid-template: auto auto 1fr / 100%;
+        grid-template-areas:
+            'controlPanel'
+            'studentSidebar'
+            'main';
+        gap: 1.5rem;
+    }
+    .ViewingStudent .ControlPanel,
+    .ViewingStudent .ViewingStudentSidebar {
+        position: static;
+        width: 100%;
+    }
+    .ViewingStudent .avatarContainer {
+        width: 70vw;
+        height: 70vw;
+    }
+    .ViewingStudent .avatarContainer::before {
+        bottom: unset;
+        top: 100%;
+    }
+    .ViewingStudent .avatarContainer .Avatar {
+        width: 100%;
+        height: 100%;
+    }
+    .ViewingStudentStats {
+        border: 0.25rem solid var(--med-accent-color);
+        border-radius: 1rem;
+        box-shadow: inset 0 0 0.3rem var(--dark-theme-color);
+        padding: 0.7rem 1rem;
+        color: #000;
+        background: #fff;
+    }
+    .HomeworkContainer {
+        padding-bottom: 2rem;
+    }
+    .ViewingStudent .Homework {
+        margin-bottom: 0;
+        padding-bottom: 1rem;
+    }
 }

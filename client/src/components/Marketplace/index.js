@@ -37,7 +37,7 @@ export const Marketplace = () => {
     }, [wearables]);
     return (
         <>
-            {(isMobile && isStudent) && <MobileAvatarPreview {...{ student, mobilePreview: preview }} />}
+            {isMobile && <MobileAvatarPreview {...{ student, mobilePreview: preview }} />}
             <div className="Marketplace">
                 {isMobile || <MarketplacePreview {...{ preview, student, isStudent }} />}
                 <MarketplaceCategories {...{

@@ -173,6 +173,9 @@ button.stealth {
     padding: 0 0.3rem;
     box-shadow: 0.1rem 0.1rem 0.3rem rgba(0, 0, 0, 0.3);
 }
+.center {
+    text-align: center;
+}
 
 /* FORMS - LABELS, INPUTS, BUTTONS */
 form div.half {

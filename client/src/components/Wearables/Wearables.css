@@ -117,20 +117,25 @@
 }
 @media (max-width: 900px) {
     .Main .StudentCloset,
-    .Main .StudentMarketplace {
+    .Main .StudentMarketplace,
+    .Main .TeacherMarketplace {
         height: 100%;
         display: grid;
         grid-template-rows: auto 1fr 11rem;
         position: relative;
     }
     .Main .StudentCloset h1,
-    .Main .StudentMarketplace h1 {
+    .Main .StudentMarketplace h1,
+    .Main .TeacherMarketplace h1 {
         line-height: 1;
         margin-bottom: 0.7rem;
     }
     .Main .Closet,
     .Main .Marketplace {
         height: calc(100% - 1rem);
+        margin-top: 1rem;
+    }
+    .Main .TeacherMarketplace .Marketplace + button {
         margin-top: 1rem;
     }
     .Marketplace, .Closet {

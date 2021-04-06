@@ -54,8 +54,15 @@
     .modalContent {
         padding: 1.5rem;
         font-size: 0.9rem;
+        min-width: unset;
+        width: 90vw;
+        max-height: 80vh;
+        overflow: auto;
     }
     .modalBox.hasImage, .modalBox .hasImage {
         grid-template: auto / 1fr minmax(auto, 3rem);
+    }
+    .modalContent h2 {
+        width: calc(100% - 2.5rem);
     }
 }

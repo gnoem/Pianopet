@@ -1,10 +1,13 @@
 .BadgeList {
     margin: 2rem 0;
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 .badgeItem {
-    flex: 0 0 3.5rem;
-    margin: 0 1rem;
+    flex: 1 0 3.5rem;
     transition: 0.2s;
     text-align: center;
 }
@@ -46,4 +49,9 @@
 }
 .badgeItem.redeemed span.badgeValue, .badgeItem.redeemed img.coin {
     cursor: default;
+}
+@media (max-width: 900px) {
+    .TeacherBadges button {
+        width: 100%;
+    }
 }

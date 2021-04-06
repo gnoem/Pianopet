@@ -35,3 +35,24 @@
 .createWearableOrColor button:nth-of-type(3) i {
     color: #46b0ce;
 }
+@media (max-width: 900px) {
+    .createWearableOrColor {
+        flex-direction: column;
+    }
+    .createWearableOrColor button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: right;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    .createWearableOrColor button + button {
+        margin: 0;
+        margin-top: 1rem;
+    }
+    .createWearableOrColor button i {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+}
