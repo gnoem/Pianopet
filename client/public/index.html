@@ -7,7 +7,7 @@
         rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎹</text></svg>"
     />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
@@ -32,6 +32,10 @@
   </head>
   <body>
     <script src="https://kit.fontawesome.com/cd4da895fa.js" crossorigin="anonymous"></script>
+    <script>
+        const viewport = document.querySelector('meta[name=viewport]');
+        viewport.setAttribute('content', viewport.content + ', height=' + window.innerHeight);
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--
