@@ -16,11 +16,7 @@ const readHTMLFile = (path) => {
 }
 
 export const sendPasswordResetEmail = async ({ to, subject, resetLink }) => {
-    console.dir(__dirname);
-    const string = process.env.NODE_ENV === 'production'
-        ? '../controllers/email/passwordReset.html'
-        : './server/app/controllers/email/passwordReset.html';
-    const html = await readHTMLFile(path.resolve(__dirname, string));
+    const html = await readHTMLFile(path.resolve(__dirname, `client/public/email`, 'passwordReset.html'));
     const template = handlebars.compile(html);
     const replacements = {
         email: to,
