@@ -1,7 +1,6 @@
 import './app/config/index.js';
 import express from 'express';
 import * as path from 'path';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import db from './app/config/db.js';
 import init from './app/routes/index.js';
@@ -13,8 +12,8 @@ const __dirname = path.resolve(path.dirname(''));
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 db();
 init(app);

@@ -20,7 +20,6 @@ export const sendPasswordResetEmail = async ({ to, subject, resetLink }) => {
         ? '../client/public/email'
         : 'client/public/email';
     const html = await readHTMLFile(path.resolve(__dirname, buildPath, 'passwordReset.html'));
-    console.dir(html);
     const template = handlebars.compile(html);
     const replacements = {
         email: to,
