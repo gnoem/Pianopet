@@ -1,17 +1,18 @@
 import "./modalForm.css";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { Student, Category, Badge, Wearable, Homework } from "../../api";
+import { Student, Category, Badge, Wearable, Homework, User } from "../../api";
 import { useFormData, useFormError } from "../../hooks";
 import { Input, Submit } from "../Form";
 import { StudentDropdown } from "../Dropdown";
 import { ModalForm } from ".";
-import { ManageWearable, ManageColor, ManageWallpaper } from "./ManageWearable";
+import { ManageWearable } from "./ManageWearable";
 import { Coins } from "../Stats";
 import { Splat } from "../Splat";
 import { PianopetWallpaper } from "../Avatar/PianopetWallpaper";
 
 export const modalFormStore = {
+    resetPassword: (props) => <ResetPassword {...props} />,
     createHomework: (props) => <ManageHomework {...props} />,
     editHomework: (props) => <ManageHomework {...props} />,
     deleteHomework: (props) => <DeleteHomework {...props} />,
@@ -30,6 +31,39 @@ export const modalFormStore = {
     editBadge: (props) => <EditBadge {...props} />,
     deleteBadge: (props) => <DeleteBadge {...props} />,
     awardBadge: (props) => <AwardBadge {...props} />
+}
+
+const ResetPassword = ({ type, closeModal }) => {
+    const [success, setSuccess] = useState(false);
+    const [formData, updateFormData] = useFormData({});
+    const [updateFormError, resetFormError, warnFormError] = useFormError({});
+    const handleSubmit = () => User.resetPassword(type, formData);
+    const handleSuccess = () => setSuccess(true);
+    if (success) return (
+        <div>
+            <h2>Success!</h2>
+            <p>An email containing a link to reset your password has been sent to <b>{formData.email}</b>. The link will expire in 2 hours. Be sure to check your spam folder if you can't find the email in your regular inbox.</p>
+            <div className="buttons">
+                <button type="button" onClick={closeModal}>Close</button>
+            </div>
+        </div>
+    );
+    return (
+        <ModalForm onSubmit={handleSubmit} handleSuccess={handleSuccess} handleFormError={updateFormError}
+                   keepOpenOnSuccess={true}
+                   title="Forgot your password?"
+                   submit={<Submit value="Send email" />}>
+            <p>Enter your email address to receive a password reset link in your inbox.</p>
+            <Input
+                type="text"
+                name="email"
+                label="Email address:"
+                onChange={updateFormData}
+                onInput={resetFormError}
+                inputHint={warnFormError('email')}
+            />
+        </ModalForm>
+    );
 }
 
 const wearableFormPreview = ({ wearable, getCategoryObject, Splat, PianopetWallpaper }) => {

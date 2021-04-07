@@ -116,4 +116,21 @@ export const Badge = mongoose.model(
         awardedTo: [String] // string of student IDs
     }),
     'badges'
-)
+);
+
+export const ResetToken = mongoose.model(
+    'ResetToken',
+    new Schema({
+        userId: {
+            type: String,
+            required: true
+        },
+        token: {
+            type: String,
+            required: true
+        }
+    }, { timestamps: true }).index({ 'updatedAt': 1 }, {
+        expireAfterSeconds: (process.env.NODE_ENV === 'production') ? 7200 : 90
+    }),
+    'resetTokens'
+);

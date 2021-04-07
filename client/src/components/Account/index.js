@@ -17,3 +17,5 @@ export const Account = () => {
         </div>
     );
 }
+
+export { ChangePassword }

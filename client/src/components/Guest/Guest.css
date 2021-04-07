@@ -20,40 +20,6 @@
     background: var(--dark-theme-color);
     overflow: auto;
 }
-.Guest > div:nth-of-type(2) > div {
-    width: 50%;
-    text-align: left;
-}
-.Guest > div:nth-of-type(2) > div.Signup {
-    width: 70%;
-}
-.Guest label {
-    text-align: left;
-}
-.Guest form {
-    margin-bottom: 1.5rem;
-}
-form.pad input[type=text], form.pad input[type=password] {
-    margin-bottom: 1rem;
-}
-.Guest span.error {
-    text-align: left;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-}
-.Guest input[type=submit] {
-    margin: 2rem 0 1.5rem;
-}
-.Guest button.portalLink {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    display: inline-block;
-    padding: 0.3rem 1rem;
-    border-radius: 0.5rem;
-    background: 0;
-    border: 1px solid #fff;
-}
 @media (max-width: 900px) {
     .Guest {
         grid-template: 12.5% 1fr / 100%;
@@ -68,14 +34,5 @@ form.pad input[type=text], form.pad input[type=password] {
     }
     .Guest > div:nth-of-type(2) {
         padding: 2rem;
-    }
-    .Guest > div:nth-of-type(2) > div.Login,
-    .Guest > div:nth-of-type(2) > div.Signup {
-        width: 100%;
-        text-align: center;
-    }
-    .Guest button.portalLink {
-        position: static;
-        margin-top: 2rem;
-    }    
+    }  
 }

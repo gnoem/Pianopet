@@ -26,7 +26,7 @@ const SomethingWentWrong = ({ options, closeModal }) => {
                 <summary>Error details</summary>
                 <div className="errorDetails">
                     <code>Error {status}: {message}</code>
-                    {error && <code>{JSON.stringify(error)}</code>}
+                    {error && <code>"{error}"</code>}
                     {stack && <code className="greyed">[stack]</code>}
                     {stack && <code>{JSON.stringify(stack)}</code>}
                 </div>

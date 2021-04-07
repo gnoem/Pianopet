@@ -5,7 +5,7 @@ import { Input, InputDropdown } from "./Input";
 import { Checkbox } from "./Checkbox";
 import { Button } from "./Button";
 
-export const Form = ({ children, modal, className, title, submit, onSubmit, handleSuccess, handleFormError, reset, updateReset }) => {
+export const Form = ({ children, modal, className, title, submit, onSubmit, handleSuccess, handleFormError, keepOpenOnSuccess, reset, updateReset }) => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const { createModal, closeModal } = useContext(ModalContext);
@@ -24,8 +24,8 @@ export const Form = ({ children, modal, className, title, submit, onSubmit, hand
                 setSuccess(true);
                 setLoading(false);
                 setTimeout(() => {
-                    if (!modal) setSuccess(false);
-                    else closeModal();
+                    if (!modal || keepOpenOnSuccess) setSuccess(false);
+                    else if (!keepOpenOnSuccess) closeModal();
                     handleSuccess(result);
                 }, 1200); // check + checkmark-shrink animation duration in Button.css
             })
@@ -43,7 +43,7 @@ export const Form = ({ children, modal, className, title, submit, onSubmit, hand
               ref={formRef}>
             {title && <h2>{title}</h2>}
             {children}
-            {customSubmit ?? <Submit {...submitShouldInherit} />}
+            {(submit === false) || (customSubmit ?? <Submit {...submitShouldInherit} />)}
         </form>
     );
 }

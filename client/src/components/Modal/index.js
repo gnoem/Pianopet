@@ -19,6 +19,7 @@ export const Modal = ({ children, content, type, options, selfDestruct }) => {
                 ...data,
                 ...options,
                 createModal, //?
+                switchToModal,
                 closeModal
             });
             case 'error': return <Error>{content}</Error>;

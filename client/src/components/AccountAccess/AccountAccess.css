@@ -1,0 +1,41 @@
+.AccountAccess > div:not(.Loading) {
+    width: 50%;
+    text-align: left;
+}
+.AccountAccess > div.Signup {
+    width: 70%;
+}
+.AccountAccess label {
+    text-align: left;
+}
+.AccountAccess form {
+    margin-bottom: 1.5rem;
+}
+.AccountAccess span.error {
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+.AccountAccess input[type=submit] {
+    margin: 2rem 0 1.5rem;
+}
+.AccountAccess button.portalLink {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 0.5rem;
+    background: 0;
+    border: 1px solid #fff;
+}
+@media (max-width: 900px) {
+    .AccountAccess > div {
+        width: 100%;
+        text-align: center;
+    }
+    .AccountAccess button.portalLink {
+        position: static;
+        margin-top: 2rem;
+    } 
+}

@@ -5,9 +5,11 @@ export const User = {
     getData: async (_id) => await get(`/data/${_id}`),
     login: async (formData) => await post(`/login`, formData), // todo specify role based on login form type?
     logout: async () => await post('/logout'),
+    resetPassword: async (type, { email }) => await post(`/${type}/resetPassword`, { email }),
     createAccount: async (formData) => await post(`/${formData?.role}`, formData),
     editAccount: async (_id, formData) => await put(`/${formData?.role}/${_id}`, formData),
-    changePassword: async (_id, formData) => await put(`/${formData?.role}/${_id}/password`, formData)
+    changePassword: async (_id, formData) => await put(`/${formData?.role}/${_id}/password`, formData),
+    validateRecoveryToken: async (token) => await get(`/token/${token}`)
 }
 
 export const Teacher = {

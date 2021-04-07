@@ -1,8 +1,10 @@
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { v4 } from 'uuid';
 import { handle, ServerError, validationErrorReport } from './utils.js';
-import { Student, Teacher, Homework, Wearable, Category, Badge } from '../models/index.js';
+import { sendPasswordResetEmail } from './email/index.js';
+import { Student, Teacher, Homework, Wearable, Category, Badge, ResetToken } from '../models/index.js';
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -76,6 +78,44 @@ class Controller {
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
     }
+    resetPassword = (req, res) => {
+        const { errors } = validationResult(req);
+        if (errors.length) return res.status(422).send({ error: validationErrorReport(errors) });
+        const { role } = req.params;
+        const { email } = req.body;
+        const run = async () => {
+            const User = (role === 'student') ? Student : Teacher;
+            const [foundUser, findUserError] = await handle(User.findOne({ email }));
+            if (findUserError) throw new ServerError(500, `Error finding user`, findUserError);
+            if (!foundUser) return res.status(422).send({ error: { email: `No ${role} with this email address in our system` } });
+            const token = v4().toString().replace(/-/g, '');
+            const [_, updateTokenError] = await handle(ResetToken.updateOne(
+                { userId: foundUser._id },
+                { userId: foundUser._id, userType: role, token },
+                { upsert: true }
+            ));
+            if (updateTokenError) throw new ServerError(500, `Error generating password reset token`);
+            const resetLink = `${process.env.DOMAIN}/${role}/recovery/${token}`;
+            const [sentEmail, sendEmailError] = await handle(sendPasswordResetEmail({
+                to: email,
+                subject: 'Your Pianopet account',
+                resetLink
+            }));
+            if (sendEmailError) throw new ServerError(500, `Error sending email`, sendEmailError);
+            console.log(sentEmail);
+            res.status(204).end();
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
+    validateRecoveryToken = (req, res) => {
+        const { token } = req.params;
+        const run = async () => {
+            const [foundToken, findTokenError] = await handle(ResetToken.findOne({ token }));
+            if (findTokenError) throw new ServerError(500, `Error finding token`, findTokenError);
+            res.status(200).send({ isValid: !!foundToken, userId: foundToken?.userId });
+        }
+        run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
+    }
     
     login = (req, res) => {
         const { role, username, password } = req.body;
@@ -87,14 +127,7 @@ class Controller {
             if (!user) return res.status(422).send({ error: { username: 'User not found' } });
             const passwordIsValid = bcrypt.compareSync(password, user.password);
             if (!passwordIsValid) return res.status(422).send({ error: { password: 'Invalid password' } });
-            const accessToken = jwt.sign({ id: user.id }, secretKey, {
-                expiresIn: 86400 // 24 hours
-            });
-            res.cookie('auth', accessToken, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 3600000 // 1,000 hours
-            });
+            this.storeToken(res, user);
             res.status(200).send({ user, isStudent });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
@@ -102,6 +135,16 @@ class Controller {
     logout = (req, res) => {
         res.clearCookie('auth');
         res.redirect('/');
+    }
+    storeToken = (res, user) => {
+        const accessToken = jwt.sign({ id: user.id }, secretKey, {
+            expiresIn: 86400 // 24 hours
+        });
+        res.cookie('auth', accessToken, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 3600000 // 1,000 hours
+        });
     }
     
     studentSignup = (req, res) => {
@@ -118,14 +161,7 @@ class Controller {
                 teacherCode
             }));
             if (studentError) throw new ServerError(500, `Error creating new student`, studentError);
-            const accessToken = jwt.sign({ id: student.id }, secretKey, {
-                expiresIn: 86400 // 24 hours
-            });
-            res.cookie('auth', accessToken, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 3600000 // 1,000 hours
-            });
+            this.storeToken(res, student);
             res.status(201).send({ user: student, isStudent: true });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
@@ -143,14 +179,7 @@ class Controller {
                 password: bcrypt.hashSync(password, 8)
             }));
             if (teacherError) throw new ServerError(500, `Error creating new teacher`, teacherError);
-            const accessToken = jwt.sign({ id: teacher.id }, secretKey, {
-                expiresIn: 86400 // 24 hours
-            });
-            res.cookie('auth', accessToken, {
-                httpOnly: true,
-                secure: false,
-                maxAge: 3600000 // 1,000 hours
-            });
+            this.storeToken(res, teacher);
             res.status(201).send({ user: teacher, isStudent: false });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));
@@ -183,7 +212,7 @@ class Controller {
     }
     editPassword = (req, res) => {
         const { _id } = req.params;
-        const { role, newPassword } = req.body;
+        const { reset, role, newPassword } = req.body;
         const run = async () => {
             const User = role === 'student' ? Student : Teacher;
             let [foundUser, findUserError] = await handle(User.findOne({ _id }));
@@ -192,6 +221,11 @@ class Controller {
             foundUser = Object.assign(foundUser, { password: bcrypt.hashSync(newPassword, 8) });
             const [user, saveError] = await handle(foundUser.save());
             if (saveError) throw new ServerError(500, `Error saving user`, saveError);
+            if (reset) {
+                this.storeToken(res, user);
+                const [foundToken, _] = await handle(ResetToken.findOne({ userId: user._id }));
+                if (foundToken) await foundToken.deleteOne();
+            }
             res.status(200).send({ user });
         }
         run().catch(({ status, message, error }) => res.status(status ?? 500).send({ message, error }));

@@ -81,14 +81,16 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
     );
 }
 
-export const ChangePassword = ({ user, isStudent, refreshData }) => {
+export const ChangePassword = ({ resetMode, resetPasswordSuccess, user, isStudent, refreshData }) => {
     const [reset, setReset] = useState(false);
     const [formData, updateFormData, _, resetFormData] = useFormData({
-        role: isStudent ? 'student' : 'teacher'
+        role: isStudent ? 'student' : 'teacher',
+        reset: resetMode
     });
     const [updateFormError, resetFormError, warnFormError] = useFormError({});
     const handleSubmit = () => User.changePassword(user._id, formData);
     const onSuccess = () => {
+        if (resetMode) return resetPasswordSuccess();
         resetForm();
         refreshData();
     }
@@ -112,7 +114,7 @@ export const ChangePassword = ({ user, isStudent, refreshData }) => {
     );
     return (
         <Form onSubmit={handleSubmit} handleSuccess={onSuccess} handleFormError={updateFormError}
-              title="Change password"
+              title={resetMode ? false : "Change password"}
               {...{ submit, reset, updateReset: setReset }}>
             <div className="half">
                 <Input
@@ -121,8 +123,8 @@ export const ChangePassword = ({ user, isStudent, refreshData }) => {
                     label="New password:"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    disabled={isStudent}
-                    inputHint={isStudent ? notAllowed : warnFormError('newPassword')}
+                    disabled={(isStudent && !resetMode)}
+                    inputHint={(isStudent && !resetMode) ? notAllowed : warnFormError('newPassword')}
                 />
                 <Input
                     type="password"
@@ -130,8 +132,8 @@ export const ChangePassword = ({ user, isStudent, refreshData }) => {
                     label="Confirm new password:"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    disabled={isStudent}
-                    inputHint={isStudent ? notAllowed : warnFormError('confirmNewPassword')}
+                    disabled={(isStudent && !resetMode)}
+                    inputHint={(isStudent && !resetMode) ? notAllowed : warnFormError('confirmNewPassword')}
                 />
             </div>
         </Form>

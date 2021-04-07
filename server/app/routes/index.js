@@ -1,4 +1,5 @@
 import Controller from '../controllers/index.js';
+import { fieldIsRequired } from '../middleware/check.js';
 import { validate } from '../middleware/index.js';
 
 export default function (app) {
@@ -9,6 +10,8 @@ export default function (app) {
     app.get('/data/:_id', Controller.getUser);
     app.post('/login', Controller.login);
     app.get('/logout', Controller.logout);
+    app.post('/:role/resetPassword', fieldIsRequired('email'), Controller.resetPassword),
+    app.get('/token/:token', Controller.validateRecoveryToken)
 
     app.route('/homework')
         .post(Controller.createHomework);
