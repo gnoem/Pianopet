@@ -4,7 +4,7 @@ import { DataContext, ModalContext } from "../../contexts";
 import { elementHasParent } from "../../utils";
 import { modalFormStore } from "../ModalForm";
 import { customDialogStore } from "./Dialog";
-import { Error, customErrorStore } from "./Alert";
+import { Error, customAlertStore } from "./Alert";
 
 export const Modal = ({ children, content, type, options, selfDestruct }) => {
     const { ignoreClick } = options;
@@ -24,7 +24,7 @@ export const Modal = ({ children, content, type, options, selfDestruct }) => {
             });
             case 'error': return <Error>{content}</Error>;
             case 'customDialog': return customDialogStore[content]({ options, switchToModal });
-            case 'customError': return customErrorStore[content]({ options, closeModal });
+            case 'customAlert': return customAlertStore[content]({ options, closeModal });
             default: return content;
         }
     }

@@ -6,7 +6,9 @@ export const TeacherBadges = () => {
     const { badges } = useContext(DataContext);
     const { createModal } = useContext(ModalContext);
     const addNewBadge = () => createModal('createBadge', 'form');
-    const ifNoneMessage = "You haven't added any badges yet!";
+    const ifNoneMessage = (
+        <div className="noneFound">You haven't added any badges yet!</div>
+    );
     return (
         <div className="TeacherBadges">
             <h1>Badges</h1>

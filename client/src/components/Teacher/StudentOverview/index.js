@@ -6,6 +6,7 @@ import { MobileContext } from "../../../contexts";
 
 export const StudentOverview = ({ students, selectStudent }) => {
     const allStudents = () => {
+        if (!students.length) return "No students found! Invite your students to sign up with the link below.";
         return students.map(student => (
             <StudentCard key={`viewingStudents-${student._id}`} {...{ student, selectStudent }} />
         ));

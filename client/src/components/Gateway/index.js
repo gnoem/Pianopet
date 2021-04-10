@@ -16,7 +16,7 @@ export const Gateway = () => {
     const [accessToken, setAccessToken] = useState(null);
     const [userId, setUserId] = useState(null);
     const [isStudent, setIsStudent] = useState(null);
-    const { modal, createModal, closeModal, contextMenu } = useContext(ModalContext);
+    const { modal, createModal, contextMenu } = useContext(ModalContext);
     useEffect(() => {
         User.auth().then(handleSuccess).catch(err => {
             setAccessToken(false);

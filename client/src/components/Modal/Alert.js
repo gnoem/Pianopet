@@ -1,16 +1,38 @@
 import { Submit } from "../Form";
 
-export const Error = ({ children }) => {
+export const Alert = ({ children }) => {
     return (
-        <div>
-            <h2>Something went wrong</h2>
+        <div className="Alert">
             {children}
         </div>
+    )
+}
+
+export const Error = ({ children }) => {
+    return (
+        <Alert>
+            <h2>Something went wrong</h2>
+            {children}
+        </Alert>
     );
 }
 
-export const customErrorStore = {
+export const customAlertStore = {
+    demoAlert: (props) => <DemoAlert {...props} />,
     somethingWentWrong: (props) => <SomethingWentWrong {...props} />
+}
+
+const DemoAlert = ({ closeModal }) => {
+    return (
+        <Alert>
+            <h2>Welcome to Pianopet!</h2>
+            <p>It looks like you got here via a link on my portfolio. If you're visiting this app as a student or teacher, you can exit this popup and log in like you normally would.</p>
+            <p>I've set up special accounts for visitors who are here to demo Pianopet. Log in with the username <b>student</b> to view the app as a student or as <b>teacher</b> to view the app as a teacher. The password for both accounts is <b>pianopet</b>.</p>
+            <div className="buttons">
+                <button onClick={closeModal}>Got it</button>
+            </div>
+        </Alert>
+    );
 }
 
 const SomethingWentWrong = ({ options, closeModal }) => {

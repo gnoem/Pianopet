@@ -41,13 +41,16 @@ const StudentSettings = () => {
         <div>
             <h2>Students</h2>
             <ul>
+                <li>Start students off with ____ coins</li>
                 <li>Allow students to edit their own:</li>
-                <li>profile picture</li>
-                <li>first name</li>
-                <li>last name</li>
-                <li>email address</li>
-                <li>username</li>
-                <li>password</li>
+                <ul>
+                    <li>profile picture</li>
+                    <li>first name</li>
+                    <li>last name</li>
+                    <li>email address</li>
+                    <li>username</li>
+                    <li>password</li>
+                </ul>
             </ul>
         </div>
     );

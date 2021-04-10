@@ -91,6 +91,9 @@
     height: 100%;
     opacity: 0;
 }
+.colorPicker .previewBase {
+    filter: none;
+}
 .colorPicker > span {
     cursor: pointer;
 }

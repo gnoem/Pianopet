@@ -127,6 +127,13 @@ class Controller {
             if (!user) return res.status(422).send({ error: { username: 'User not found' } });
             const passwordIsValid = bcrypt.compareSync(password, user.password);
             if (!passwordIsValid) return res.status(422).send({ error: { password: 'Invalid password' } });
+            if (user.username === 'student') {
+                // resetting demo account
+                user.coins = 20000;
+                user.closet = [];
+                user.avatar = [];
+                await user.save();
+            }
             this.storeToken(res, user);
             res.status(200).send({ user, isStudent });
         }

@@ -7,6 +7,7 @@
     grid-area: logo;
     display: flex;
     place-items: center;
+    justify-content: center;
     padding: 1rem 2rem;
 }
 .Logo img {

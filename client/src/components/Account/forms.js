@@ -3,12 +3,14 @@ import { User } from "../../api";
 import { useFormData, useFormError } from "../../hooks";
 import { Form, Input, Submit } from "../Form";
 
-const notAllowed = {
+const notAllowed = (demo) => ({
     type: 'not-allowed',
-    message: "You don't have permission to edit this. Contact your teacher if you would like to make changes!"
-}
+    message: demo
+        ? "Demo users don't have permission to edit this, sorry!"
+        : "You don't have permission to edit this. Contact your teacher if you would like to make changes!"
+});
 
-export const AccountDetails = ({ user, isStudent, refreshData }) => {
+export const AccountDetails = ({ demo, user, isStudent, refreshData }) => {
     const [formData, updateFormData] = useFormData({
         role: isStudent ? 'student' : 'teacher',
         firstName: user?.firstName ?? '',
@@ -64,8 +66,8 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
                     defaultValue={formData.username}
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    disabled={isStudent}
-                    inputHint={isStudent ? notAllowed : warnFormError('username')}
+                    disabled={(isStudent || demo)}
+                    inputHint={(isStudent || demo) ? notAllowed(demo) : warnFormError('username')}
                 />
                 <Input
                     type="text"
@@ -73,15 +75,17 @@ export const AccountDetails = ({ user, isStudent, refreshData }) => {
                     label="Email address:"
                     defaultValue={formData.email}
                     onChange={updateFormData}
+                    disabled={demo}
                     onInput={resetFormError}
-                    inputHint={warnFormError('email')}
+                    inputHint={demo ? notAllowed(demo) : warnFormError('email')}
                 />
             </div>
         </Form>
     );
 }
 
-export const ChangePassword = ({ resetMode, resetPasswordSuccess, user, isStudent, refreshData }) => {
+export const ChangePassword = ({ demo, resetMode, resetPasswordSuccess, user, isStudent, refreshData }) => {
+    const disabled = (isStudent || demo) && !resetMode;
     const [reset, setReset] = useState(false);
     const [formData, updateFormData, _, resetFormData] = useFormData({
         role: isStudent ? 'student' : 'teacher',
@@ -123,8 +127,8 @@ export const ChangePassword = ({ resetMode, resetPasswordSuccess, user, isStuden
                     label="New password:"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    disabled={(isStudent && !resetMode)}
-                    inputHint={(isStudent && !resetMode) ? notAllowed : warnFormError('newPassword')}
+                    disabled={disabled}
+                    inputHint={disabled ? notAllowed(demo) : warnFormError('newPassword')}
                 />
                 <Input
                     type="password"
@@ -132,8 +136,8 @@ export const ChangePassword = ({ resetMode, resetPasswordSuccess, user, isStuden
                     label="Confirm new password:"
                     onChange={updateFormData}
                     onInput={resetFormError}
-                    disabled={(isStudent && !resetMode)}
-                    inputHint={(isStudent && !resetMode) ? notAllowed : warnFormError('confirmNewPassword')}
+                    disabled={disabled}
+                    inputHint={disabled ? notAllowed(demo) : warnFormError('confirmNewPassword')}
                 />
             </div>
         </Form>

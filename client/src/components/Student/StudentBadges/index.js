@@ -11,7 +11,9 @@ export const StudentBadges = () => {
         const filteredList = unfilteredList.filter(el => el); // filtering out nulls? todo look closer later
         return filteredList;
     })();
-    const ifNoneMessage = "You haven't earned any badges yet!";
+    const ifNoneMessage = (
+        <div className="noneFound">You haven't earned any badges yet!</div>
+    );
     const badgeHasBeenRedeemed = (badge) => {
         const index = student.badges.findIndex(studentBadge => studentBadge.id === badge._id);
         if (index === -1) return '';

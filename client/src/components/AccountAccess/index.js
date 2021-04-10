@@ -20,7 +20,13 @@ export const AccountAccess = ({ type, action, handleSuccess, createModal }) => {
         return { type: 'student', action: 'login' };
     });
     let invite = useQuery().get('t');
+    const { pathname } = useLocation();
     const { userType, recoveryToken } = useParams();
+    useEffect(() => {
+        if (pathname === '/demo') {
+            createModal('demoAlert', 'customAlert');
+        }
+    }, [pathname]);
     const updateView = (type, action) => setView({ type, action });
     const onSuccess = ({ user, isStudent }) => {
         if (action) return window.location.assign('/');

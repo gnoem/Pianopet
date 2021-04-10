@@ -2,8 +2,15 @@
     margin: 2rem 0;
     display: grid;
     width: 100%;
+    min-height: 2rem;
     grid-template-columns: repeat(auto-fit, 5.5rem);
     row-gap: 1rem;
+    position: relative;
+}
+.BadgeList .noneFound {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 .badgeItem {
     transition: 0.2s;

@@ -56,6 +56,7 @@ export const DataContextProvider = ({ children }) => {
     }
     const dataContext = {
         ...data,
+        demo: data?.student?.username === 'student' || data?.teacher?.username === 'teacher',
         refreshData,
         avatar,
         updateAvatar: setAvatar,
