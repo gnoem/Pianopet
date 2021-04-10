@@ -58,8 +58,8 @@ const MobileHeader = ({ children, view, updateView }) => {
             <div className="Logo">
                 <img src="assets/logo.svg" alt="pianopet logo" onClick={() => updateView({ type: 'home' })} />
             </div>
-            <button className="stealth" style={{ lineHeight: '1' }} onClick={() => setExpanded(state => !state)}>
-                <i className="fas fa-bars" style={{ fontSize: '1.5rem', marginRight: '0.7rem' }}></i>
+            <button className="stealth" onClick={() => setExpanded(state => !state)}>
+                <i className="fas fa-bars"></i>
             </button>
             <div className="navShadow" ref={navShadow}></div>
             <div className="navContainer" ref={navContainer}>

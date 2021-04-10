@@ -4,12 +4,14 @@
     background: var(--light-theme-color);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
     overflow: visible;
+    margin-bottom: -0.4rem;
 }
 .wearableCategories button {
     flex: 1 0 auto;
     margin: 0;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
     border: 0;
     padding: 0 1rem;
     border-radius: 999px;
@@ -20,6 +22,7 @@
     text-transform: uppercase;
     opacity: 0.6;
 }
+
 .wearableCategories button.active, .wearableCategories button.add {
     opacity: 1;
 }
@@ -49,6 +52,11 @@
     .wearableCategories {
         flex-wrap: nowrap;
         overflow: auto;
+    }
+    .wearableCategories::after {
+        font-size: 1px;
+        display: inline-block;
+        content: '.';
     }
     .wearableCategories button {
         padding: 0 0.7rem;

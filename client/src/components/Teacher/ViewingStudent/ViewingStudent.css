@@ -6,7 +6,6 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 4rem;
     position: relative;
     padding: 2rem;
     padding-right: 4rem;
@@ -24,6 +23,7 @@
 .ViewingStudent .HomeworkContainer {
     grid-area: main;
     flex: 1;
+    margin: 0 4rem;
 }
 .ViewingStudent .Homework {
     padding-bottom: 3rem;
@@ -42,7 +42,9 @@
 .ViewingStudentStats {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+}
+.ViewingStudentStats > * + * {
+    margin-top: 0.5rem;
 }
 .editCoins button + button {
     margin-left: 0.5rem;
@@ -62,14 +64,14 @@
 }
 @media (max-width: 900px) {
     .ViewingStudent {
-        padding: 1.5rem;
+        padding: 2.5rem;
         display: grid;
         grid-template: auto auto 1fr / 100%;
         grid-template-areas:
             'controlPanel'
             'studentSidebar'
             'main';
-        gap: 1.5rem;
+        row-gap: 1.5rem;
     }
     .ViewingStudent .ControlPanel,
     .ViewingStudent .ViewingStudentSidebar {
@@ -96,11 +98,17 @@
         color: #000;
         background: #fff;
     }
-    .HomeworkContainer {
+    .ViewingStudent .HomeworkContainer {
+        margin: 0;
         padding-bottom: 2rem;
     }
     .ViewingStudent .Homework {
         margin-bottom: 0;
         padding-bottom: 1rem;
+    }
+}
+@media (max-width: 600px) {
+    .ViewingStudent {
+        padding: 1.5rem;
     }
 }

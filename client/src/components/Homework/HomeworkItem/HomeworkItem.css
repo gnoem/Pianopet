@@ -61,19 +61,18 @@
 .HomeworkItem .homeworkBody ul li {
     display: flex;
     align-items: center;
-    gap: 3rem; /* 1rem gap between ol li + 1rem left padding on ol */
 }
 .HomeworkItem .homeworkBody ul li > div {
     font-weight: bold;
     font-size: 0.7rem;
     text-transform: uppercase;
 }
-.HomeworkItem .homeworkBody ul li > div:first-of-type {
+.HomeworkItem .homeworkBody ul li > div {
     width: 50%;
     padding-left: 0.3rem;
 }
 .HomeworkItem .homeworkBody ul li > div:nth-of-type(2) {
-    width: 50%;
+    padding-left: 1rem;
 }
 .HomeworkItem ol {
     margin: 0;
@@ -88,7 +87,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
 }
 .HomeworkItem ol li > div > div {
     width: 50%;
@@ -174,9 +172,6 @@
     }
     .HomeworkItem h3 {
         font-size: 1rem;
-    }
-    .HomeworkItem .homeworkBody ul li {
-        gap: 2rem; /* 1rem gap between ol li + 1rem left padding on ol */
     }
     .HomeworkItem ol {
         padding-left: 1.5rem;

@@ -35,7 +35,7 @@
 .createWearableOrColor button:nth-of-type(3) i {
     color: #46b0ce;
 }
-@media (max-width: 900px) {
+@media (max-width: 600px) {
     .createWearableOrColor {
         flex-direction: column;
     }
@@ -45,7 +45,6 @@
         justify-content: space-between;
         text-align: right;
         padding: 1rem;
-        gap: 1rem;
     }
     .createWearableOrColor button + button {
         margin: 0;

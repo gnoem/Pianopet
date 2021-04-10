@@ -4,11 +4,13 @@
 .StudentStats {
     display: inline-flex;
     flex-direction: column;
-    gap: 0.5rem;
 }
 .StudentStats .Stat {
     font-size: 1.2rem;
     font-weight: 500;
+}
+.StudentStats .Stat + .Stat {
+    margin-top: 0.5rem;
 }
 .StudentStats .Stat img {
     width: 1.5em;
@@ -30,7 +32,10 @@
     }
     .StudentStats {
         flex-direction: row;
-        gap: calc(0.15 * var(--mobile-avatar-size));
+    }
+    .StudentStats .Stat + .Stat {
+        margin-top: 0;
+        margin-left: calc(0.15 * var(--mobile-avatar-size));
     }
     .StudentSidebar.noAv .StudentStats {
         width: calc(100% - 1rem);
@@ -44,23 +49,28 @@
     .StudentSidebar:not(.noAv) .StudentStats {
         flex-direction: column;
         align-items: start;
-        gap: 0.5rem;
+    }
+    .StudentSidebar:not(.noAv) .StudentStats .Stat + .Stat {
+        margin-top: 0.5rem;
+        margin-left: 0;
     }
     .StudentStats .Stat {
         font-size: 1rem;
     }
 }
 @media (max-width: 400px) {
-    .StudentStats {
-        gap: 0.2rem;
-    }
     .StudentStats .Stat {
         font-size: 0.9rem;
     }
+    .StudentStats .Stat + .Stat {
+        margin-top: 0.2rem;
+        margin-left: 0;
+    }
 }
 @media (max-width: 400px) and (max-aspect-ratio: 1/2) {
-    .StudentStats {
-        gap: 0.5rem;
+    .StudentStats .Stat + .Stat {
+        margin-top: 0.5rem;
+        margin-left: 0;
     }
     .StudentStats .Stat {
         font-size: 1.2rem;

@@ -19,8 +19,13 @@
     object-fit: cover;
 }
 @media (max-width: 900px) {
-    .MyAccount {
-        margin-bottom: calc(12.5vh - 2rem);
+    .Student.Dashboard .MyAccount::after {
+        content: '.';
+        font-size: 0;
+        line-height: 1rem;
+        display: block;
+        width: 100%;
+        height: calc(12.5vh - 2rem);
     }
     .MyAccount form {
         margin-top: 1.5rem;

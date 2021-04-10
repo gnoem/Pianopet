@@ -47,7 +47,7 @@ const StudentCard = ({ student, selectStudent }) => {
                 onMouseOver={isMobile ? null : handleMouseOver}
                 onMouseLeave={isMobile ? null : handleMouseLeave}>
             <Avatar {...{ student }} />
-            <div className="banner">
+            <div className={`banner${expanded ? ' expanded' : ''}`}>
                 {firstName} {lastName}
                 {expanded && <Info {...{ username, email, profilePic, coins, badges }} />}
             </div>

@@ -299,7 +299,12 @@ button.greyed {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1rem;
+    margin-bottom: -1rem;
+    margin-right: -1rem;
+}
+.buttons button {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 button.add::before {
     content: '\f067';
@@ -309,8 +314,10 @@ button.add::before {
     form div.half {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
         margin-bottom: 1rem;
+    }
+    form div.half > .Input + .Input {
+        margin-top: 1rem;
     }
     .buttons button {
         padding: 0.3rem 1rem;

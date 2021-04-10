@@ -49,6 +49,7 @@
 }
 .previewBase {
     filter: drop-shadow(0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.5)); /* expensive but worth it */
+    width: 100%;
 }
 .previewBase path {
     transition: 0.2s;

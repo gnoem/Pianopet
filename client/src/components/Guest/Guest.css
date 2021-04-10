@@ -27,12 +27,20 @@
     .Guest > div:first-of-type {
         text-align: center;
         padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .Guest > div:first-of-type img {
         width: auto;
-        height: 100%;
+        height: 70%;
     }
     .Guest > div:nth-of-type(2) {
         padding: 2rem;
     }  
+}
+@media (max-width: 600px) {
+    .Guest > div:first-of-type img {
+        height: 100%;
+    }
 }

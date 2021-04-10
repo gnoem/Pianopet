@@ -88,9 +88,7 @@ const Login = ({ type, oppositeType, updateView, onSuccess, createModal }) => {
             <span className="nowrap">
                 Click <button className="stealth link" onClick={() => updateView(type, 'signup')}>here</button> to sign up.
             </span>
-            <button className="portalLink" onClick={() => updateView(oppositeType, 'login')}>
-                &raquo; {uppercaseFirstLetter(oppositeType)} Portal
-            </button>
+            <PortalLink {...{ oppositeType, updateView }} />
         </div>
     );
 }
@@ -283,8 +281,10 @@ const AlreadyHasAccount = ({ type, updateView }) => {
 
 const PortalLink = ({ oppositeType, updateView }) => {
     return (
-        <button className="portalLink" onClick={() => updateView(oppositeType, 'login')}>
-            &raquo; {uppercaseFirstLetter(oppositeType)} Portal
-        </button>
+        <div className="portalLink">
+            <button onClick={() => updateView(oppositeType, 'login')}>
+                &raquo; {uppercaseFirstLetter(oppositeType)} Portal
+            </button>
+        </div>
     );
 }
