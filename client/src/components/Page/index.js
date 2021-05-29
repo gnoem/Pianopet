@@ -109,7 +109,6 @@ export const ProfileDropdown = ({ isStudent, user, updateView }) => {
                               onSelfDestruct={() => setArrowExpanded(false)}
                               options={{ className: 'hasIcons' }}>
                     <button className="myAccount" onClick={() => updateView({ type: 'my-account' })}>My Account</button>
-                    {!isStudent && <button className="settings" onClick={() => updateView({ type: 'settings' })}>Settings</button>}
                     <button className="logout" onClick={logout}>Logout</button>
                 </DropdownMenu>
             )}
