@@ -9,7 +9,7 @@ Built with:
  - MongoDB using Mongoose
  - JWT for user authentication
 
-<img src="https://ngw.dev/src/images/portfolio/pianopetpreview.png" alt="pianopet dashboard preview" />
+<img src="https://ngw.dev/images/portfolio/pianopet.png" alt="pianopet dashboard preview" />
 
 ## Try it out
 
